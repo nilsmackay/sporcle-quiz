@@ -38,19 +38,20 @@ export default function App() {
     return total
   }
 
-  // Get the player with the lowest score (for dynamic mode)
-  const getLowestScorer = () => {
+  // Get the player with the highest/worst score (for dynamic mode)
+  // In this game, lower scores are better, so the player doing worst picks next
+  const getHighestScorer = () => {
     if (players.length === 0) return ''
-    let lowestPlayer = players[0]
-    let lowestScore = calculatePlayerScore(players[0])
+    let highestPlayer = players[0]
+    let highestScore = calculatePlayerScore(players[0])
     players.forEach(player => {
       const score = calculatePlayerScore(player)
-      if (score < lowestScore) {
-        lowestScore = score
-        lowestPlayer = player
+      if (score > highestScore) {
+        highestScore = score
+        highestPlayer = player
       }
     })
-    return lowestPlayer
+    return highestPlayer
   }
 
   const handleStart = () => {
@@ -87,7 +88,7 @@ export default function App() {
     if (isDynamicMode) {
       // In dynamic mode, go to picking phase for next question
       if (playedThemes.length < dynamicQuestionCount) {
-        setCurrentPicker(getLowestScorer())
+        setCurrentPicker(getHighestScorer())
         setCurrentQuestionIndex(currentQuestionIndex + 1)
         setPhase('picking')
       }

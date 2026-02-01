@@ -76,7 +76,7 @@ export default function QuestionPicker({
       <div className="mt-4 sm:mt-6 text-center">
         <p className="text-purple-200/70 text-xs sm:text-sm flex items-center justify-center gap-2">
           <span>💡</span>
-          <span>The player with the lowest score picks the next question!</span>
+          <span>The player with the highest score picks the next question!</span>
         </p>
       </div>
     </div>
