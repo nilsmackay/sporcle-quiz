@@ -3,6 +3,7 @@ import Header from './components/Header'
 import Setup from './components/Setup'
 import QuizQuestion from './components/QuizQuestion'
 import QuestionPicker from './components/QuestionPicker'
+import RoundResults from './components/RoundResults'
 import Leaderboard from './components/Leaderboard'
 import themes from './data/themes.json'
 
@@ -84,24 +85,36 @@ export default function App() {
     }))
   }
 
+  // After answering, go to round results
   const handleNext = () => {
-    if (isDynamicMode) {
-      // In dynamic mode, go to picking phase for next question
-      if (playedThemes.length < dynamicQuestionCount) {
-        setCurrentPicker(getHighestScorer())
-        setCurrentQuestionIndex(currentQuestionIndex + 1)
-        setPhase('picking')
-      }
-    } else {
-      if (currentQuestionIndex < selectedThemes.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1)
-      }
-    }
+    setPhase('round-results')
   }
 
+  // Same as handleNext - show round results first
   const handleFinish = () => {
-    setPhase('finished')
-    setShowLeaderboard(true)
+    setPhase('round-results')
+  }
+
+  // From round results, go to standings
+  const handleShowStandings = () => {
+    setPhase('standings')
+  }
+
+  // From standings, continue to next question or finish
+  const handleContinueFromStandings = () => {
+    if (isLastQuestion) {
+      setPhase('finished')
+      setShowLeaderboard(true)
+    } else if (isDynamicMode) {
+      // In dynamic mode, go to picking phase for next question
+      setCurrentPicker(getHighestScorer())
+      setCurrentQuestionIndex(currentQuestionIndex + 1)
+      setPhase('picking')
+    } else {
+      // In standard mode, go to next question
+      setCurrentQuestionIndex(currentQuestionIndex + 1)
+      setPhase('playing')
+    }
   }
 
   const handleNewGame = () => {
@@ -176,6 +189,36 @@ export default function App() {
             isLastQuestion={isLastQuestion}
             onFinish={handleFinish}
           />
+        )}
+
+        {phase === 'round-results' && currentTheme && (
+          <RoundResults
+            players={players}
+            answers={answers}
+            currentQuestionIndex={currentQuestionIndex}
+            currentTheme={currentTheme}
+            onContinue={handleShowStandings}
+          />
+        )}
+
+        {phase === 'standings' && (
+          <div className="max-w-2xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+            <Leaderboard
+              players={players}
+              answers={answers}
+              selectedThemes={activeThemes}
+              themes={themes}
+              onClose={handleContinueFromStandings}
+              isOverlay={false}
+            />
+            <button
+              onClick={handleContinueFromStandings}
+              className="w-full mt-4 btn-success py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg shadow-xl flex items-center justify-center gap-2"
+            >
+              <span>{isLastQuestion ? '🏆' : '➡️'}</span>
+              <span>{isLastQuestion ? 'Final Results' : 'Next Question'}</span>
+            </button>
+          </div>
         )}
 
         {phase === 'finished' && !showLeaderboard && (

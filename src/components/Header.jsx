@@ -12,7 +12,7 @@ export default function Header({ phase, currentQuestionIndex, totalQuestions, th
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-            {(phase === 'playing' || phase === 'picking' || phase === 'finished') && (
+            {(phase === 'playing' || phase === 'picking' || phase === 'round-results' || phase === 'finished') && (
               <button
                 onClick={() => setShowLeaderboard(!showLeaderboard)}
                 className="flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg font-medium hover:bg-white/30 transition-all text-xs sm:text-sm border border-white/30"
