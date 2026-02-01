@@ -54,7 +54,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen relative">
       <Header
         phase={phase}
         currentQuestionIndex={currentQuestionIndex}
@@ -65,7 +65,7 @@ export default function App() {
         onNewGame={handleNewGame}
       />
 
-      <main className="py-6">
+      <main className="main-content py-4 sm:py-6">
         {phase === 'setup' && (
           <Setup
             themes={themes}
@@ -91,11 +91,23 @@ export default function App() {
         )}
 
         {phase === 'finished' && !showLeaderboard && (
-          <div className="max-w-2xl mx-auto p-6 text-center">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Quiz Complete!</h2>
-            <p className="text-gray-600 mb-6">
-              Click "View Leaderboard" to see the final scores.
-            </p>
+          <div className="max-w-2xl mx-auto px-4 py-8 text-center">
+            <div className="quiz-card p-8">
+              <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <span className="text-4xl trophy-animation">🎉</span>
+              </div>
+              <h2 className="text-3xl font-bold text-gray-800 mb-3">Quiz Complete!</h2>
+              <p className="text-gray-600 mb-6">
+                Great job, everyone! Click the button below to see who won.
+              </p>
+              <button
+                onClick={() => setShowLeaderboard(true)}
+                className="btn-primary px-8 py-3 text-lg inline-flex items-center gap-2"
+              >
+                <span>🏆</span>
+                <span>View Results</span>
+              </button>
+            </div>
           </div>
         )}
       </main>
