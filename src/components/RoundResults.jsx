@@ -37,7 +37,7 @@ export default function RoundResults({
 
   // Best 3 and worst 3 options
   const best3 = sortedOptions.slice(0, 3)
-  const worst3 = sortedOptions.slice(-3).reverse()
+  const worst3 = sortedOptions.slice(-3)
 
   const getRankSuffix = (rank) => {
     if (!rank) return ''
