@@ -239,9 +239,16 @@ body::before {
   background: linear-gradient(135deg, #9333ea, #6d28d9);
 }
 
-/* Input focus styles */
-input:focus {
+/* Input focus styles - exclude react-select inputs */
+input:focus:not(.react-select__input input) {
   @apply ring-2 ring-purple-400 ring-offset-2;
+}
+
+/* Remove focus ring from react-select inputs */
+.react-select__input input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  ring: none !important;
 }
 
 /* Main content area */

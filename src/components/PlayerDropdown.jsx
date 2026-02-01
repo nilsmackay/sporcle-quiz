@@ -42,6 +42,13 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
     }
   }
 
+  const handleMenuClose = () => {
+    // Blur active element to close mobile keyboard
+    if (document.activeElement) {
+      document.activeElement.blur()
+    }
+  }
+
   const playerIcons = ['🎮', '🎲', '🎪', '🎨', '🎭', '🎯', '🎸', '🎺']
 
   // Custom Option component with colored percentage badge
@@ -150,6 +157,7 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
           options={selectOptions}
           value={currentValue}
           onChange={handleChange}
+          onMenuClose={handleMenuClose}
           placeholder="🔍 Type to search..."
           isSearchable
           styles={customStyles}
@@ -158,6 +166,7 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
           menuPlacement="auto"
           maxMenuHeight={180}
           menuPortalTarget={document.body}
+          blurInputOnSelect={true}
         />
       </div>
 
