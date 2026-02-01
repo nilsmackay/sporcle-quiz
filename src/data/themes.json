@@ -379,5 +379,34 @@
       { "name": "Exeggutor", "percentage": 45 },
       { "name": "Lickitung", "percentage": 42 }
     ]
+  },
+  {
+    "id": "champions-league-winners",
+    "name": "Champions League Winners",
+    "options": [
+      { "name": "Real Madrid", "percentage": 99 },
+      { "name": "Manchester City", "percentage": 98 },
+      { "name": "FC Barcelona", "percentage": 98 },
+      { "name": "Liverpool", "percentage": 98 },
+      { "name": "Paris Saint-Germain", "percentage": 98 },
+      { "name": "Bayern München", "percentage": 97 },
+      { "name": "Chelsea", "percentage": 97 },
+      { "name": "Manchester United", "percentage": 96 },
+      { "name": "AC Milan", "percentage": 94 },
+      { "name": "Internazionale", "percentage": 91 },
+      { "name": "Juventus", "percentage": 87 },
+      { "name": "FC Porto", "percentage": 86 },
+      { "name": "Borussia Dortmund", "percentage": 83 },
+      { "name": "Ajax", "percentage": 82 },
+      { "name": "Nottingham Forest", "percentage": 73 },
+      { "name": "Benfica", "percentage": 73 },
+      { "name": "Olympique Marseille", "percentage": 67 },
+      { "name": "Aston Villa", "percentage": 63 },
+      { "name": "Celtic", "percentage": 63 },
+      { "name": "PSV", "percentage": 61 },
+      { "name": "Red Star Belgrade", "percentage": 57 },
+      { "name": "Hamburg", "percentage": 50 },
+      { "name": "Feyenoord", "percentage": 49 }
+    ]
   }
 ]
