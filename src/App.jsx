@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Header from './components/Header'
 import Setup from './components/Setup'
 import QuizQuestion from './components/QuizQuestion'
+import QuestionPicker from './components/QuestionPicker'
 import Leaderboard from './components/Leaderboard'
 import themes from './data/themes.json'
 
@@ -13,14 +14,63 @@ export default function App() {
   const [answers, setAnswers] = useState({})
   const [showLeaderboard, setShowLeaderboard] = useState(false)
 
-  const currentTheme = selectedThemes[currentQuestionIndex]
-    ? themes.find(t => t.id === selectedThemes[currentQuestionIndex])
+  // Dynamic mode state
+  const [isDynamicMode, setIsDynamicMode] = useState(false)
+  const [dynamicQuestionCount, setDynamicQuestionCount] = useState(3)
+  const [currentPicker, setCurrentPicker] = useState('')
+  const [playedThemes, setPlayedThemes] = useState([])
+
+  // In dynamic mode, use playedThemes; otherwise use selectedThemes
+  const activeThemes = isDynamicMode ? playedThemes : selectedThemes
+  const currentTheme = activeThemes[currentQuestionIndex]
+    ? themes.find(t => t.id === activeThemes[currentQuestionIndex])
     : null
 
+  // Calculate total score for a player
+  const calculatePlayerScore = (player) => {
+    let total = 0
+    activeThemes.forEach((_, index) => {
+      const answer = answers[player]?.[index]
+      if (answer) {
+        total += answer.percentage
+      }
+    })
+    return total
+  }
+
+  // Get the player with the lowest score (for dynamic mode)
+  const getLowestScorer = () => {
+    if (players.length === 0) return ''
+    let lowestPlayer = players[0]
+    let lowestScore = calculatePlayerScore(players[0])
+    players.forEach(player => {
+      const score = calculatePlayerScore(player)
+      if (score < lowestScore) {
+        lowestScore = score
+        lowestPlayer = player
+      }
+    })
+    return lowestPlayer
+  }
+
   const handleStart = () => {
+    if (isDynamicMode) {
+      // In dynamic mode, go to picking phase first
+      setPhase('picking')
+      setCurrentQuestionIndex(0)
+      setAnswers({})
+      setPlayedThemes([])
+    } else {
+      setPhase('playing')
+      setCurrentQuestionIndex(0)
+      setAnswers({})
+    }
+  }
+
+  // Handle selecting a question in dynamic mode
+  const handleSelectQuestion = (themeId) => {
+    setPlayedThemes([...playedThemes, themeId])
     setPhase('playing')
-    setCurrentQuestionIndex(0)
-    setAnswers({})
   }
 
   const handleAnswer = (player, questionIndex, answer) => {
@@ -34,8 +84,17 @@ export default function App() {
   }
 
   const handleNext = () => {
-    if (currentQuestionIndex < selectedThemes.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1)
+    if (isDynamicMode) {
+      // In dynamic mode, go to picking phase for next question
+      if (playedThemes.length < dynamicQuestionCount) {
+        setCurrentPicker(getLowestScorer())
+        setCurrentQuestionIndex(currentQuestionIndex + 1)
+        setPhase('picking')
+      }
+    } else {
+      if (currentQuestionIndex < selectedThemes.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1)
+      }
     }
   }
 
@@ -51,14 +110,25 @@ export default function App() {
     setCurrentQuestionIndex(0)
     setAnswers({})
     setShowLeaderboard(false)
+    // Reset dynamic mode state
+    setIsDynamicMode(false)
+    setDynamicQuestionCount(3)
+    setCurrentPicker('')
+    setPlayedThemes([])
   }
+
+  // Determine total questions based on mode
+  const totalQuestions = isDynamicMode ? dynamicQuestionCount : selectedThemes.length
+  const isLastQuestion = isDynamicMode
+    ? playedThemes.length >= dynamicQuestionCount
+    : currentQuestionIndex === selectedThemes.length - 1
 
   return (
     <div className="min-h-screen relative">
       <Header
         phase={phase}
         currentQuestionIndex={currentQuestionIndex}
-        totalQuestions={selectedThemes.length}
+        totalQuestions={totalQuestions}
         themeName={currentTheme?.name}
         showLeaderboard={showLeaderboard}
         setShowLeaderboard={setShowLeaderboard}
@@ -74,6 +144,23 @@ export default function App() {
             selectedThemes={selectedThemes}
             setSelectedThemes={setSelectedThemes}
             onStart={handleStart}
+            isDynamicMode={isDynamicMode}
+            setIsDynamicMode={setIsDynamicMode}
+            dynamicQuestionCount={dynamicQuestionCount}
+            setDynamicQuestionCount={setDynamicQuestionCount}
+            currentPicker={currentPicker}
+            setCurrentPicker={setCurrentPicker}
+          />
+        )}
+
+        {phase === 'picking' && (
+          <QuestionPicker
+            themes={themes}
+            playedThemes={playedThemes}
+            currentPicker={currentPicker}
+            currentQuestionIndex={currentQuestionIndex}
+            totalQuestions={dynamicQuestionCount}
+            onSelectQuestion={handleSelectQuestion}
           />
         )}
 
@@ -85,7 +172,7 @@ export default function App() {
             answers={answers}
             onAnswer={handleAnswer}
             onNext={handleNext}
-            isLastQuestion={currentQuestionIndex === selectedThemes.length - 1}
+            isLastQuestion={isLastQuestion}
             onFinish={handleFinish}
           />
         )}
@@ -116,7 +203,7 @@ export default function App() {
         <Leaderboard
           players={players}
           answers={answers}
-          selectedThemes={selectedThemes}
+          selectedThemes={activeThemes}
           themes={themes}
           onClose={() => setShowLeaderboard(false)}
         />
