@@ -1,7 +1,7 @@
 import React from 'react'
 import Select from 'react-select'
 
-export default function PlayerDropdown({ player, options, selectedAnswer, onSelect }) {
+export default function PlayerDropdown({ player, playerIndex = 0, options, selectedAnswer, onSelect }) {
   const selectOptions = [
     { value: 'invalid', label: 'Invalid (100%)', percentage: 100 },
     ...options
@@ -27,63 +27,111 @@ export default function PlayerDropdown({ player, options, selectedAnswer, onSele
   }
 
   const getPercentageColor = (percentage) => {
-    if (percentage <= 20) return 'bg-green-500'
-    if (percentage <= 40) return 'bg-green-400'
-    if (percentage <= 60) return 'bg-yellow-400'
-    if (percentage <= 80) return 'bg-orange-400'
-    return 'bg-red-500'
+    if (percentage <= 20) return { bg: 'bg-emerald-500', text: 'text-white' }
+    if (percentage <= 40) return { bg: 'bg-green-400', text: 'text-white' }
+    if (percentage <= 60) return { bg: 'bg-amber-400', text: 'text-gray-800' }
+    if (percentage <= 80) return { bg: 'bg-orange-500', text: 'text-white' }
+    return { bg: 'bg-red-500', text: 'text-white' }
   }
+
+  const playerIcons = ['🎮', '🎲', '🎪', '🎨', '🎭', '🎯', '🎸', '🎺']
 
   const customStyles = {
     control: (base, state) => ({
       ...base,
-      borderColor: state.isFocused ? '#4f46e5' : '#d1d5db',
-      boxShadow: state.isFocused ? '0 0 0 2px rgba(79, 70, 229, 0.2)' : 'none',
+      borderColor: state.isFocused ? '#a855f7' : '#e9d5ff',
+      borderWidth: '2px',
+      borderRadius: '0.75rem',
+      boxShadow: state.isFocused ? '0 0 0 3px rgba(168, 85, 247, 0.2)' : 'none',
+      backgroundColor: '#faf5ff',
+      padding: '2px',
       '&:hover': {
-        borderColor: '#4f46e5'
+        borderColor: '#a855f7'
       }
     }),
     option: (base, state) => ({
       ...base,
       backgroundColor: state.isSelected
-        ? '#4f46e5'
+        ? 'linear-gradient(135deg, #7c3aed, #a855f7)'
         : state.isFocused
-        ? '#e0e7ff'
+        ? '#f3e8ff'
         : 'white',
-      color: state.isSelected ? 'white' : '#1f2937',
-      cursor: 'pointer'
+      background: state.isSelected
+        ? 'linear-gradient(135deg, #7c3aed, #a855f7)'
+        : state.isFocused
+        ? '#f3e8ff'
+        : 'white',
+      color: state.isSelected ? 'white' : '#374151',
+      cursor: 'pointer',
+      padding: '10px 12px',
+      fontSize: '0.875rem'
     }),
     menu: (base) => ({
       ...base,
-      zIndex: 50
+      zIndex: 50,
+      borderRadius: '0.75rem',
+      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+      border: '2px solid #e9d5ff',
+      overflow: 'hidden'
+    }),
+    menuList: (base) => ({
+      ...base,
+      padding: '4px'
+    }),
+    placeholder: (base) => ({
+      ...base,
+      color: '#9ca3af',
+      fontSize: '0.875rem'
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: '#374151',
+      fontSize: '0.875rem'
+    }),
+    input: (base) => ({
+      ...base,
+      fontSize: '0.875rem'
     })
   }
 
+  const colors = getPercentageColor(selectedAnswer?.percentage || 100)
+
   return (
-    <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+    <div className={`player-card relative p-3 sm:p-4 ${selectedAnswer ? 'ring-2 ring-purple-300' : ''}`}>
+      {/* Gradient top bar */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500"></div>
+
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-gray-800">{player}</h3>
+        <div className="flex items-center gap-2">
+          <span className="text-lg sm:text-xl">{playerIcons[playerIndex % playerIcons.length]}</span>
+          <h3 className="font-bold text-gray-800 text-sm sm:text-base">{player}</h3>
+        </div>
         {selectedAnswer && (
-          <span className={`${getPercentageColor(selectedAnswer.percentage)} text-white px-2 py-1 rounded text-sm font-medium`}>
+          <span className={`score-badge ${colors.bg} ${colors.text} text-xs sm:text-sm`}>
             {selectedAnswer.percentage}%
           </span>
         )}
       </div>
+
       <Select
         options={selectOptions}
         value={currentValue}
         onChange={handleChange}
-        placeholder="Type to search..."
+        placeholder="🔍 Type to search..."
         isSearchable
         styles={customStyles}
         classNamePrefix="react-select"
         menuPlacement="auto"
-        maxMenuHeight={200}
+        maxMenuHeight={180}
       />
+
       {selectedAnswer && (
-        <p className="mt-2 text-sm text-gray-600">
-          Selected: <span className="font-medium">{selectedAnswer.option}</span>
-        </p>
+        <div className="mt-3 pt-3 border-t border-purple-100">
+          <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1.5">
+            <span className="text-green-500">✓</span>
+            <span className="font-medium text-purple-700 truncate">{selectedAnswer.option}</span>
+          </p>
+        </div>
       )}
     </div>
   )
