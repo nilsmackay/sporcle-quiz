@@ -20,9 +20,10 @@ export default function QuizQuestion({
   ).length
 
   const getThemeIcon = (themeName) => {
-    if (themeName.toLowerCase().includes('countr') || themeName.toLowerCase().includes('africa')) return '🌍'
-    if (themeName.toLowerCase().includes('capital') || themeName.toLowerCase().includes('europe')) return '🏛️'
-    if (themeName.toLowerCase().includes('state') || themeName.toLowerCase().includes('us')) return '🇺🇸'
+    const name = themeName.toLowerCase()
+    if (name.includes('africa')) return '🌍'
+    if (name.includes('asia')) return '🌏'
+    if (name.includes('europe') || name.includes('capital')) return '🏛️'
     return '📚'
   }
 
