@@ -91,6 +91,10 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
     input: (base) => ({
       ...base,
       fontSize: '0.875rem'
+    }),
+    menuPortal: (base) => ({
+      ...base,
+      zIndex: 9999
     })
   }
 
@@ -123,6 +127,7 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
         classNamePrefix="react-select"
         menuPlacement="auto"
         maxMenuHeight={180}
+        menuPortalTarget={document.body}
       />
 
       {selectedAnswer && (
