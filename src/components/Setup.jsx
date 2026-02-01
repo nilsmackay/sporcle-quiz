@@ -1,6 +1,19 @@
 import React, { useState } from 'react'
 
-export default function Setup({ themes, players, setPlayers, selectedThemes, setSelectedThemes, onStart }) {
+export default function Setup({
+  themes,
+  players,
+  setPlayers,
+  selectedThemes,
+  setSelectedThemes,
+  onStart,
+  isDynamicMode,
+  setIsDynamicMode,
+  dynamicQuestionCount,
+  setDynamicQuestionCount,
+  currentPicker,
+  setCurrentPicker
+}) {
   const [newPlayer, setNewPlayer] = useState('')
 
   const addPlayer = () => {
@@ -29,7 +42,11 @@ export default function Setup({ themes, players, setPlayers, selectedThemes, set
     }
   }
 
-  const canStart = players.length > 0 && selectedThemes.length > 0
+  // In dynamic mode: need players, first picker, and valid question count
+  // In regular mode: need players and selected themes
+  const canStart = isDynamicMode
+    ? players.length > 0 && currentPicker && dynamicQuestionCount > 0 && dynamicQuestionCount <= themes.length
+    : players.length > 0 && selectedThemes.length > 0
 
   const getThemeIcon = (themeName) => {
     const name = themeName.toLowerCase()
@@ -107,48 +124,128 @@ export default function Setup({ themes, players, setPlayers, selectedThemes, set
         )}
       </div>
 
-      {/* Select Themes Card */}
+      {/* Quiz Mode Card */}
       <div className="quiz-card p-4 sm:p-6 mb-4 sm:mb-6">
         <div className="flex items-center gap-2 mb-4">
-          <span className="text-xl sm:text-2xl">📖</span>
-          <h2 className="text-lg sm:text-xl font-bold text-gray-800">Select Quiz Topics</h2>
+          <span className="text-xl sm:text-2xl">⚡</span>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800">Quiz Mode</h2>
         </div>
 
-        <div className="space-y-2 sm:space-y-3">
-          {themes.map(theme => {
-            const isSelected = selectedThemes.includes(theme.id)
-            return (
-              <label
-                key={theme.id}
-                className={`theme-card flex items-center gap-3 p-3 sm:p-4 cursor-pointer ${isSelected ? 'selected' : ''}`}
-              >
-                <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
-                  isSelected
-                    ? 'bg-gradient-to-br from-purple-600 to-pink-500 border-transparent'
-                    : 'border-purple-300 bg-white'
-                }`}>
-                  {isSelected && (
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                </div>
-                <input
-                  type="checkbox"
-                  checked={isSelected}
-                  onChange={() => toggleTheme(theme.id)}
-                  className="sr-only"
-                />
-                <span className="text-xl sm:text-2xl">{getThemeIcon(theme.name)}</span>
-                <div className="flex-1 min-w-0">
-                  <span className="font-semibold text-gray-800 block truncate text-sm sm:text-base">{theme.name}</span>
-                  <span className="text-xs sm:text-sm text-purple-600">{theme.options.length} answers available</span>
-                </div>
+        {/* Dynamic Mode Toggle */}
+        <label className="flex items-center justify-between p-3 sm:p-4 bg-purple-50 rounded-xl cursor-pointer hover:bg-purple-100 transition-colors mb-4">
+          <div className="flex items-center gap-3">
+            <span className="text-xl sm:text-2xl">🎲</span>
+            <div>
+              <span className="font-semibold text-gray-800 block text-sm sm:text-base">Dynamic Mode</span>
+              <span className="text-xs sm:text-sm text-purple-600">Players pick questions during the quiz</span>
+            </div>
+          </div>
+          <div className="relative">
+            <input
+              type="checkbox"
+              checked={isDynamicMode}
+              onChange={(e) => setIsDynamicMode(e.target.checked)}
+              className="sr-only"
+            />
+            <div className={`w-12 h-6 rounded-full transition-colors ${isDynamicMode ? 'bg-gradient-to-r from-purple-600 to-pink-500' : 'bg-gray-300'}`}>
+              <div className={`w-5 h-5 rounded-full bg-white shadow transform transition-transform mt-0.5 ${isDynamicMode ? 'translate-x-6' : 'translate-x-0.5'}`}></div>
+            </div>
+          </div>
+        </label>
+
+        {/* Dynamic Mode Options */}
+        {isDynamicMode && (
+          <div className="space-y-4 border-t border-purple-200 pt-4">
+            {/* Number of Questions */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Number of Questions
               </label>
-            )
-          })}
-        </div>
+              <input
+                type="number"
+                min={1}
+                max={themes.length}
+                value={dynamicQuestionCount}
+                onChange={(e) => setDynamicQuestionCount(Math.min(themes.length, Math.max(1, parseInt(e.target.value) || 1)))}
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border-2 border-purple-200 rounded-xl focus:outline-none focus:border-purple-500 bg-purple-50/50 text-sm sm:text-base transition-colors"
+              />
+              <p className="text-xs text-purple-500 mt-1">Max: {themes.length} topics available</p>
+            </div>
+
+            {/* First Picker Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Who picks the first question?
+              </label>
+              {players.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {players.map((player, index) => (
+                    <button
+                      key={player}
+                      onClick={() => setCurrentPicker(player)}
+                      className={`p-2 sm:p-3 rounded-xl text-sm font-medium transition-all ${
+                        currentPicker === player
+                          ? 'bg-gradient-to-br from-purple-600 to-pink-500 text-white shadow-lg'
+                          : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                      }`}
+                    >
+                      <span className="mr-1">{['🎮', '🎲', '🎪', '🎨', '🎭'][index % 5]}</span>
+                      {player}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 italic">Add players first to select who picks</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Select Themes Card - Only show in non-dynamic mode */}
+      {!isDynamicMode && (
+        <div className="quiz-card p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xl sm:text-2xl">📖</span>
+            <h2 className="text-lg sm:text-xl font-bold text-gray-800">Select Quiz Topics</h2>
+          </div>
+
+          <div className="space-y-2 sm:space-y-3">
+            {themes.map(theme => {
+              const isSelected = selectedThemes.includes(theme.id)
+              return (
+                <label
+                  key={theme.id}
+                  className={`theme-card flex items-center gap-3 p-3 sm:p-4 cursor-pointer ${isSelected ? 'selected' : ''}`}
+                >
+                  <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                    isSelected
+                      ? 'bg-gradient-to-br from-purple-600 to-pink-500 border-transparent'
+                      : 'border-purple-300 bg-white'
+                  }`}>
+                    {isSelected && (
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => toggleTheme(theme.id)}
+                    className="sr-only"
+                  />
+                  <span className="text-xl sm:text-2xl">{getThemeIcon(theme.name)}</span>
+                  <div className="flex-1 min-w-0">
+                    <span className="font-semibold text-gray-800 block truncate text-sm sm:text-base">{theme.name}</span>
+                    <span className="text-xs sm:text-sm text-purple-600">{theme.options.length} answers available</span>
+                  </div>
+                </label>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Start Button */}
       <button
@@ -167,11 +264,19 @@ export default function Setup({ themes, players, setPlayers, selectedThemes, set
           </span>
         ) : (
           <span className="text-sm sm:text-base">
-            {players.length === 0 && selectedThemes.length === 0
-              ? 'Add players & select topics to start'
-              : players.length === 0
-              ? 'Add at least one player'
-              : 'Select at least one topic'}
+            {isDynamicMode ? (
+              players.length === 0
+                ? 'Add at least one player'
+                : !currentPicker
+                ? 'Select who picks first'
+                : 'Configure questions to start'
+            ) : (
+              players.length === 0 && selectedThemes.length === 0
+                ? 'Add players & select topics to start'
+                : players.length === 0
+                ? 'Add at least one player'
+                : 'Select at least one topic'
+            )}
           </span>
         )}
       </button>
