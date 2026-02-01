@@ -125,7 +125,22 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
     }),
     input: (base) => ({
       ...base,
-      fontSize: '0.875rem'
+      fontSize: '0.875rem',
+      color: '#374151',
+      '& input': {
+        boxShadow: 'none !important',
+        outline: 'none !important',
+        border: 'none !important'
+      }
+    }),
+    inputContainer: (base) => ({
+      ...base,
+      margin: 0,
+      padding: 0
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      padding: '2px 8px'
     }),
     menuPortal: (base) => ({
       ...base,
