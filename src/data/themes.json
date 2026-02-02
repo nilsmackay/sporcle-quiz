@@ -779,5 +779,46 @@
       { "name": "James F. Byrnes (1946)", "percentage": 5 },
       { "name": "Harlow Curtice (1955)", "percentage": 5 }
     ]
+  },
+  {
+    "id": "f1-champions",
+    "name": "F1 World Champions",
+    "options": [
+      { "name": "Lewis Hamilton (7x)", "percentage": 99 },
+      { "name": "Max Verstappen (4x)", "percentage": 97 },
+      { "name": "Lando Norris (2025)", "percentage": 95 },
+      { "name": "Michael Schumacher (7x)", "percentage": 89 },
+      { "name": "Ayrton Senna (3x)", "percentage": 89 },
+      { "name": "Sebastian Vettel (4x)", "percentage": 84 },
+      { "name": "Fernando Alonso (2x)", "percentage": 83 },
+      { "name": "Nico Rosberg (2016)", "percentage": 83 },
+      { "name": "James Hunt (1976)", "percentage": 81 },
+      { "name": "Nigel Mansell (1992)", "percentage": 79 },
+      { "name": "Kimi Räikkönen (2007)", "percentage": 79 },
+      { "name": "Graham Hill (2x)", "percentage": 76 },
+      { "name": "Damon Hill (1996)", "percentage": 75 },
+      { "name": "Jenson Button (2009)", "percentage": 74 },
+      { "name": "Jackie Stewart (3x)", "percentage": 70 },
+      { "name": "Keke Rosberg (1982)", "percentage": 69 },
+      { "name": "Alain Prost (4x)", "percentage": 67 },
+      { "name": "Jim Clark (2x)", "percentage": 67 },
+      { "name": "Juan Manuel Fangio (5x)", "percentage": 65 },
+      { "name": "Niki Lauda (3x)", "percentage": 64 },
+      { "name": "Mika Häkkinen (2x)", "percentage": 62 },
+      { "name": "John Surtees (1964)", "percentage": 61 },
+      { "name": "Mike Hawthorn (1958)", "percentage": 57 },
+      { "name": "Jack Brabham (3x)", "percentage": 54 },
+      { "name": "Nino Farina (1950)", "percentage": 54 },
+      { "name": "Alberto Ascari (2x)", "percentage": 53 },
+      { "name": "Phil Hill (1961)", "percentage": 52 },
+      { "name": "Jacques Villeneuve (1997)", "percentage": 48 },
+      { "name": "Nelson Piquet (3x)", "percentage": 48 },
+      { "name": "Mario Andretti (1978)", "percentage": 47 },
+      { "name": "Emerson Fittipaldi (2x)", "percentage": 46 },
+      { "name": "Alan Jones (1980)", "percentage": 43 },
+      { "name": "Jochen Rindt (1970)", "percentage": 42 },
+      { "name": "Denny Hulme (1967)", "percentage": 42 },
+      { "name": "Jody Scheckter (1979)", "percentage": 41 }
+    ]
   }
 ]
