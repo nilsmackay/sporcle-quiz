@@ -1324,5 +1324,33 @@
       { "name": "Liechtenstein", "percentage": 36 },
       { "name": "Uzbekistan", "percentage": 19 }
     ]
+  },
+  {
+    "id": "monopoly-streets-dutch",
+    "name": "Monopoly Streets (Dutch Edition)",
+    "options": [
+      { "name": "Kalverstraat (Amsterdam)", "percentage": 92 },
+      { "name": "Dorpsstraat (Ons Dorp)", "percentage": 80 },
+      { "name": "Neude (Utrecht)", "percentage": 79 },
+      { "name": "Brink (Ons Dorp)", "percentage": 79 },
+      { "name": "Coolsingel (Rotterdam)", "percentage": 78 },
+      { "name": "Lange Poten ('s-Gravenhage)", "percentage": 77 },
+      { "name": "Spui ('s-Gravenhage)", "percentage": 72 },
+      { "name": "Plein ('s-Gravenhage)", "percentage": 69 },
+      { "name": "Leidschestraat (Amsterdam)", "percentage": 68 },
+      { "name": "Groote Markt (Groningen)", "percentage": 67 },
+      { "name": "Barteljorisstraat (Haarlem)", "percentage": 66 },
+      { "name": "A-Kerkhof (Groningen)", "percentage": 66 },
+      { "name": "Blaak (Rotterdam)", "percentage": 64 },
+      { "name": "Velperplein (Arnhem)", "percentage": 60 },
+      { "name": "Steenstraat (Arnhem)", "percentage": 54 },
+      { "name": "Heerestraat (Groningen)", "percentage": 54 },
+      { "name": "Ketelstraat (Arnhem)", "percentage": 53 },
+      { "name": "Biltstraat (Utrecht)", "percentage": 50 },
+      { "name": "Hofplein (Rotterdam)", "percentage": 50 },
+      { "name": "Vreeburg (Utrecht)", "percentage": 48 },
+      { "name": "Houtstraat (Haarlem)", "percentage": 48 },
+      { "name": "Zijlweg (Haarlem)", "percentage": 46 }
+    ]
   }
 ]
