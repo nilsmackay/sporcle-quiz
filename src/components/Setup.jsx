@@ -81,12 +81,12 @@ export default function Setup({
             onChange={(e) => setNewPlayer(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Enter player name"
-            className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 border-2 border-purple-200 rounded-xl focus:outline-none focus:border-purple-500 bg-purple-50/50 text-sm sm:text-base transition-colors"
+            className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 border-2 border-cyan-900/50 rounded-xl focus:outline-none focus:border-cyan-500 bg-slate-900/50 text-slate-100 placeholder-slate-500 text-sm sm:text-base transition-colors"
           />
           <button
             onClick={addPlayer}
             disabled={!newPlayer.trim()}
-            className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl font-medium hover:from-purple-700 hover:to-purple-800 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed transition-all text-sm sm:text-base shadow-md"
+            className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-600 text-slate-900 rounded-xl font-semibold hover:from-cyan-400 hover:to-cyan-500 disabled:from-slate-700 disabled:to-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed transition-all text-sm sm:text-base shadow-md shadow-cyan-500/20"
           >
             Add
           </button>
@@ -108,7 +108,7 @@ export default function Setup({
                   <span className="text-sm">{player}</span>
                   <button
                     onClick={() => removePlayer(player)}
-                    className="w-5 h-5 flex items-center justify-center bg-purple-300/50 hover:bg-purple-400 rounded-full text-purple-700 hover:text-white font-bold text-xs transition-colors"
+                    className="w-5 h-5 flex items-center justify-center bg-cyan-900/50 hover:bg-red-500 rounded-full text-cyan-400 hover:text-white font-bold text-xs transition-colors"
                   >
                     ×
                   </button>
@@ -117,9 +117,9 @@ export default function Setup({
             </div>
           </div>
         ) : (
-          <div className="text-center py-4 sm:py-6 border-2 border-dashed border-purple-200 rounded-xl bg-purple-50/30">
+          <div className="text-center py-4 sm:py-6 border-2 border-dashed border-cyan-900/50 rounded-xl bg-slate-900/30">
             <span className="text-3xl sm:text-4xl mb-2 block">🎭</span>
-            <p className="text-gray-500 text-xs sm:text-sm">Add at least one player to start</p>
+            <p className="text-slate-500 text-xs sm:text-sm">Add at least one player to start</p>
           </div>
         )}
       </div>
@@ -132,12 +132,12 @@ export default function Setup({
         </div>
 
         {/* Dynamic Mode Toggle */}
-        <label className="flex items-center justify-between p-3 sm:p-4 bg-purple-50 rounded-xl cursor-pointer hover:bg-purple-100 transition-colors mb-4">
+        <label className="flex items-center justify-between p-3 sm:p-4 bg-slate-900/50 rounded-xl cursor-pointer hover:bg-slate-800/50 transition-colors mb-4 border border-slate-700/50">
           <div className="flex items-center gap-3">
             <span className="text-xl sm:text-2xl">🎲</span>
             <div>
-              <span className="font-semibold text-gray-800 block text-sm sm:text-base">Dynamic Mode</span>
-              <span className="text-xs sm:text-sm text-purple-600">Players pick questions during the quiz</span>
+              <span className="font-semibold text-slate-100 block text-sm sm:text-base">Dynamic Mode</span>
+              <span className="text-xs sm:text-sm text-cyan-400">Players pick questions during the quiz</span>
             </div>
           </div>
           <div className="relative">
@@ -147,7 +147,7 @@ export default function Setup({
               onChange={(e) => setIsDynamicMode(e.target.checked)}
               className="sr-only"
             />
-            <div className={`w-12 h-6 rounded-full transition-colors ${isDynamicMode ? 'bg-gradient-to-r from-purple-600 to-pink-500' : 'bg-gray-300'}`}>
+            <div className={`w-12 h-6 rounded-full transition-colors ${isDynamicMode ? 'bg-gradient-to-r from-cyan-500 to-orange-500 shadow-lg shadow-cyan-500/30' : 'bg-slate-700'}`}>
               <div className={`w-5 h-5 rounded-full bg-white shadow transform transition-transform mt-0.5 ${isDynamicMode ? 'translate-x-6' : 'translate-x-0.5'}`}></div>
             </div>
           </div>
@@ -155,10 +155,10 @@ export default function Setup({
 
         {/* Dynamic Mode Options */}
         {isDynamicMode && (
-          <div className="space-y-4 border-t border-purple-200 pt-4">
+          <div className="space-y-4 border-t border-slate-700/50 pt-4">
             {/* Number of Questions */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Number of Questions
               </label>
               <input
@@ -167,14 +167,14 @@ export default function Setup({
                 max={themes.length}
                 value={dynamicQuestionCount}
                 onChange={(e) => setDynamicQuestionCount(Math.min(themes.length, Math.max(1, parseInt(e.target.value) || 1)))}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border-2 border-purple-200 rounded-xl focus:outline-none focus:border-purple-500 bg-purple-50/50 text-sm sm:text-base transition-colors"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border-2 border-cyan-900/50 rounded-xl focus:outline-none focus:border-cyan-500 bg-slate-900/50 text-slate-100 text-sm sm:text-base transition-colors"
               />
-              <p className="text-xs text-purple-500 mt-1">Max: {themes.length} topics available</p>
+              <p className="text-xs text-cyan-500 mt-1">Max: {themes.length} topics available</p>
             </div>
 
             {/* First Picker Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Who picks the first question?
               </label>
               {players.length > 0 ? (
@@ -185,8 +185,8 @@ export default function Setup({
                       onClick={() => setCurrentPicker(player)}
                       className={`p-2 sm:p-3 rounded-xl text-sm font-medium transition-all ${
                         currentPicker === player
-                          ? 'bg-gradient-to-br from-purple-600 to-pink-500 text-white shadow-lg'
-                          : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                          ? 'bg-gradient-to-br from-cyan-500 to-orange-500 text-slate-900 shadow-lg shadow-cyan-500/30'
+                          : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
                       }`}
                     >
                       <span className="mr-1">{['🎮', '🎲', '🎪', '🎨', '🎭'][index % 5]}</span>
@@ -195,7 +195,7 @@ export default function Setup({
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500 italic">Add players first to select who picks</p>
+                <p className="text-sm text-slate-500 italic">Add players first to select who picks</p>
               )}
             </div>
           </div>
@@ -220,11 +220,11 @@ export default function Setup({
                 >
                   <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
                     isSelected
-                      ? 'bg-gradient-to-br from-purple-600 to-pink-500 border-transparent'
-                      : 'border-purple-300 bg-white'
+                      ? 'bg-gradient-to-br from-cyan-500 to-orange-500 border-transparent shadow-lg shadow-cyan-500/30'
+                      : 'border-slate-600 bg-slate-800'
                   }`}>
                     {isSelected && (
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     )}

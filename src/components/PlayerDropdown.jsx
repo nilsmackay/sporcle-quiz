@@ -3,10 +3,10 @@ import Select, { components } from 'react-select'
 
 export default function PlayerDropdown({ player, playerIndex = 0, options, selectedAnswer, onSelect }) {
   const getPercentageColor = (percentage) => {
-    if (percentage <= 20) return { bg: '#10b981', text: 'white' }
-    if (percentage <= 40) return { bg: '#4ade80', text: 'white' }
-    if (percentage <= 60) return { bg: '#fbbf24', text: '#1f2937' }
-    if (percentage <= 80) return { bg: '#f97316', text: 'white' }
+    if (percentage <= 20) return { bg: '#84cc16', text: '#0a0f1a' }
+    if (percentage <= 40) return { bg: '#22c55e', text: '#0a0f1a' }
+    if (percentage <= 60) return { bg: '#fbbf24', text: '#0a0f1a' }
+    if (percentage <= 80) return { bg: '#f97316', text: '#0a0f1a' }
     return { bg: '#ef4444', text: 'white' }
   }
 
@@ -79,24 +79,24 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
   const customStyles = {
     control: (base, state) => ({
       ...base,
-      borderColor: state.isFocused ? '#a855f7' : '#e9d5ff',
+      borderColor: state.isFocused ? '#06b6d4' : 'rgba(148, 163, 184, 0.3)',
       borderWidth: '2px',
       borderRadius: '0.75rem',
-      boxShadow: 'none',
-      backgroundColor: '#faf5ff',
+      boxShadow: state.isFocused ? '0 0 0 3px rgba(6, 182, 212, 0.2)' : 'none',
+      backgroundColor: 'rgba(15, 23, 42, 0.8)',
       padding: '2px',
       '&:hover': {
-        borderColor: '#a855f7'
+        borderColor: '#06b6d4'
       }
     }),
     option: (base, state) => ({
       ...base,
       backgroundColor: state.isSelected
-        ? '#7c3aed'
+        ? '#06b6d4'
         : state.isFocused
-        ? '#f3e8ff'
-        : 'white',
-      color: state.isSelected ? 'white' : '#374151',
+        ? 'rgba(6, 182, 212, 0.15)'
+        : 'transparent',
+      color: state.isSelected ? '#0a0f1a' : '#f8fafc',
       cursor: 'pointer',
       padding: '10px 12px',
       fontSize: '0.875rem'
@@ -105,28 +105,30 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
       ...base,
       zIndex: 50,
       borderRadius: '0.75rem',
-      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-      border: '2px solid #e9d5ff',
+      boxShadow: '0 0 30px rgba(6, 182, 212, 0.2), 0 10px 25px -5px rgba(0, 0, 0, 0.5)',
+      border: '1px solid rgba(6, 182, 212, 0.3)',
+      backgroundColor: '#1e293b',
       overflow: 'hidden'
     }),
     menuList: (base) => ({
       ...base,
-      padding: '4px'
+      padding: '4px',
+      backgroundColor: '#1e293b'
     }),
     placeholder: (base) => ({
       ...base,
-      color: '#9ca3af',
+      color: '#64748b',
       fontSize: '0.875rem'
     }),
     singleValue: (base) => ({
       ...base,
-      color: '#374151',
+      color: '#f8fafc',
       fontSize: '0.875rem'
     }),
     input: (base) => ({
       ...base,
       fontSize: '0.875rem',
-      color: '#374151',
+      color: '#f8fafc',
       '& input': {
         boxShadow: 'none !important',
         outline: 'none !important',
@@ -153,7 +155,7 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
   return (
     <div className="player-card relative p-3 sm:p-4 rounded-xl overflow-hidden">
       {/* Gradient top bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500"></div>
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-orange-500 to-cyan-500"></div>
 
       <div className="flex items-center justify-between mb-3 pt-1">
         <div className="flex items-center gap-2">
