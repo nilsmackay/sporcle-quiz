@@ -42,7 +42,7 @@ export default function Header({ phase, currentQuestionIndex, totalQuestions, th
               <span>{totalQuestions}</span>
             </div>
             {themeName && (
-              <div className="flex items-center gap-1 bg-gradient-to-r from-purple-500/30 to-pink-500/30 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm border border-white/20 truncate max-w-[200px] sm:max-w-none">
+              <div className="flex items-center gap-1 bg-gradient-to-r from-cyan-500/20 to-orange-500/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm border border-cyan-500/30 truncate max-w-[200px] sm:max-w-none">
                 <span>📚</span>
                 <span className="truncate">{themeName}</span>
               </div>
