@@ -16,7 +16,7 @@ export default function App() {
   const [showLeaderboard, setShowLeaderboard] = useState(false)
 
   // Dynamic mode state
-  const [isDynamicMode, setIsDynamicMode] = useState(false)
+  const [isDynamicMode, setIsDynamicMode] = useState(true)
   const [dynamicQuestionCount, setDynamicQuestionCount] = useState(3)
   const [currentPicker, setCurrentPicker] = useState('')
   const [playedThemes, setPlayedThemes] = useState([])
@@ -124,7 +124,7 @@ export default function App() {
     setAnswers({})
     setShowLeaderboard(false)
     // Reset dynamic mode state
-    setIsDynamicMode(false)
+    setIsDynamicMode(true)
     setDynamicQuestionCount(3)
     setCurrentPicker('')
     setPlayedThemes([])
