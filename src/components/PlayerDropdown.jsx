@@ -2,6 +2,62 @@ import React, { useState, useRef } from 'react'
 import Select, { components } from 'react-select'
 import { getPercentageColor } from '../utils/colors'
 
+// Custom components defined OUTSIDE the parent component to maintain stable
+// identity across renders. When defined inside, every re-render creates a new
+// component reference, causing React to unmount/remount the input DOM element.
+// On mobile this destroys focus and collapses the keyboard after each keystroke.
+// Dynamic data is accessed via react-select's selectProps mechanism.
+
+const CustomInput = (props) => {
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && props.selectProps.inputValue) {
+      event.preventDefault()
+      event.stopPropagation()
+
+      if (props.selectProps.onEnterSelect) {
+        setTimeout(() => {
+          props.selectProps.onEnterSelect()
+        }, 0)
+      }
+    } else if (props.onKeyDown) {
+      props.onKeyDown(event)
+    }
+  }
+
+  return <components.Input {...props} onKeyDown={handleKeyDown} />
+}
+
+const CustomOption = (props) => {
+  const { data, selectProps } = props
+  const colors = getPercentageColor(data.percentage, selectProps.minPercent, selectProps.maxPercent)
+  return (
+    <components.Option {...props}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <span>{data.label}</span>
+        <span style={{
+          backgroundColor: colors.bg,
+          color: colors.text,
+          padding: '3px 10px',
+          borderRadius: '0',
+          fontSize: '12px',
+          fontFamily: "'Fraunces', serif",
+          fontWeight: 'bold',
+          marginLeft: '8px',
+          flexShrink: 0
+        }}>
+          {data.percentage}%
+        </span>
+      </div>
+    </components.Option>
+  )
+}
+
+// Stable components object — same reference across all renders
+const customComponents = {
+  Option: CustomOption,
+  Input: CustomInput
+}
+
 export default function PlayerDropdown({ player, playerIndex = 0, options, selectedAnswer, onSelect }) {
   const [inputValue, setInputValue] = useState('')
   const selectRef = useRef(null)
@@ -36,79 +92,27 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
     setInputValue('')
   }
 
-  const handleMenuClose = () => {
-    if (document.activeElement) {
-      document.activeElement.blur()
-    }
-  }
-
   const handleInputChange = (value, { action }) => {
-    // Only update input value if user is typing
     if (action === 'input-change') {
       setInputValue(value)
-    } else if (action === 'menu-close') {
+    } else {
+      // Clear input on menu-close, set-value, input-blur, etc.
       setInputValue('')
     }
-    return value
   }
 
-  // Custom Input component that handles Enter key before react-select
-  const CustomInput = (props) => {
-    const handleKeyDown = (event) => {
-      // Only handle Enter key, let everything else pass through
-      if (event.key === 'Enter' && inputValue) {
-        event.preventDefault()
-        event.stopPropagation()
+  // Called from CustomInput via selectProps when Enter is pressed
+  const handleEnterSelect = () => {
+    const filteredOptions = selectOptions.filter(opt =>
+      opt.label.toLowerCase().includes(inputValue.toLowerCase())
+    )
 
-        // Find the first option that matches the current input
-        const filteredOptions = selectOptions.filter(opt =>
-          opt.label.toLowerCase().includes(inputValue.toLowerCase())
-        )
-
-        if (filteredOptions.length > 0) {
-          // Small delay to ensure the event is fully stopped
-          setTimeout(() => {
-            handleChange(filteredOptions[0])
-            if (selectRef.current) {
-              selectRef.current.blur()
-            }
-          }, 0)
-        }
-      } else if (props.onKeyDown) {
-        // Call the original handler for non-Enter keys
-        props.onKeyDown(event)
+    if (filteredOptions.length > 0) {
+      handleChange(filteredOptions[0])
+      if (selectRef.current) {
+        selectRef.current.blur()
       }
     }
-
-    return (
-      <components.Input {...props} onKeyDown={handleKeyDown} />
-    )
-  }
-
-  // Custom Option with score badge
-  const CustomOption = (props) => {
-    const { data } = props
-    const colors = getPercentageColor(data.percentage, minPercent, maxPercent)
-    return (
-      <components.Option {...props}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-          <span>{data.label}</span>
-          <span style={{
-            backgroundColor: colors.bg,
-            color: colors.text,
-            padding: '3px 10px',
-            borderRadius: '0',
-            fontSize: '12px',
-            fontFamily: "'Fraunces', serif",
-            fontWeight: 'bold',
-            marginLeft: '8px',
-            flexShrink: 0
-          }}>
-            {data.percentage}%
-          </span>
-        </div>
-      </components.Option>
-    )
   }
 
   const customStyles = {
@@ -203,18 +207,21 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
         options={selectOptions}
         value={currentValue}
         onChange={handleChange}
-        onMenuClose={handleMenuClose}
         onInputChange={handleInputChange}
+        inputValue={inputValue}
         placeholder="Search answers..."
         isSearchable
         styles={customStyles}
-        components={{ Option: CustomOption, Input: CustomInput }}
+        components={customComponents}
         classNamePrefix="react-select"
         menuPlacement="auto"
         maxMenuHeight={300}
         blurInputOnSelect={true}
         aria-label={`Select answer for ${player}`}
         menuPortalTarget={document.body}
+        onEnterSelect={handleEnterSelect}
+        minPercent={minPercent}
+        maxPercent={maxPercent}
       />
 
       {/* Selected answer display */}
