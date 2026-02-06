@@ -52,24 +52,33 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
     return value
   }
 
-  const handleKeyDown = (event) => {
-    // Handle Enter key on mobile keyboards
-    if (event.key === 'Enter' && inputValue) {
-      event.preventDefault()
+  // Custom Input component that handles Enter key before react-select
+  const CustomInput = (props) => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Enter' && inputValue) {
+        event.preventDefault()
+        event.stopPropagation()
 
-      // Find the first option that matches the current input
-      const filteredOptions = selectOptions.filter(opt =>
-        opt.label.toLowerCase().includes(inputValue.toLowerCase())
-      )
+        // Find the first option that matches the current input
+        const filteredOptions = selectOptions.filter(opt =>
+          opt.label.toLowerCase().includes(inputValue.toLowerCase())
+        )
 
-      if (filteredOptions.length > 0) {
-        handleChange(filteredOptions[0])
-        // Close the menu and blur
-        if (selectRef.current) {
-          selectRef.current.blur()
+        if (filteredOptions.length > 0) {
+          // Small delay to ensure the event is fully stopped
+          setTimeout(() => {
+            handleChange(filteredOptions[0])
+            if (selectRef.current) {
+              selectRef.current.blur()
+            }
+          }, 0)
         }
       }
     }
+
+    return (
+      <components.Input {...props} onKeyDown={handleKeyDown} />
+    )
   }
 
   // Custom Option with score badge
@@ -192,12 +201,11 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
         onChange={handleChange}
         onMenuClose={handleMenuClose}
         onInputChange={handleInputChange}
-        onKeyDown={handleKeyDown}
         inputValue={inputValue}
         placeholder="Search answers..."
         isSearchable
         styles={customStyles}
-        components={{ Option: CustomOption }}
+        components={{ Option: CustomOption, Input: CustomInput }}
         classNamePrefix="react-select"
         menuPlacement="auto"
         maxMenuHeight={300}
