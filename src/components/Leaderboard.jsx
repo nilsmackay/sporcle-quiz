@@ -1,10 +1,13 @@
 import React from 'react'
+import { getPercentageColor } from '../utils/colors'
 
 export default function Leaderboard({ players, answers, selectedThemes, themes, onClose, isOverlay = true }) {
-  const getScoreBadgeClass = (percentage) => {
-    if (percentage <= 20) return 'score-badge-good'
-    if (percentage <= 60) return 'score-badge-ok'
-    return 'score-badge-bad'
+  // Helper to get min/max percentages for a theme
+  const getThemeRange = (themeId) => {
+    const theme = themes.find(t => t.id === themeId)
+    if (!theme) return { minPercent: 0, maxPercent: 100 }
+    const percentages = theme.options.map(opt => opt.percentage)
+    return { minPercent: Math.min(...percentages), maxPercent: Math.max(...percentages) }
   }
 
   const calculateTotalScore = (player) => {
@@ -75,7 +78,7 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
                   <th key={themeId} className="text-center py-3 px-2 min-w-[80px]">
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-lg">{getThemeIcon(theme?.name)}</span>
-                      <span className="text-xs text-[#6B6560] truncate max-w-[70px]">
+                      <span className="text-xs text-[#6B6560] truncate max-w-[70px]" title={theme?.name}>
                         {theme?.name}
                       </span>
                     </div>
@@ -114,16 +117,29 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
                   </td>
 
                   {/* Round scores */}
-                  {selectedThemes.map((_, index) => {
+                  {selectedThemes.map((themeId, index) => {
                     const answer = answers[player]?.[index]
+                    const { minPercent, maxPercent } = getThemeRange(themeId)
                     return (
                       <td key={index} className="py-3 px-2 text-center">
                         {answer ? (
                           <div className="flex flex-col items-center gap-1">
-                            <span className={getScoreBadgeClass(answer.percentage)}>
-                              {answer.percentage}%
-                            </span>
-                            <span className="text-xs text-[#6B6560] truncate max-w-[70px]">
+                            {(() => {
+                              const colors = getPercentageColor(answer.percentage, minPercent, maxPercent)
+                              return (
+                                <span style={{
+                                  backgroundColor: colors.bg,
+                                  color: colors.text,
+                                  padding: '3px 10px',
+                                  fontSize: '12px',
+                                  fontFamily: "'Fraunces', serif",
+                                  fontWeight: 'bold'
+                                }}>
+                                  {answer.percentage}%
+                                </span>
+                              )
+                            })()}
+                            <span className="text-xs text-[#6B6560] truncate max-w-[70px]" title={answer.option}>
                               {answer.option}
                             </span>
                           </div>

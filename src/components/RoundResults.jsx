@@ -1,4 +1,5 @@
 import React from 'react'
+import { getPercentageColor } from '../utils/colors'
 
 export default function RoundResults({
   players,
@@ -7,11 +8,10 @@ export default function RoundResults({
   currentTheme,
   onContinue
 }) {
-  const getScoreBadgeClass = (percentage) => {
-    if (percentage <= 20) return 'score-badge-good'
-    if (percentage <= 60) return 'score-badge-ok'
-    return 'score-badge-bad'
-  }
+  // Compute min/max from theme options for consistent color grading
+  const percentages = currentTheme.options.map(opt => opt.percentage)
+  const minPercent = Math.min(...percentages)
+  const maxPercent = Math.max(...percentages)
 
   // Get all options sorted by percentage (lowest/best first)
   const sortedOptions = [...currentTheme.options].sort((a, b) => a.percentage - b.percentage)
@@ -108,9 +108,21 @@ export default function RoundResults({
                     </span>
                   )}
                 </div>
-                <span className={getScoreBadgeClass(result.percentage)}>
-                  {result.percentage}%
-                </span>
+                {(() => {
+                  const colors = getPercentageColor(result.percentage, minPercent, maxPercent)
+                  return (
+                    <span style={{
+                      backgroundColor: colors.bg,
+                      color: colors.text,
+                      padding: '3px 10px',
+                      fontSize: '12px',
+                      fontFamily: "'Fraunces', serif",
+                      fontWeight: 'bold'
+                    }}>
+                      {result.percentage}%
+                    </span>
+                  )
+                })()}
               </div>
             </div>
           ))}

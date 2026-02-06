@@ -1,23 +1,37 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import PlayerDropdown from './PlayerDropdown'
 
 export default function QuizQuestion({
   players,
   currentTheme,
   currentQuestionIndex,
-  answers,
-  onAnswer,
+  onBatchAnswers,
   onNext,
   isLastQuestion,
   onFinish
 }) {
-  const allPlayersAnswered = players.every(
-    player => answers[player]?.[currentQuestionIndex]
-  )
+  const [pendingAnswers, setPendingAnswers] = useState({})
 
-  const answeredCount = players.filter(
-    player => answers[player]?.[currentQuestionIndex]
-  ).length
+  // Reset pending answers when question changes
+  useEffect(() => {
+    setPendingAnswers({})
+  }, [currentQuestionIndex])
+
+  const handleLocalAnswer = (player, answer) => {
+    setPendingAnswers(prev => ({ ...prev, [player]: answer }))
+  }
+
+  const handleSubmit = () => {
+    onBatchAnswers(currentQuestionIndex, pendingAnswers)
+    if (isLastQuestion) {
+      onFinish()
+    } else {
+      onNext()
+    }
+  }
+
+  const allPlayersAnswered = players.every(player => pendingAnswers[player])
+  const answeredCount = players.filter(player => pendingAnswers[player]).length
 
   const getThemeIcon = (themeName) => {
     const name = themeName.toLowerCase()
@@ -75,8 +89,8 @@ export default function QuizQuestion({
             player={player}
             playerIndex={index}
             options={currentTheme.options}
-            selectedAnswer={answers[player]?.[currentQuestionIndex]}
-            onSelect={(playerName, answer) => onAnswer(playerName, currentQuestionIndex, answer)}
+            selectedAnswer={pendingAnswers[player]}
+            onSelect={handleLocalAnswer}
           />
         ))}
       </div>
@@ -96,7 +110,7 @@ export default function QuizQuestion({
         <div className="order-1 sm:order-2">
           {isLastQuestion ? (
             <button
-              onClick={onFinish}
+              onClick={handleSubmit}
               disabled={!allPlayersAnswered}
               className="w-full sm:w-auto btn-gold px-8 py-4 text-lg"
             >
@@ -104,7 +118,7 @@ export default function QuizQuestion({
             </button>
           ) : (
             <button
-              onClick={onNext}
+              onClick={handleSubmit}
               disabled={!allPlayersAnswered}
               className="w-full sm:w-auto btn-teal px-8 py-4 text-lg flex items-center justify-center gap-2"
             >
