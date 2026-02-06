@@ -56,28 +56,25 @@ export default function Setup({
     return '📚'
   }
 
-  const playerIcons = ['🎤', '🎬', '⭐', '🎪', '🎭', '🎨', '🎵', '🎲']
-
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 slide-up">
       {/* Welcome Banner */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#F4C430] to-[#B8860B] rounded-full mb-4 shadow-xl border-4 border-[#F4C430]/50 spotlight">
-          <span className="text-4xl">🏆</span>
+        <div className="editorial-stamp w-20 h-20 text-[#C23B22] text-3xl mb-4 mx-auto">
+          TS
         </div>
-        <h1 className="text-3xl sm:text-4xl font-display text-[#5D2E0C] mb-2">
+        <h1 className="text-3xl sm:text-4xl font-display text-[#1A1A1A] mb-2">
           Welcome, Contestants!
         </h1>
-        <p className="text-[#8B7355] text-lg">The ultimate trivia challenge awaits</p>
+        <p className="text-[#6B6560] text-lg">The ultimate trivia challenge awaits</p>
       </div>
 
       {/* Contestants Card */}
       <div className="game-card p-6 mb-6">
         <div className="flex items-center gap-3 mb-5">
-          <span className="text-3xl">👥</span>
-          <h2 className="text-xl font-display text-[#5D2E0C]">Contestants</h2>
+          <h2 className="text-xl font-display text-[#1A1A1A]">Contestants</h2>
           {players.length > 0 && (
-            <span className="ml-auto bg-[#008080] text-white text-sm font-bold px-3 py-1 rounded-full">
+            <span className="ml-auto border-2 border-[#1A1A1A] text-[#1A1A1A] text-sm font-bold px-3 py-1">
               {players.length} ready
             </span>
           )}
@@ -113,11 +110,10 @@ export default function Setup({
                 key={player}
                 className="contestant-badge group"
               >
-                <span>{playerIcons[index % playerIcons.length]}</span>
                 <span>{player}</span>
                 <button
                   onClick={() => removePlayer(player)}
-                  className="w-5 h-5 flex items-center justify-center bg-white/20 hover:bg-red-500 rounded-full text-white text-xs font-bold transition-colors"
+                  className="w-5 h-5 flex items-center justify-center border border-[#6B6560] hover:bg-[#C23B22] hover:border-[#C23B22] hover:text-white text-[#6B6560] text-xs font-bold transition-colors"
                 >
                   ×
                 </button>
@@ -125,9 +121,8 @@ export default function Setup({
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 border-2 border-dashed border-[#E8DDB5] rounded-xl bg-[#FDF6E3]/50">
-            <span className="text-4xl mb-2 block">🎭</span>
-            <p className="text-[#8B7355]">Add contestants to begin the show!</p>
+          <div className="text-center py-8 border border-dashed border-[#D4CFC7] bg-[#F7F3ED]/50">
+            <p className="text-[#6B6560] font-display italic">Add contestants to begin</p>
           </div>
         )}
       </div>
@@ -135,31 +130,27 @@ export default function Setup({
       {/* Game Mode Card */}
       <div className="game-card p-6 mb-6">
         <div className="flex items-center gap-3 mb-5">
-          <span className="text-3xl">⚡</span>
-          <h2 className="text-xl font-display text-[#5D2E0C]">Game Mode</h2>
+          <h2 className="text-xl font-display text-[#1A1A1A]">Game Mode</h2>
         </div>
 
         {/* Dynamic mode toggle */}
-        <div className="flex items-center justify-between p-4 bg-[#FDF6E3] rounded-xl hover:bg-[#F5EBCE] transition-colors border-2 border-[#E8DDB5] mb-4">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🎲</span>
-            <div>
-              <span className="font-bold text-[#5D2E0C] block">Dynamic Mode</span>
-              <span className="text-sm text-[#008080]">Players choose categories during play</span>
-            </div>
+        <div className="flex items-center justify-between p-4 bg-[#F7F3ED] hover:bg-[#EDE8DF] transition-colors border border-[#D4CFC7] mb-4">
+          <div>
+            <span className="font-bold text-[#1A1A1A] block">Dynamic Mode</span>
+            <span className="text-sm text-[#6B6560]">Players choose categories during play</span>
           </div>
           <Switch
             checked={isDynamicMode}
             onChange={setIsDynamicMode}
-            onColor="#008080"
-            offColor="#E8DDB5"
+            onColor="#C23B22"
+            offColor="#D4CFC7"
             onHandleColor="#ffffff"
             offHandleColor="#ffffff"
             handleDiameter={24}
             uncheckedIcon={false}
             checkedIcon={false}
-            boxShadow="0 2px 4px rgba(0,0,0,0.2)"
-            activeBoxShadow="0 0 2px 3px rgba(0,128,128,0.2)"
+            boxShadow="0 2px 4px rgba(0,0,0,0.15)"
+            activeBoxShadow="0 0 2px 3px rgba(194,59,34,0.2)"
             height={28}
             width={56}
             id="dynamic-mode-toggle"
@@ -169,9 +160,9 @@ export default function Setup({
 
         {/* Dynamic mode options */}
         {isDynamicMode && (
-          <div className="space-y-4 border-t-2 border-[#E8DDB5] pt-4">
+          <div className="space-y-4 border-t border-[#D4CFC7] pt-4">
             <div>
-              <label htmlFor="round-count" className="block text-sm font-bold text-[#5D4037] mb-2">
+              <label htmlFor="round-count" className="block text-sm font-bold text-[#1A1A1A] mb-2">
                 Number of Rounds
               </label>
               <input
@@ -185,32 +176,31 @@ export default function Setup({
                 aria-label="Number of rounds"
                 className="game-input w-full"
               />
-              <p className="text-xs text-[#008080] mt-1">Up to {themes.length} categories available</p>
+              <p className="text-xs text-[#6B6560] mt-1">Up to {themes.length} categories available</p>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-[#5D4037] mb-2">
+              <label className="block text-sm font-bold text-[#1A1A1A] mb-2">
                 Who picks first?
               </label>
               {players.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {players.map((player, index) => (
+                  {players.map((player) => (
                     <button
                       key={player}
                       onClick={() => setCurrentPicker(player)}
-                      className={`p-3 rounded-lg text-sm font-bold transition-all border-2 ${
+                      className={`p-3 text-sm font-bold transition-all border ${
                         currentPicker === player
-                          ? 'bg-gradient-to-br from-[#F4C430] to-[#B8860B] text-[#5D2E0C] border-[#F4C430] shadow-lg'
-                          : 'bg-[#FDF6E3] text-[#5D4037] border-[#E8DDB5] hover:border-[#008080]'
+                          ? 'bg-[#C23B22] text-white border-[#C23B22]'
+                          : 'bg-white text-[#1A1A1A] border-[#D4CFC7] hover:border-[#1A1A1A]'
                       }`}
                     >
-                      <span className="mr-1">{playerIcons[index % playerIcons.length]}</span>
                       {player}
                     </button>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-[#8B7355] italic">Add contestants first</p>
+                <p className="text-sm text-[#6B6560] italic">Add contestants first</p>
               )}
             </div>
           </div>
@@ -221,10 +211,9 @@ export default function Setup({
       {!isDynamicMode && (
         <div className="game-card p-6 mb-6">
           <div className="flex items-center gap-3 mb-5">
-            <span className="text-3xl">📖</span>
-            <h2 className="text-xl font-display text-[#5D2E0C]">Categories</h2>
+            <h2 className="text-xl font-display text-[#1A1A1A]">Categories</h2>
             {selectedThemes.length > 0 && (
-              <span className="ml-auto bg-[#D4A017] text-[#5D2E0C] text-sm font-bold px-3 py-1 rounded-full">
+              <span className="ml-auto border-2 border-[#1A1A1A] text-[#1A1A1A] text-sm font-bold px-3 py-1">
                 {selectedThemes.length} selected
               </span>
             )}
@@ -239,13 +228,13 @@ export default function Setup({
                   htmlFor={`theme-${theme.id}`}
                   className={`choice-card flex items-center gap-4 p-4 cursor-pointer ${isSelected ? 'selected' : ''}`}
                 >
-                  <div className={`w-6 h-6 rounded-lg border-3 flex items-center justify-center transition-all ${
+                  <div className={`w-6 h-6 border flex items-center justify-center transition-all ${
                     isSelected
-                      ? 'bg-gradient-to-br from-[#F4C430] to-[#B8860B] border-[#F4C430]'
-                      : 'border-[#E8DDB5] bg-white'
+                      ? 'bg-[#C23B22] border-[#C23B22]'
+                      : 'border-[#D4CFC7] bg-white'
                   }`}>
                     {isSelected && (
-                      <svg className="w-4 h-4 text-[#5D2E0C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     )}
@@ -259,12 +248,12 @@ export default function Setup({
                     aria-label={`Select category ${theme.name}`}
                     className="sr-only"
                   />
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#008080] to-[#006666] rounded-lg flex items-center justify-center text-xl shadow-md">
+                  <div className="w-10 h-10 bg-[#F7F3ED] border border-[#D4CFC7] flex items-center justify-center text-xl">
                     <span className="emoji">{getThemeIcon(theme.name)}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="font-bold text-[#2C1810] block line-clamp-2">{theme.name}</span>
-                    <span className="text-sm text-[#008080]">{theme.options.length} answers</span>
+                    <span className="font-bold text-[#1A1A1A] block line-clamp-2">{theme.name}</span>
+                    <span className="text-sm text-[#6B6560]">{theme.options.length} answers</span>
                   </div>
                 </label>
               )
@@ -280,10 +269,7 @@ export default function Setup({
         className="w-full btn-gold py-5 text-xl"
       >
         {canStart ? (
-          <span className="flex items-center justify-center gap-3">
-            <span>🎬</span>
-            <span>Start the Show!</span>
-          </span>
+          <span>Begin the Quiz</span>
         ) : (
           <span>
             {isDynamicMode ? (
@@ -304,10 +290,9 @@ export default function Setup({
       </button>
 
       {/* Tip */}
-      <div className="mt-6 text-center">
-        <p className="text-[#8B7355] text-sm flex items-center justify-center gap-2">
-          <span>💡</span>
-          <span>Pro tip: Pick obscure answers for lower scores!</span>
+      <div className="mt-6 text-center border-t border-[#D4CFC7] pt-4">
+        <p className="text-[#6B6560] text-sm italic">
+          Pick obscure answers for lower scores!
         </p>
       </div>
     </div>
