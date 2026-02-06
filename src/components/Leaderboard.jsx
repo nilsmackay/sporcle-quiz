@@ -66,7 +66,7 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
         <table className="w-full min-w-[320px]">
           <thead>
             <tr className="border-b-2 border-[#1A1A1A]">
-              <th className="text-left py-3 px-3 font-display text-[#1A1A1A] text-sm sticky left-0 bg-white z-10">
+              <th className="text-left py-3 px-3 font-display text-[#1A1A1A] text-sm">
                 Rank
               </th>
               <th className="text-left py-3 px-3 font-display text-[#1A1A1A] text-sm">
@@ -103,7 +103,7 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
                   }`}
                 >
                   {/* Rank */}
-                  <td className={`py-3 px-3 sticky left-0 z-10 ${isLeader ? 'bg-[#F7F3ED]' : 'bg-white'}`}>
+                  <td className="py-3 px-3">
                     <div className="editorial-stamp w-7 h-7 text-xs">
                       {playerIndex + 1}
                     </div>
