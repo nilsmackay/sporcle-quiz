@@ -7,12 +7,10 @@ export default function RoundResults({
   currentTheme,
   onContinue
 }) {
-  const getPercentageColor = (percentage) => {
-    if (percentage <= 20) return 'bg-lime-500/20 text-lime-400 border border-lime-500/30'
-    if (percentage <= 40) return 'bg-green-500/20 text-green-400 border border-green-500/30'
-    if (percentage <= 60) return 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-    if (percentage <= 80) return 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
-    return 'bg-red-500/20 text-red-400 border border-red-500/30'
+  const getScoreBadgeClass = (percentage) => {
+    if (percentage <= 20) return 'score-badge-good'
+    if (percentage <= 60) return 'score-badge-ok'
+    return 'score-badge-bad'
   }
 
   // Get all options sorted by percentage (lowest/best first)
@@ -62,64 +60,68 @@ export default function RoundResults({
     if (name.includes('africa')) return '🌍'
     if (name.includes('asia')) return '🌏'
     if (name.includes('europe') || name.includes('capital')) return '🏛️'
+    if (name.includes('states') || name.includes('america')) return '🗽'
     return '📚'
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-      {/* Header */}
-      <div className="quiz-card p-4 sm:p-6 mb-4 sm:mb-6">
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-cyan-500 to-orange-500 rounded-full mb-4 shadow-lg shadow-cyan-500/30">
-            <span className="text-3xl sm:text-4xl">{getThemeIcon(currentTheme.name)}</span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-100 mb-2">
-            Round Results
-          </h2>
-          <p className="text-cyan-400 text-sm sm:text-base">
-            {currentTheme.name}
-          </p>
+    <div className="max-w-2xl mx-auto px-4 py-6 slide-up">
+      {/* Round Complete Header */}
+      <div className="game-card p-6 mb-6 text-center">
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#008080] to-[#006666] rounded-full mb-4 shadow-xl border-4 border-[#20B2AA]">
+          <span className="text-4xl">{getThemeIcon(currentTheme.name)}</span>
         </div>
+        <h2 className="text-2xl font-display text-[#2C1810] mb-2">
+          Round Complete!
+        </h2>
+        <p className="text-[#008080] font-semibold text-lg">
+          {currentTheme.name}
+        </p>
       </div>
 
       {/* Player Results */}
-      <div className="quiz-card p-4 sm:p-6 mb-4 sm:mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-xl sm:text-2xl">🎯</span>
-          <h3 className="text-lg sm:text-xl font-bold text-slate-100">Player Picks</h3>
+      <div className="game-card p-6 mb-6">
+        <div className="flex items-center gap-3 mb-5">
+          <span className="text-2xl">🎯</span>
+          <h3 className="text-xl font-display text-[#2C1810]">Player Picks</h3>
         </div>
 
-        <div className="space-y-2 sm:space-y-3 stagger-reveal">
+        <div className="space-y-3 stagger-in">
           {playerResults.map((result, index) => (
             <div
               key={result.player}
-              className={`flex items-center gap-3 p-3 sm:p-4 rounded-xl transition-all ${
+              className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${
                 index === 0
-                  ? 'bg-gradient-to-r from-amber-500/15 to-yellow-500/10 border-2 border-amber-500/40'
-                  : 'bg-slate-800/50 border border-slate-700'
+                  ? 'bg-gradient-to-r from-[#F4C430]/20 to-[#DAA520]/10 border-[#D4A017]'
+                  : 'bg-[#FDF6E3] border-[#E8DDB5]'
               }`}
             >
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                <span className="text-lg sm:text-xl">{getMedalEmoji(index)}</span>
-                <span className={`font-semibold truncate text-sm sm:text-base ${
-                  index === 0 ? 'text-amber-400' : 'text-slate-200'
-                }`}>
+              {/* Medal and name */}
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <span className="text-2xl">{getMedalEmoji(index)}</span>
+                {index >= 3 && (
+                  <span className="w-7 h-7 bg-[#E8DDB5] rounded-full flex items-center justify-center text-sm font-bold text-[#5D4037]">
+                    {index + 1}
+                  </span>
+                )}
+                <span className={`font-bold truncate ${index === 0 ? 'text-[#B8860B]' : 'text-[#2C1810]'}`}>
                   {result.player}
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <div className="text-right">
-                  <span className="text-xs sm:text-sm text-slate-400 block truncate max-w-[100px] sm:max-w-[150px]">
+              {/* Answer and score */}
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="text-right hidden sm:block">
+                  <span className="text-sm text-[#5D4037] block truncate max-w-[120px]">
                     {result.option}
                   </span>
                   {result.rank && (
-                    <span className="text-xs text-cyan-500">
-                      {result.rank}{getRankSuffix(result.rank)} best
+                    <span className="text-xs text-[#008080]">
+                      {result.rank}{getRankSuffix(result.rank)} most obscure
                     </span>
                   )}
                 </div>
-                <span className={`inline-block px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-bold ${getPercentageColor(result.percentage)}`}>
+                <span className={getScoreBadgeClass(result.percentage)}>
                   {result.percentage}%
                 </span>
               </div>
@@ -129,44 +131,40 @@ export default function RoundResults({
       </div>
 
       {/* Best & Worst Options */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 sm:mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         {/* Best 3 */}
-        <div className="quiz-card p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-lg">🌟</span>
-            <h4 className="font-bold text-slate-100 text-sm sm:text-base">Best Answers</h4>
+        <div className="game-card p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xl">🌟</span>
+            <h4 className="font-display text-[#2C1810]">Most Obscure</h4>
           </div>
           <div className="space-y-2">
             {best3.map((opt, index) => (
-              <div key={opt.name} className="flex items-center justify-between gap-2 text-xs sm:text-sm">
+              <div key={opt.name} className="flex items-center justify-between gap-2 text-sm">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-lime-400 font-bold w-4">{index + 1}.</span>
-                  <span className="text-slate-300 truncate">{opt.name}</span>
+                  <span className="text-[#228B22] font-bold w-5">{index + 1}.</span>
+                  <span className="text-[#2C1810] truncate">{opt.name}</span>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-xs font-medium ${getPercentageColor(opt.percentage)}`}>
-                  {opt.percentage}%
-                </span>
+                <span className="score-badge-good">{opt.percentage}%</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Worst 3 */}
-        <div className="quiz-card p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-lg">📊</span>
-            <h4 className="font-bold text-slate-100 text-sm sm:text-base">Most Common</h4>
+        <div className="game-card p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xl">📊</span>
+            <h4 className="font-display text-[#2C1810]">Most Common</h4>
           </div>
           <div className="space-y-2">
             {worst3.map((opt, index) => (
-              <div key={opt.name} className="flex items-center justify-between gap-2 text-xs sm:text-sm">
+              <div key={opt.name} className="flex items-center justify-between gap-2 text-sm">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-red-400 font-bold w-4">{sortedOptions.length - 2 + index}.</span>
-                  <span className="text-slate-300 truncate">{opt.name}</span>
+                  <span className="text-[#CD5C5C] font-bold w-5">{sortedOptions.length - 2 + index}.</span>
+                  <span className="text-[#2C1810] truncate">{opt.name}</span>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-xs font-medium ${getPercentageColor(opt.percentage)}`}>
-                  {opt.percentage}%
-                </span>
+                <span className="score-badge-bad">{opt.percentage}%</span>
               </div>
             ))}
           </div>
@@ -176,7 +174,7 @@ export default function RoundResults({
       {/* Continue Button */}
       <button
         onClick={onContinue}
-        className="w-full btn-primary py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg shadow-xl flex items-center justify-center gap-2"
+        className="w-full btn-teal py-5 text-xl flex items-center justify-center gap-3"
       >
         <span>📊</span>
         <span>View Standings</span>
