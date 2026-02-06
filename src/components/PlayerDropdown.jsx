@@ -96,7 +96,22 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
     if (action === 'input-change') {
       setInputValue(value)
     } else {
-      // Clear input on menu-close, set-value, input-blur, etc.
+      // When input blurs with typed text (e.g. mobile "Next" key which doesn't
+      // fire a keydown Enter event), auto-select the top matching option.
+      if (action === 'input-blur' && inputValue) {
+        const filteredOptions = selectOptions.filter(opt =>
+          opt.label.toLowerCase().includes(inputValue.toLowerCase())
+        )
+        if (filteredOptions.length > 0) {
+          const topMatch = filteredOptions[0]
+          setTimeout(() => {
+            onSelect(player, {
+              option: topMatch.value,
+              percentage: topMatch.percentage
+            })
+          }, 0)
+        }
+      }
       setInputValue('')
     }
   }
