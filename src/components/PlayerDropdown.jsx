@@ -2,18 +2,53 @@ import React from 'react'
 import Select, { components } from 'react-select'
 
 export default function PlayerDropdown({ player, playerIndex = 0, options, selectedAnswer, onSelect }) {
+  // Calculate min and max percentages from available options (excluding invalid)
+  const percentages = options.map(opt => opt.percentage)
+  const minPercent = Math.min(...percentages)
+  const maxPercent = Math.max(...percentages)
+
+  // Interpolate between two colors
+  const interpolateColor = (color1, color2, factor) => {
+    const c1 = parseInt(color1.slice(1), 16)
+    const c2 = parseInt(color2.slice(1), 16)
+    const r1 = (c1 >> 16) & 0xff, g1 = (c1 >> 8) & 0xff, b1 = c1 & 0xff
+    const r2 = (c2 >> 16) & 0xff, g2 = (c2 >> 8) & 0xff, b2 = c2 & 0xff
+    const r = Math.round(r1 + factor * (r2 - r1))
+    const g = Math.round(g1 + factor * (g2 - g1))
+    const b = Math.round(b1 + factor * (b2 - b1))
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`
+  }
+
   const getScoreBadgeClass = (percentage) => {
-    if (percentage <= 20) return 'score-badge-good'
-    if (percentage <= 60) return 'score-badge-ok'
+    // Map percentage to position in range
+    const normalizedPosition = maxPercent === minPercent ? 0 : (percentage - minPercent) / (maxPercent - minPercent)
+    if (normalizedPosition <= 0.33) return 'score-badge-good'
+    if (normalizedPosition <= 0.66) return 'score-badge-ok'
     return 'score-badge-bad'
   }
 
   const getPercentageColor = (percentage) => {
-    if (percentage <= 20) return { bg: '#2D6A4F', text: 'white' }
-    if (percentage <= 40) return { bg: '#6B6560', text: 'white' }
-    if (percentage <= 60) return { bg: '#B8924A', text: 'white' }
-    if (percentage <= 80) return { bg: '#D4564A', text: 'white' }
-    return { bg: '#C23B22', text: 'white' }
+    // Handle invalid answer
+    if (percentage === 100) return { bg: '#C23B22', text: 'white' }
+
+    // Map percentage to position in actual range (0 = best, 1 = worst)
+    const normalizedPosition = maxPercent === minPercent ? 0 : (percentage - minPercent) / (maxPercent - minPercent)
+
+    // Color gradient: green (best) -> gold (middle) -> red (worst)
+    const green = '#2D6A4F'
+    const gold = '#B8924A'
+    const red = '#C23B22'
+
+    let bgColor
+    if (normalizedPosition <= 0.5) {
+      // Interpolate from green to gold
+      bgColor = interpolateColor(green, gold, normalizedPosition * 2)
+    } else {
+      // Interpolate from gold to red
+      bgColor = interpolateColor(gold, red, (normalizedPosition - 0.5) * 2)
+    }
+
+    return { bg: bgColor, text: 'white' }
   }
 
   const selectOptions = [
@@ -164,7 +199,7 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
         components={{ Option: CustomOption }}
         classNamePrefix="react-select"
         menuPlacement="auto"
-        maxMenuHeight={180}
+        maxMenuHeight={300}
         menuPortalTarget={document.body}
         blurInputOnSelect={true}
         aria-label={`Select answer for ${player}`}
