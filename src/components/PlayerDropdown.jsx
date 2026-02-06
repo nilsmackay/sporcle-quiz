@@ -61,6 +61,7 @@ const customComponents = {
 export default function PlayerDropdown({ player, playerIndex = 0, options, selectedAnswer, onSelect }) {
   const [inputValue, setInputValue] = useState('')
   const selectRef = useRef(null)
+  const selectionMadeRef = useRef(false)
 
   // Calculate min and max percentages from available options
   const percentages = options.map(opt => opt.percentage)
@@ -83,6 +84,7 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
     : null
 
   const handleChange = (selected) => {
+    selectionMadeRef.current = true
     if (selected) {
       onSelect(player, {
         option: selected.value,
@@ -95,10 +97,13 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
   const handleInputChange = (value, { action }) => {
     if (action === 'input-change') {
       setInputValue(value)
+      selectionMadeRef.current = false
     } else {
       // When input blurs with typed text (e.g. mobile "Next" key which doesn't
       // fire a keydown Enter event), auto-select the top matching option.
-      if (action === 'input-blur' && inputValue) {
+      // Skip if an explicit selection was already made (user tapped an option),
+      // since handleChange fires before the blur and sets selectionMadeRef.
+      if (action === 'input-blur' && inputValue && !selectionMadeRef.current) {
         const filteredOptions = selectOptions.filter(opt =>
           opt.label.toLowerCase().includes(inputValue.toLowerCase())
         )
