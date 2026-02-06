@@ -55,27 +55,35 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
   // Custom Input component that handles Enter key before react-select
   const CustomInput = (props) => {
     const handleKeyDown = (event) => {
-      // Only handle Enter key, let everything else pass through
-      if (event.key === 'Enter' && inputValue) {
-        event.preventDefault()
-        event.stopPropagation()
+      // Check for Enter key (multiple formats for mobile compatibility)
+      const isEnter = event.key === 'Enter' || event.keyCode === 13 || event.which === 13
 
-        // Find the first option that matches the current input
-        const filteredOptions = selectOptions.filter(opt =>
-          opt.label.toLowerCase().includes(inputValue.toLowerCase())
-        )
+      if (isEnter) {
+        // Use the actual input value, not state (state might be stale)
+        const currentInput = event.target.value
 
-        if (filteredOptions.length > 0) {
-          // Small delay to ensure the event is fully stopped
-          setTimeout(() => {
+        if (currentInput && currentInput.trim()) {
+          event.preventDefault()
+          event.stopPropagation()
+
+          // Find the first option that matches the current input
+          const filteredOptions = selectOptions.filter(opt =>
+            opt.label.toLowerCase().includes(currentInput.toLowerCase().trim())
+          )
+
+          if (filteredOptions.length > 0) {
+            // Immediate selection without setTimeout
             handleChange(filteredOptions[0])
             if (selectRef.current) {
               selectRef.current.blur()
             }
-          }, 0)
+          }
+          return false // Prevent any further handling
         }
-      } else if (props.onKeyDown) {
-        // Call the original handler for non-Enter keys
+      }
+
+      // Call the original handler for other keys
+      if (props.onKeyDown) {
         props.onKeyDown(event)
       }
     }
