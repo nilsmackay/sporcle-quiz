@@ -36,21 +36,21 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
   const content = (
     <div className={`leaderboard-panel ${isOverlay ? 'w-full' : ''}`}>
       {/* Header */}
-      <div className="bg-[#1A1A1A] p-5">
+      <div className="bg-white border-b-2 border-[#1A1A1A] p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="editorial-stamp w-12 h-12 border-white text-white text-xl">
+            <div className="editorial-stamp w-12 h-12 text-[#C23B22] text-xl">
               L
             </div>
             <div>
-              <h2 className="text-2xl font-display text-white">Leaderboard</h2>
+              <h2 className="text-2xl font-display text-[#1A1A1A]">Leaderboard</h2>
               <p className="text-[#6B6560] text-sm">Final Standings</p>
             </div>
           </div>
           {isOverlay && (
             <button
               onClick={onClose}
-              className="w-10 h-10 flex items-center justify-center border-2 border-white/50 hover:border-white text-white font-bold text-xl transition-colors"
+              className="w-10 h-10 flex items-center justify-center border-2 border-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white text-[#1A1A1A] font-bold text-xl transition-colors"
             >
               ×
             </button>

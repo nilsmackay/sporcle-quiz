@@ -96,7 +96,7 @@ export default function Setup({
           <button
             onClick={addPlayer}
             disabled={!newPlayer.trim()}
-            className="btn-teal px-6 text-sm"
+            className="btn-teal px-4 text-sm flex-shrink-0"
           >
             Add
           </button>
@@ -172,7 +172,19 @@ export default function Setup({
                 min={1}
                 max={themes.length}
                 value={dynamicQuestionCount}
-                onChange={(e) => setDynamicQuestionCount(Math.min(themes.length, Math.max(1, parseInt(e.target.value) || 1)))}
+                onChange={(e) => {
+                  const value = e.target.value
+                  if (value === '') {
+                    setDynamicQuestionCount('')
+                  } else {
+                    setDynamicQuestionCount(Math.min(themes.length, Math.max(1, parseInt(value) || 1)))
+                  }
+                }}
+                onBlur={(e) => {
+                  if (e.target.value === '') {
+                    setDynamicQuestionCount(1)
+                  }
+                }}
                 aria-label="Number of rounds"
                 className="game-input w-full"
               />
