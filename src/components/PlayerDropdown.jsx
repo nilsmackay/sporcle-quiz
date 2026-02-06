@@ -165,6 +165,7 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
         maxMenuHeight={300}
         blurInputOnSelect={true}
         aria-label={`Select answer for ${player}`}
+        menuPortalTarget={document.body}
       />
 
       {/* Selected answer display */}
