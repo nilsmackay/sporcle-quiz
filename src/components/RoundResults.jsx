@@ -98,12 +98,12 @@ export default function RoundResults({
 
               {/* Answer and score */}
               <div className="flex items-center gap-3 flex-shrink-0">
-                <div className="text-right hidden sm:block">
+                <div className="text-right">
                   <span className="text-sm text-[#6B6560] block truncate max-w-[120px]">
                     {result.option}
                   </span>
                   {result.rank && (
-                    <span className="text-xs text-[#6B6560]">
+                    <span className="text-xs text-[#6B6560] hidden sm:block">
                       {result.rank}{getRankSuffix(result.rank)} most obscure
                     </span>
                   )}

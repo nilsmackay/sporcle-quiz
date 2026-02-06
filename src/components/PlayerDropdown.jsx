@@ -69,14 +69,14 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
   const maxPercent = Math.max(...percentages)
 
   const selectOptions = [
-    { value: 'invalid', label: 'Invalid Answer', percentage: 100 },
     ...options
       .sort((a, b) => a.name.localeCompare(b.name))
       .map(opt => ({
         value: opt.name,
         label: opt.name,
         percentage: opt.percentage
-      }))
+      })),
+    { value: 'invalid', label: 'Invalid Answer', percentage: 100 }
   ]
 
   const currentValue = selectedAnswer
