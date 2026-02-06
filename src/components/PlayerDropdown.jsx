@@ -55,6 +55,7 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
   // Custom Input component that handles Enter key before react-select
   const CustomInput = (props) => {
     const handleKeyDown = (event) => {
+      // Only handle Enter key, let everything else pass through
       if (event.key === 'Enter' && inputValue) {
         event.preventDefault()
         event.stopPropagation()
@@ -73,6 +74,9 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
             }
           }, 0)
         }
+      } else if (props.onKeyDown) {
+        // Call the original handler for non-Enter keys
+        props.onKeyDown(event)
       }
     }
 
@@ -201,7 +205,6 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
         onChange={handleChange}
         onMenuClose={handleMenuClose}
         onInputChange={handleInputChange}
-        inputValue={inputValue}
         placeholder="Search answers..."
         isSearchable
         styles={customStyles}
