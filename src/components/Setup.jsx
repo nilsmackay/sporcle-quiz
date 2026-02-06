@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import Switch from 'react-switch'
 
 export default function Setup({
   themes,
@@ -42,8 +43,6 @@ export default function Setup({
     }
   }
 
-  // In dynamic mode: need players, first picker, and valid question count
-  // In regular mode: need players and selected themes
   const canStart = isDynamicMode
     ? players.length > 0 && currentPicker && dynamicQuestionCount > 0 && dynamicQuestionCount <= themes.length
     : players.length > 0 && selectedThemes.length > 0
@@ -53,129 +52,145 @@ export default function Setup({
     if (name.includes('africa')) return '🌍'
     if (name.includes('asia')) return '🌏'
     if (name.includes('europe') || name.includes('capital')) return '🏛️'
+    if (name.includes('states') || name.includes('america')) return '🗽'
     return '📚'
   }
 
+  const playerIcons = ['🎤', '🎬', '⭐', '🎪', '🎭', '🎨', '🎵', '🎲']
+
   return (
-    <div className="max-w-2xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-      {/* Welcome Header */}
-      <div className="text-center mb-6 sm:mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white/10 backdrop-blur-sm rounded-full mb-4 float-animation">
-          <span className="text-4xl sm:text-5xl">🎯</span>
+    <div className="max-w-2xl mx-auto px-4 py-6 slide-up">
+      {/* Welcome Banner */}
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#F4C430] to-[#B8860B] rounded-full mb-4 shadow-xl border-4 border-[#F4C430]/50 spotlight">
+          <span className="text-4xl">🏆</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome to Quiz Master!</h1>
-        <p className="text-purple-200 text-sm sm:text-base">Challenge your friends and test your knowledge</p>
+        <h1 className="text-3xl sm:text-4xl font-display text-[#5D2E0C] mb-2">
+          Welcome, Contestants!
+        </h1>
+        <p className="text-[#8B7355] text-lg">The ultimate trivia challenge awaits</p>
       </div>
 
-      {/* Add Players Card */}
-      <div className="quiz-card p-4 sm:p-6 mb-4 sm:mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-xl sm:text-2xl">👥</span>
-          <h2 className="text-lg sm:text-xl font-bold text-gray-800">Add Players</h2>
+      {/* Contestants Card */}
+      <div className="game-card p-6 mb-6">
+        <div className="flex items-center gap-3 mb-5">
+          <span className="text-3xl">👥</span>
+          <h2 className="text-xl font-display text-[#5D2E0C]">Contestants</h2>
+          {players.length > 0 && (
+            <span className="ml-auto bg-[#008080] text-white text-sm font-bold px-3 py-1 rounded-full">
+              {players.length} ready
+            </span>
+          )}
         </div>
 
-        <div className="flex gap-2 mb-4">
+        {/* Add player input */}
+        <div className="flex gap-3 mb-5">
           <input
             type="text"
+            id="player-name-input"
+            name="playerName"
             value={newPlayer}
             onChange={(e) => setNewPlayer(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Enter player name"
-            className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 border-2 border-cyan-900/50 rounded-xl focus:outline-none focus:border-cyan-500 bg-slate-900/50 text-slate-100 placeholder-slate-500 text-sm sm:text-base transition-colors"
+            placeholder="Enter contestant name..."
+            aria-label="Contestant name"
+            className="game-input flex-1"
           />
           <button
             onClick={addPlayer}
             disabled={!newPlayer.trim()}
-            className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-600 text-slate-900 rounded-xl font-semibold hover:from-cyan-400 hover:to-cyan-500 disabled:from-slate-700 disabled:to-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed transition-all text-sm sm:text-base shadow-md shadow-cyan-500/20"
+            className="btn-teal px-6 text-sm"
           >
             Add
           </button>
         </div>
 
+        {/* Player list */}
         {players.length > 0 ? (
-          <div className="space-y-2">
-            <h3 className="text-xs sm:text-sm font-medium text-gray-500 flex items-center gap-1">
-              <span>✓</span> Players ready ({players.length})
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {players.map((player, index) => (
-                <div
-                  key={player}
-                  className="player-chip"
-                  style={{ animationDelay: `${index * 0.1}s` }}
+          <div className="flex flex-wrap gap-2 stagger-in">
+            {players.map((player, index) => (
+              <div
+                key={player}
+                className="contestant-badge group"
+              >
+                <span>{playerIcons[index % playerIcons.length]}</span>
+                <span>{player}</span>
+                <button
+                  onClick={() => removePlayer(player)}
+                  className="w-5 h-5 flex items-center justify-center bg-white/20 hover:bg-red-500 rounded-full text-white text-xs font-bold transition-colors"
                 >
-                  <span className="text-xs sm:text-sm">{['🎮', '🎲', '🎪', '🎨', '🎭'][index % 5]}</span>
-                  <span className="text-sm">{player}</span>
-                  <button
-                    onClick={() => removePlayer(player)}
-                    className="w-5 h-5 flex items-center justify-center bg-cyan-900/50 hover:bg-red-500 rounded-full text-cyan-400 hover:text-white font-bold text-xs transition-colors"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
+                  ×
+                </button>
+              </div>
+            ))}
           </div>
         ) : (
-          <div className="text-center py-4 sm:py-6 border-2 border-dashed border-cyan-900/50 rounded-xl bg-slate-900/30">
-            <span className="text-3xl sm:text-4xl mb-2 block">🎭</span>
-            <p className="text-slate-500 text-xs sm:text-sm">Add at least one player to start</p>
+          <div className="text-center py-8 border-2 border-dashed border-[#E8DDB5] rounded-xl bg-[#FDF6E3]/50">
+            <span className="text-4xl mb-2 block">🎭</span>
+            <p className="text-[#8B7355]">Add contestants to begin the show!</p>
           </div>
         )}
       </div>
 
-      {/* Quiz Mode Card */}
-      <div className="quiz-card p-4 sm:p-6 mb-4 sm:mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-xl sm:text-2xl">⚡</span>
-          <h2 className="text-lg sm:text-xl font-bold text-gray-800">Quiz Mode</h2>
+      {/* Game Mode Card */}
+      <div className="game-card p-6 mb-6">
+        <div className="flex items-center gap-3 mb-5">
+          <span className="text-3xl">⚡</span>
+          <h2 className="text-xl font-display text-[#5D2E0C]">Game Mode</h2>
         </div>
 
-        {/* Dynamic Mode Toggle */}
-        <label className="flex items-center justify-between p-3 sm:p-4 bg-slate-900/50 rounded-xl cursor-pointer hover:bg-slate-800/50 transition-colors mb-4 border border-slate-700/50">
+        {/* Dynamic mode toggle */}
+        <div className="flex items-center justify-between p-4 bg-[#FDF6E3] rounded-xl hover:bg-[#F5EBCE] transition-colors border-2 border-[#E8DDB5] mb-4">
           <div className="flex items-center gap-3">
-            <span className="text-xl sm:text-2xl">🎲</span>
+            <span className="text-2xl">🎲</span>
             <div>
-              <span className="font-semibold text-slate-100 block text-sm sm:text-base">Dynamic Mode</span>
-              <span className="text-xs sm:text-sm text-cyan-400">Players pick questions during the quiz</span>
+              <span className="font-bold text-[#5D2E0C] block">Dynamic Mode</span>
+              <span className="text-sm text-[#008080]">Players choose categories during play</span>
             </div>
           </div>
-          <div className="relative">
-            <input
-              type="checkbox"
-              checked={isDynamicMode}
-              onChange={(e) => setIsDynamicMode(e.target.checked)}
-              className="sr-only"
-            />
-            <div className={`w-12 h-6 rounded-full transition-colors ${isDynamicMode ? 'bg-gradient-to-r from-cyan-500 to-orange-500 shadow-lg shadow-cyan-500/30' : 'bg-slate-700'}`}>
-              <div className={`w-5 h-5 rounded-full bg-white shadow transform transition-transform mt-0.5 ${isDynamicMode ? 'translate-x-6' : 'translate-x-0.5'}`}></div>
-            </div>
-          </div>
-        </label>
+          <Switch
+            checked={isDynamicMode}
+            onChange={setIsDynamicMode}
+            onColor="#008080"
+            offColor="#E8DDB5"
+            onHandleColor="#ffffff"
+            offHandleColor="#ffffff"
+            handleDiameter={24}
+            uncheckedIcon={false}
+            checkedIcon={false}
+            boxShadow="0 2px 4px rgba(0,0,0,0.2)"
+            activeBoxShadow="0 0 2px 3px rgba(0,128,128,0.2)"
+            height={28}
+            width={56}
+            id="dynamic-mode-toggle"
+            aria-label="Enable dynamic mode"
+          />
+        </div>
 
-        {/* Dynamic Mode Options */}
+        {/* Dynamic mode options */}
         {isDynamicMode && (
-          <div className="space-y-4 border-t border-slate-700/50 pt-4">
-            {/* Number of Questions */}
+          <div className="space-y-4 border-t-2 border-[#E8DDB5] pt-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Number of Questions
+              <label htmlFor="round-count" className="block text-sm font-bold text-[#5D4037] mb-2">
+                Number of Rounds
               </label>
               <input
                 type="number"
+                id="round-count"
+                name="roundCount"
                 min={1}
                 max={themes.length}
                 value={dynamicQuestionCount}
                 onChange={(e) => setDynamicQuestionCount(Math.min(themes.length, Math.max(1, parseInt(e.target.value) || 1)))}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border-2 border-cyan-900/50 rounded-xl focus:outline-none focus:border-cyan-500 bg-slate-900/50 text-slate-100 text-sm sm:text-base transition-colors"
+                aria-label="Number of rounds"
+                className="game-input w-full"
               />
-              <p className="text-xs text-cyan-500 mt-1">Max: {themes.length} topics available</p>
+              <p className="text-xs text-[#008080] mt-1">Up to {themes.length} categories available</p>
             </div>
 
-            {/* First Picker Selection */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Who picks the first question?
+              <label className="block text-sm font-bold text-[#5D4037] mb-2">
+                Who picks first?
               </label>
               {players.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -183,62 +198,73 @@ export default function Setup({
                     <button
                       key={player}
                       onClick={() => setCurrentPicker(player)}
-                      className={`p-2 sm:p-3 rounded-xl text-sm font-medium transition-all ${
+                      className={`p-3 rounded-lg text-sm font-bold transition-all border-2 ${
                         currentPicker === player
-                          ? 'bg-gradient-to-br from-cyan-500 to-orange-500 text-slate-900 shadow-lg shadow-cyan-500/30'
-                          : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
+                          ? 'bg-gradient-to-br from-[#F4C430] to-[#B8860B] text-[#5D2E0C] border-[#F4C430] shadow-lg'
+                          : 'bg-[#FDF6E3] text-[#5D4037] border-[#E8DDB5] hover:border-[#008080]'
                       }`}
                     >
-                      <span className="mr-1">{['🎮', '🎲', '🎪', '🎨', '🎭'][index % 5]}</span>
+                      <span className="mr-1">{playerIcons[index % playerIcons.length]}</span>
                       {player}
                     </button>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-slate-500 italic">Add players first to select who picks</p>
+                <p className="text-sm text-[#8B7355] italic">Add contestants first</p>
               )}
             </div>
           </div>
         )}
       </div>
 
-      {/* Select Themes Card - Only show in non-dynamic mode */}
+      {/* Categories Card - Only in standard mode */}
       {!isDynamicMode && (
-        <div className="quiz-card p-4 sm:p-6 mb-4 sm:mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-xl sm:text-2xl">📖</span>
-            <h2 className="text-lg sm:text-xl font-bold text-gray-800">Select Quiz Topics</h2>
+        <div className="game-card p-6 mb-6">
+          <div className="flex items-center gap-3 mb-5">
+            <span className="text-3xl">📖</span>
+            <h2 className="text-xl font-display text-[#5D2E0C]">Categories</h2>
+            {selectedThemes.length > 0 && (
+              <span className="ml-auto bg-[#D4A017] text-[#5D2E0C] text-sm font-bold px-3 py-1 rounded-full">
+                {selectedThemes.length} selected
+              </span>
+            )}
           </div>
 
-          <div className="space-y-2 sm:space-y-3">
+          <div className="space-y-2 stagger-in">
             {themes.map(theme => {
               const isSelected = selectedThemes.includes(theme.id)
               return (
                 <label
                   key={theme.id}
-                  className={`theme-card flex items-center gap-3 p-3 sm:p-4 cursor-pointer ${isSelected ? 'selected' : ''}`}
+                  htmlFor={`theme-${theme.id}`}
+                  className={`choice-card flex items-center gap-4 p-4 cursor-pointer ${isSelected ? 'selected' : ''}`}
                 >
-                  <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                  <div className={`w-6 h-6 rounded-lg border-3 flex items-center justify-center transition-all ${
                     isSelected
-                      ? 'bg-gradient-to-br from-cyan-500 to-orange-500 border-transparent shadow-lg shadow-cyan-500/30'
-                      : 'border-slate-600 bg-slate-800'
+                      ? 'bg-gradient-to-br from-[#F4C430] to-[#B8860B] border-[#F4C430]'
+                      : 'border-[#E8DDB5] bg-white'
                   }`}>
                     {isSelected && (
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <svg className="w-4 h-4 text-[#5D2E0C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     )}
                   </div>
                   <input
                     type="checkbox"
+                    id={`theme-${theme.id}`}
+                    name={`theme-${theme.id}`}
                     checked={isSelected}
                     onChange={() => toggleTheme(theme.id)}
+                    aria-label={`Select category ${theme.name}`}
                     className="sr-only"
                   />
-                  <span className="text-xl sm:text-2xl">{getThemeIcon(theme.name)}</span>
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#008080] to-[#006666] rounded-lg flex items-center justify-center text-xl shadow-md">
+                    <span className="emoji">{getThemeIcon(theme.name)}</span>
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <span className="font-semibold text-gray-800 block truncate text-sm sm:text-base">{theme.name}</span>
-                    <span className="text-xs sm:text-sm text-purple-600">{theme.options.length} answers available</span>
+                    <span className="font-bold text-[#2C1810] block line-clamp-2">{theme.name}</span>
+                    <span className="text-sm text-[#008080]">{theme.options.length} answers</span>
                   </div>
                 </label>
               )
@@ -251,41 +277,37 @@ export default function Setup({
       <button
         onClick={onStart}
         disabled={!canStart}
-        className={`w-full py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition-all shadow-xl ${
-          canStart
-            ? 'btn-success'
-            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-        }`}
+        className="w-full btn-gold py-5 text-xl"
       >
         {canStart ? (
-          <span className="flex items-center justify-center gap-2">
-            <span>🚀</span>
-            <span>Start Quiz!</span>
+          <span className="flex items-center justify-center gap-3">
+            <span>🎬</span>
+            <span>Start the Show!</span>
           </span>
         ) : (
-          <span className="text-sm sm:text-base">
+          <span>
             {isDynamicMode ? (
               players.length === 0
-                ? 'Add at least one player'
+                ? 'Add contestants to begin'
                 : !currentPicker
                 ? 'Select who picks first'
-                : 'Configure questions to start'
+                : 'Configure rounds to start'
             ) : (
               players.length === 0 && selectedThemes.length === 0
-                ? 'Add players & select topics to start'
+                ? 'Add contestants & select categories'
                 : players.length === 0
-                ? 'Add at least one player'
-                : 'Select at least one topic'
+                ? 'Add at least one contestant'
+                : 'Select at least one category'
             )}
           </span>
         )}
       </button>
 
-      {/* Fun tip */}
-      <div className="mt-4 sm:mt-6 text-center">
-        <p className="text-purple-200/70 text-xs sm:text-sm flex items-center justify-center gap-2">
+      {/* Tip */}
+      <div className="mt-6 text-center">
+        <p className="text-[#8B7355] text-sm flex items-center justify-center gap-2">
           <span>💡</span>
-          <span>Tip: Lower percentage answers score better!</span>
+          <span>Pro tip: Pick obscure answers for lower scores!</span>
         </p>
       </div>
     </div>

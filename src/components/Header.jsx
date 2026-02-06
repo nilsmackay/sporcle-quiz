@@ -2,49 +2,69 @@ import React from 'react'
 
 export default function Header({ phase, currentQuestionIndex, totalQuestions, themeName, showLeaderboard, setShowLeaderboard, onNewGame }) {
   return (
-    <header className="quiz-header text-white shadow-xl">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
-        {/* Top row - Title and buttons */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <span className="text-2xl sm:text-3xl">🧠</span>
-            <h1 className="text-lg sm:text-xl font-bold truncate">Quiz Master</h1>
+    <header className="show-header text-white">
+      <div className="max-w-7xl mx-auto px-4 py-4">
+        {/* Main header row */}
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-[#F4C430] to-[#B8860B] rounded-lg flex items-center justify-center shadow-lg border-2 border-[#F4C430]/50">
+              <span className="text-2xl">🎯</span>
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-display tracking-wide shine-text">
+                Trivia Showdown
+              </h1>
+              {phase === 'setup' && (
+                <p className="text-[#F4C430]/80 text-xs sm:text-sm">Get ready to play!</p>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-            {(phase === 'playing' || phase === 'picking' || phase === 'round-results' || phase === 'finished') && (
+          {/* Action buttons */}
+          <div className="flex items-center gap-2">
+            {(phase === 'playing' || phase === 'picking' || phase === 'round-results' || phase === 'standings' || phase === 'finished') && (
               <button
                 onClick={() => setShowLeaderboard(!showLeaderboard)}
-                className="flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg font-medium hover:bg-white/30 transition-all text-xs sm:text-sm border border-white/30"
+                className="flex items-center gap-2 bg-[#F4C430] text-[#5D2E0C] px-3 sm:px-4 py-2 rounded-lg font-bold text-sm hover:bg-[#F4C430]/90 transition-all shadow-md border-2 border-[#B8860B]"
               >
-                <span className="hidden sm:inline">🏆</span>
-                <span>{showLeaderboard ? 'Hide' : 'Scores'}</span>
+                <span>🏆</span>
+                <span className="hidden sm:inline">{showLeaderboard ? 'Hide' : 'Scores'}</span>
               </button>
             )}
             {phase === 'finished' && (
               <button
                 onClick={onNewGame}
-                className="flex items-center gap-1 bg-emerald-500 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg font-medium hover:bg-emerald-400 transition-all text-xs sm:text-sm shadow-lg"
+                className="flex items-center gap-2 bg-[#20B2AA] text-white px-3 sm:px-4 py-2 rounded-lg font-bold text-sm hover:bg-[#20B2AA]/90 transition-all shadow-md border-2 border-[#008080]"
               >
-                <span className="hidden sm:inline">🔄</span>
-                <span>New</span>
+                <span>🔄</span>
+                <span className="hidden sm:inline">New Game</span>
               </button>
             )}
           </div>
         </div>
 
-        {/* Bottom row - Progress info (only when playing) */}
+        {/* Progress bar - only during play */}
         {phase === 'playing' && (
-          <div className="flex items-center gap-2 mt-2 flex-wrap">
-            <div className="flex items-center gap-1 bg-white/10 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm border border-white/20">
-              <span className="font-bold text-amber-300">{currentQuestionIndex + 1}</span>
-              <span className="text-white/70">/</span>
-              <span>{totalQuestions}</span>
+          <div className="mt-4 flex items-center gap-4">
+            {/* Question counter */}
+            <div className="score-display text-lg">
+              Q{currentQuestionIndex + 1}/{totalQuestions}
             </div>
+
+            {/* Progress bar */}
+            <div className="flex-1 h-4 bg-[#5D2E0C] rounded-full border-2 border-[#CD853F] overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-[#20B2AA] via-[#F4C430] to-[#20B2AA] transition-all duration-500"
+                style={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
+              />
+            </div>
+
+            {/* Theme name */}
             {themeName && (
-              <div className="flex items-center gap-1 bg-gradient-to-r from-cyan-500/20 to-orange-500/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm border border-cyan-500/30 truncate max-w-[200px] sm:max-w-none">
+              <div className="hidden md:flex items-center gap-2 bg-[#5D2E0C]/80 px-4 py-2 rounded-lg border-2 border-[#CD853F]">
                 <span>📚</span>
-                <span className="truncate">{themeName}</span>
+                <span className="text-[#F4C430] font-semibold truncate max-w-[200px]">{themeName}</span>
               </div>
             )}
           </div>

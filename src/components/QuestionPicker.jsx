@@ -16,54 +16,64 @@ export default function QuestionPicker({
     if (name.includes('africa')) return '🌍'
     if (name.includes('asia')) return '🌏'
     if (name.includes('europe') || name.includes('capital')) return '🏛️'
+    if (name.includes('states') || name.includes('america')) return '🗽'
     return '📚'
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <div className="max-w-2xl mx-auto px-4 py-6 slide-up">
       {/* Header */}
-      <div className="quiz-card p-4 sm:p-6 mb-4 sm:mb-6">
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-cyan-500 to-orange-500 rounded-full mb-4 shadow-lg shadow-cyan-500/30">
-            <span className="text-3xl sm:text-4xl">🎯</span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-100 mb-2">
-            Pick a Question!
-          </h2>
-          <p className="text-cyan-400 text-sm sm:text-base mb-4">
-            Question {currentQuestionIndex + 1} of {totalQuestions}
-          </p>
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-yellow-500/15 border border-amber-500/40 px-4 py-2 rounded-full">
-            <span className="text-xl">👑</span>
-            <span className="font-semibold text-amber-400">{currentPicker}'s turn to pick!</span>
-          </div>
+      <div className="game-card p-6 mb-6 text-center">
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#F4C430] to-[#B8860B] rounded-full mb-4 shadow-xl border-4 border-[#F4C430]/50 spotlight">
+          <span className="text-4xl">🎯</span>
+        </div>
+        <h2 className="text-2xl font-display text-[#2C1810] mb-2">
+          Pick a Category!
+        </h2>
+        <p className="text-[#008080] font-medium mb-4">
+          Round {currentQuestionIndex + 1} of {totalQuestions}
+        </p>
+
+        {/* Current picker highlight */}
+        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#F4C430]/30 to-[#DAA520]/20 border-2 border-[#D4A017] px-5 py-3 rounded-full">
+          <span className="text-2xl">👑</span>
+          <span className="font-display text-[#B8860B] text-lg">{currentPicker}'s turn!</span>
         </div>
       </div>
 
-      {/* Available Themes */}
-      <div className="quiz-card p-4 sm:p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-xl sm:text-2xl">📖</span>
-          <h3 className="text-lg sm:text-xl font-bold text-slate-100">Available Topics</h3>
-          <span className="ml-auto text-sm text-cyan-400">{availableThemes.length} remaining</span>
+      {/* Available Categories */}
+      <div className="game-card p-6">
+        <div className="flex items-center justify-between gap-3 mb-5">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">📖</span>
+            <h3 className="text-xl font-display text-[#2C1810]">Available Categories</h3>
+          </div>
+          <span className="bg-[#008080] text-white text-sm font-bold px-3 py-1 rounded-full">
+            {availableThemes.length} left
+          </span>
         </div>
 
-        <div className="space-y-2 sm:space-y-3 stagger-reveal">
+        <div className="space-y-3 stagger-in">
           {availableThemes.map(theme => (
             <button
               key={theme.id}
               onClick={() => onSelectQuestion(theme.id)}
-              className="w-full theme-card flex items-center gap-3 p-3 sm:p-4 cursor-pointer hover:shadow-lg transition-all group"
+              className="choice-card w-full flex items-center gap-4 p-4 text-left group"
             >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-cyan-500 to-orange-500 rounded-xl flex items-center justify-center shadow-md shadow-cyan-500/20 group-hover:scale-110 transition-transform">
-                <span className="text-xl sm:text-2xl">{getThemeIcon(theme.name)}</span>
+              {/* Icon */}
+              <div className="w-12 h-12 bg-gradient-to-br from-[#008080] to-[#006666] rounded-xl flex items-center justify-center text-2xl shadow-md group-hover:scale-110 transition-transform border-2 border-[#20B2AA]">
+                <span className="emoji">{getThemeIcon(theme.name)}</span>
               </div>
-              <div className="flex-1 min-w-0 text-left">
-                <span className="font-semibold text-slate-100 block truncate text-sm sm:text-base">{theme.name}</span>
-                <span className="text-xs sm:text-sm text-cyan-400">{theme.options.length} answers available</span>
+
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <span className="font-bold text-[#2C1810] block line-clamp-2 text-lg">{theme.name}</span>
+                <span className="text-sm text-[#008080]">{theme.options.length} possible answers</span>
               </div>
-              <div className="text-cyan-500 group-hover:translate-x-1 transition-transform">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+
+              {/* Arrow */}
+              <div className="text-[#008080] group-hover:translate-x-1 transition-transform">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </div>
@@ -72,11 +82,11 @@ export default function QuestionPicker({
         </div>
       </div>
 
-      {/* Info */}
-      <div className="mt-4 sm:mt-6 text-center">
-        <p className="text-cyan-400/60 text-xs sm:text-sm flex items-center justify-center gap-2">
+      {/* Info footer */}
+      <div className="mt-6 text-center">
+        <p className="text-[#8B7355] text-sm flex items-center justify-center gap-2">
           <span>💡</span>
-          <span>The player with the highest score picks the next question!</span>
+          <span>The player with the highest score picks next!</span>
         </p>
       </div>
     </div>
