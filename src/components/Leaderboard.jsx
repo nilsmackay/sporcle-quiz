@@ -1,5 +1,57 @@
-import React from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { getPercentageColor } from '../utils/colors'
+
+// Tooltip for truncated text: hover on desktop, tap on mobile.
+// Renders via portal to avoid clipping by overflow-x-auto on the table.
+function TruncatedText({ text, className = '' }) {
+  const [show, setShow] = useState(false)
+  const ref = useRef(null)
+  const [style, setStyle] = useState({})
+
+  const updatePos = useCallback(() => {
+    if (!ref.current) return
+    const rect = ref.current.getBoundingClientRect()
+    const above = rect.top > 40
+    setStyle({
+      position: 'fixed',
+      left: rect.left + rect.width / 2,
+      ...(above
+        ? { top: rect.top - 6, transform: 'translate(-50%, -100%)' }
+        : { top: rect.bottom + 6, transform: 'translate(-50%, 0)' }),
+      zIndex: 9999,
+    })
+  }, [])
+
+  // Close on outside tap (mobile)
+  useEffect(() => {
+    if (!show) return
+    const close = () => setShow(false)
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [show])
+
+  return (
+    <span
+      ref={ref}
+      className={`truncate block max-w-[70px] cursor-pointer ${className}`}
+      onMouseEnter={() => { updatePos(); setShow(true) }}
+      onMouseLeave={() => setShow(false)}
+      onClick={(e) => { e.stopPropagation(); updatePos(); setShow(true) }}
+    >
+      {text}
+      {show && createPortal(
+        <div
+          style={style}
+          className="bg-[#1A1A1A] text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none"
+        >
+          {text}
+        </div>,
+        document.body
+      )}
+    </span>
+  )
+}
 
 export default function Leaderboard({ players, answers, selectedThemes, themes, onClose, isOverlay = true }) {
   // Helper to get min/max percentages for a theme
@@ -78,9 +130,7 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
                   <th key={themeId} className="text-center py-3 px-2 min-w-[80px]">
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-lg">{getThemeIcon(theme?.name)}</span>
-                      <span className="text-xs text-[#6B6560] truncate max-w-[70px]" title={theme?.name}>
-                        {theme?.name}
-                      </span>
+                      <TruncatedText text={theme?.name} className="text-xs text-[#6B6560]" />
                     </div>
                   </th>
                 )
@@ -139,9 +189,7 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
                                 </span>
                               )
                             })()}
-                            <span className="text-xs text-[#6B6560] truncate max-w-[70px]" title={answer.option}>
-                              {answer.option}
-                            </span>
+                            <TruncatedText text={answer.option} className="text-xs text-[#6B6560]" />
                           </div>
                         ) : (
                           <span className="text-[#D4CFC7]">—</span>
