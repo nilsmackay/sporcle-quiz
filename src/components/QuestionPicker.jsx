@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
+import CATEGORIES from '../data/categories'
 
 export default function QuestionPicker({
   themes,
@@ -8,16 +9,35 @@ export default function QuestionPicker({
   totalQuestions,
   onSelectQuestion
 }) {
-  // Get themes that haven't been played yet
-  const availableThemes = themes.filter(theme => !playedThemes.includes(theme.id))
+  const [flippedCategory, setFlippedCategory] = useState(null)
+  const [selectedThemeId, setSelectedThemeId] = useState(null)
 
-  const getThemeIcon = (themeName) => {
-    const name = themeName.toLowerCase()
-    if (name.includes('africa')) return '🌍'
-    if (name.includes('asia')) return '🌏'
-    if (name.includes('europe') || name.includes('capital')) return '🏛️'
-    if (name.includes('states') || name.includes('america')) return '🗽'
-    return '📚'
+  // For each category, get the themes that haven't been played yet
+  const getAvailableThemes = useCallback((category) => {
+    return category.themes.filter(themeId => !playedThemes.includes(themeId))
+  }, [playedThemes])
+
+  const handleCategoryClick = (category) => {
+    if (flippedCategory) return // already picked
+    const available = getAvailableThemes(category)
+    if (available.length === 0) return
+
+    // Pick a random theme from this category
+    const randomIndex = Math.floor(Math.random() * available.length)
+    const themeId = available[randomIndex]
+    setSelectedThemeId(themeId)
+    setFlippedCategory(category.id)
+  }
+
+  const handleContinue = () => {
+    if (selectedThemeId) {
+      onSelectQuestion(selectedThemeId)
+    }
+  }
+
+  const getThemeName = (themeId) => {
+    const theme = themes.find(t => t.id === themeId)
+    return theme ? theme.name : themeId
   }
 
   return (
@@ -40,43 +60,56 @@ export default function QuestionPicker({
         </div>
       </div>
 
-      {/* Available Categories */}
-      <div className="game-card p-6">
-        <div className="flex items-center justify-between gap-3 mb-5">
-          <h3 className="text-xl font-display text-[#1A1A1A]">Available Categories</h3>
-          <span className="border-2 border-[#1A1A1A] text-[#1A1A1A] text-sm font-bold px-3 py-1">
-            {availableThemes.length} left
-          </span>
-        </div>
+      {/* Category Cards */}
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        {CATEGORIES.map(category => {
+          const available = getAvailableThemes(category)
+          const isExhausted = available.length === 0
+          const isFlipped = flippedCategory === category.id
+          const isOtherFlipped = flippedCategory && flippedCategory !== category.id
 
-        <div className="space-y-3 stagger-in">
-          {availableThemes.map(theme => (
-            <button
-              key={theme.id}
-              onClick={() => onSelectQuestion(theme.id)}
-              className="choice-card w-full flex items-center gap-4 p-4 text-left group"
-            >
-              {/* Icon */}
-              <div className="w-12 h-12 bg-[#F7F3ED] border border-[#D4CFC7] flex items-center justify-center text-2xl group-hover:border-[#1A1A1A] transition-colors">
-                <span className="emoji">{getThemeIcon(theme.name)}</span>
-              </div>
+          return (
+            <div key={category.id} className="category-flip-container">
+              <button
+                onClick={() => handleCategoryClick(category)}
+                disabled={isExhausted || !!flippedCategory}
+                className={`category-flip-card ${isFlipped ? 'flipped' : ''} ${
+                  isExhausted ? 'exhausted' : ''
+                } ${isOtherFlipped ? 'dimmed' : ''}`}
+              >
+                {/* Front face */}
+                <div className="category-flip-face category-flip-front">
+                  <span className="emoji text-4xl mb-3 block">{category.icon}</span>
+                  <span className="font-display text-xl text-[#1A1A1A] block mb-2">{category.name}</span>
+                  <span className="text-sm text-[#6B6560]">
+                    {isExhausted ? 'No themes left' : `${available.length} theme${available.length !== 1 ? 's' : ''} left`}
+                  </span>
+                </div>
 
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <span className="font-bold text-[#1A1A1A] block line-clamp-2 text-lg">{theme.name}</span>
-                <span className="text-sm text-[#6B6560]">{theme.options.length} possible answers</span>
-              </div>
-
-              {/* Arrow */}
-              <div className="text-[#6B6560] group-hover:text-[#1A1A1A] group-hover:translate-x-1 transition-all">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </button>
-          ))}
-        </div>
+                {/* Back face - revealed theme */}
+                <div className="category-flip-face category-flip-back">
+                  <span className="text-sm text-[#6B6560] uppercase tracking-wider font-bold block mb-2">{category.name}</span>
+                  <span className="font-display text-lg text-[#C23B22] block">
+                    {selectedThemeId ? getThemeName(selectedThemeId) : ''}
+                  </span>
+                </div>
+              </button>
+            </div>
+          )
+        })}
       </div>
+
+      {/* Continue button - shown after flip */}
+      {flippedCategory && (
+        <div className="bounce-in">
+          <button
+            onClick={handleContinue}
+            className="w-full btn-gold py-4 text-lg font-bold"
+          >
+            Play: {selectedThemeId ? getThemeName(selectedThemeId) : ''}
+          </button>
+        </div>
+      )}
 
       {/* Info footer */}
       <div className="mt-6 text-center border-t border-[#D4CFC7] pt-4">
