@@ -1,25 +1,25 @@
 import React from 'react'
 import Select, { components } from 'react-select'
 
+const playerIcons = ['🎤', '🎬', '⭐', '🎪', '🎭', '🎨', '🎵', '🎲']
+
 export default function PlayerDropdown({ player, playerIndex = 0, options, selectedAnswer, onSelect }) {
-  const getPercentageColor = (percentage) => {
-    if (percentage <= 20) return { bg: '#84cc16', text: '#0a0f1a' }
-    if (percentage <= 40) return { bg: '#22c55e', text: '#0a0f1a' }
-    if (percentage <= 60) return { bg: '#fbbf24', text: '#0a0f1a' }
-    if (percentage <= 80) return { bg: '#f97316', text: '#0a0f1a' }
-    return { bg: '#ef4444', text: 'white' }
+  const getScoreBadgeClass = (percentage) => {
+    if (percentage <= 20) return 'score-badge-good'
+    if (percentage <= 60) return 'score-badge-ok'
+    return 'score-badge-bad'
   }
 
-  const getPercentageColorClass = (percentage) => {
-    if (percentage <= 20) return { bg: 'bg-emerald-500', text: 'text-white' }
-    if (percentage <= 40) return { bg: 'bg-green-400', text: 'text-white' }
-    if (percentage <= 60) return { bg: 'bg-amber-400', text: 'text-gray-800' }
-    if (percentage <= 80) return { bg: 'bg-orange-500', text: 'text-white' }
-    return { bg: 'bg-red-500', text: 'text-white' }
+  const getPercentageColor = (percentage) => {
+    if (percentage <= 20) return { bg: '#228B22', text: 'white' }
+    if (percentage <= 40) return { bg: '#20B2AA', text: 'white' }
+    if (percentage <= 60) return { bg: '#DAA520', text: '#2C1810' }
+    if (percentage <= 80) return { bg: '#CD853F', text: 'white' }
+    return { bg: '#CD5C5C', text: 'white' }
   }
 
   const selectOptions = [
-    { value: 'invalid', label: 'Invalid', percentage: 100 },
+    { value: 'invalid', label: 'Invalid Answer', percentage: 100 },
     ...options
       .sort((a, b) => a.name.localeCompare(b.name))
       .map(opt => ({
@@ -43,15 +43,12 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
   }
 
   const handleMenuClose = () => {
-    // Blur active element to close mobile keyboard
     if (document.activeElement) {
       document.activeElement.blur()
     }
   }
 
-  const playerIcons = ['🎮', '🎲', '🎪', '🎨', '🎭', '🎯', '🎸', '🎺']
-
-  // Custom Option component with colored percentage badge
+  // Custom Option with score badge
   const CustomOption = (props) => {
     const { data } = props
     const colors = getPercentageColor(data.percentage)
@@ -62,9 +59,9 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
           <span style={{
             backgroundColor: colors.bg,
             color: colors.text,
-            padding: '2px 8px',
-            borderRadius: '6px',
-            fontSize: '11px',
+            padding: '3px 10px',
+            borderRadius: '4px',
+            fontSize: '12px',
             fontWeight: 'bold',
             marginLeft: '8px',
             flexShrink: 0
@@ -79,70 +76,57 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
   const customStyles = {
     control: (base, state) => ({
       ...base,
-      borderColor: state.isFocused ? '#06b6d4' : 'rgba(148, 163, 184, 0.3)',
-      borderWidth: '2px',
-      borderRadius: '0.75rem',
-      boxShadow: state.isFocused ? '0 0 0 3px rgba(6, 182, 212, 0.2)' : 'none',
-      backgroundColor: 'rgba(15, 23, 42, 0.8)',
-      padding: '2px',
+      backgroundColor: 'white',
+      borderColor: state.isFocused ? '#008080' : '#E8DDB5',
+      borderWidth: '3px',
+      borderRadius: '8px',
+      boxShadow: state.isFocused ? '0 0 0 3px rgba(0, 128, 128, 0.2)' : '0 2px 8px rgba(139, 69, 19, 0.1)',
+      padding: '4px',
       '&:hover': {
-        borderColor: '#06b6d4'
+        borderColor: '#008080'
       }
     }),
     option: (base, state) => ({
       ...base,
       backgroundColor: state.isSelected
-        ? '#06b6d4'
+        ? '#008080'
         : state.isFocused
-        ? 'rgba(6, 182, 212, 0.15)'
-        : 'transparent',
-      color: state.isSelected ? '#0a0f1a' : '#f8fafc',
+        ? '#F5EBCE'
+        : 'white',
+      color: state.isSelected ? 'white' : '#2C1810',
       cursor: 'pointer',
-      padding: '10px 12px',
-      fontSize: '0.875rem'
+      padding: '12px 14px',
+      fontSize: '0.9rem',
+      fontWeight: state.isSelected ? '600' : '400'
     }),
     menu: (base) => ({
       ...base,
       zIndex: 50,
-      borderRadius: '0.75rem',
-      boxShadow: '0 0 30px rgba(6, 182, 212, 0.2), 0 10px 25px -5px rgba(0, 0, 0, 0.5)',
-      border: '1px solid rgba(6, 182, 212, 0.3)',
-      backgroundColor: '#1e293b',
+      borderRadius: '8px',
+      boxShadow: '0 8px 32px rgba(139, 69, 19, 0.25)',
+      border: '3px solid #8B4513',
+      backgroundColor: 'white',
       overflow: 'hidden'
     }),
     menuList: (base) => ({
       ...base,
-      padding: '4px',
-      backgroundColor: '#1e293b'
+      padding: '4px'
     }),
     placeholder: (base) => ({
       ...base,
-      color: '#64748b',
-      fontSize: '0.875rem'
+      color: '#8B7355',
+      fontSize: '0.9rem'
     }),
     singleValue: (base) => ({
       ...base,
-      color: '#f8fafc',
-      fontSize: '0.875rem'
+      color: '#2C1810',
+      fontSize: '0.9rem',
+      fontWeight: '500'
     }),
     input: (base) => ({
       ...base,
-      fontSize: '0.875rem',
-      color: '#f8fafc',
-      '& input': {
-        boxShadow: 'none !important',
-        outline: 'none !important',
-        border: 'none !important'
-      }
-    }),
-    inputContainer: (base) => ({
-      ...base,
-      margin: 0,
-      padding: 0
-    }),
-    valueContainer: (base) => ({
-      ...base,
-      padding: '2px 8px'
+      fontSize: '0.9rem',
+      color: '#2C1810'
     }),
     menuPortal: (base) => ({
       ...base,
@@ -150,48 +134,49 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
     })
   }
 
-  const colors = getPercentageColorClass(selectedAnswer?.percentage || 100)
-
   return (
-    <div className="player-card relative p-3 sm:p-4 rounded-xl overflow-hidden">
-      {/* Gradient top bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-orange-500 to-cyan-500"></div>
-
-      <div className="flex items-center justify-between mb-3 pt-1">
+    <div className="player-podium p-4">
+      {/* Player header */}
+      <div className="flex items-center justify-between mb-4 pt-2">
         <div className="flex items-center gap-2">
-          <span className="text-lg sm:text-xl">{playerIcons[playerIndex % playerIcons.length]}</span>
-          <h3 className="font-bold text-gray-800 text-sm sm:text-base">{player}</h3>
+          <div className="w-8 h-8 bg-gradient-to-br from-[#008080] to-[#006666] rounded-lg flex items-center justify-center text-lg shadow-sm">
+            {playerIcons[playerIndex % playerIcons.length]}
+          </div>
+          <h3 className="font-display text-[#2C1810] text-lg">{player}</h3>
         </div>
         {selectedAnswer && (
-          <span className={`score-badge ${colors.bg} ${colors.text} text-xs sm:text-sm`}>
+          <span className={getScoreBadgeClass(selectedAnswer.percentage)}>
             {selectedAnswer.percentage}%
           </span>
         )}
       </div>
 
-      <div className="relative" style={{ zIndex: 1 }}>
-        <Select
-          options={selectOptions}
-          value={currentValue}
-          onChange={handleChange}
-          onMenuClose={handleMenuClose}
-          placeholder="🔍 Type to search..."
-          isSearchable
-          styles={customStyles}
-          components={{ Option: CustomOption }}
-          classNamePrefix="react-select"
-          menuPlacement="auto"
-          maxMenuHeight={180}
-          menuPortalTarget={document.body}
-          blurInputOnSelect={true}
-        />
-      </div>
+      {/* Select dropdown */}
+      <Select
+        inputId={`player-answer-${player.replace(/\s+/g, '-').toLowerCase()}`}
+        name={`answer-${player}`}
+        options={selectOptions}
+        value={currentValue}
+        onChange={handleChange}
+        onMenuClose={handleMenuClose}
+        placeholder="🔍 Search answers..."
+        isSearchable
+        styles={customStyles}
+        components={{ Option: CustomOption }}
+        classNamePrefix="react-select"
+        menuPlacement="auto"
+        maxMenuHeight={180}
+        menuPortalTarget={document.body}
+        blurInputOnSelect={true}
+        aria-label={`Select answer for ${player}`}
+      />
 
+      {/* Selected answer display */}
       {selectedAnswer && (
-        <div className="mt-3 pt-3 border-t border-purple-100">
-          <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1.5">
-            <span className="text-green-500">✓</span>
-            <span className="font-medium text-purple-700 truncate">{selectedAnswer.option}</span>
+        <div className="mt-3 pt-3 border-t-2 border-[#E8DDB5]">
+          <p className="text-sm text-[#5D4037] flex items-center gap-2">
+            <span className="text-[#228B22]">✓</span>
+            <span className="font-semibold text-[#008080] truncate">{selectedAnswer.option}</span>
           </p>
         </div>
       )}
