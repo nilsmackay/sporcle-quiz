@@ -75,14 +75,14 @@ export default function App() {
     setPhase('playing')
   }
 
-  const handleAnswer = (player, questionIndex, answer) => {
-    setAnswers(prev => ({
-      ...prev,
-      [player]: {
-        ...prev[player],
-        [questionIndex]: answer
+  const handleBatchAnswers = (questionIndex, playerAnswers) => {
+    setAnswers(prev => {
+      const next = { ...prev }
+      for (const [player, answer] of Object.entries(playerAnswers)) {
+        next[player] = { ...next[player], [questionIndex]: answer }
       }
-    }))
+      return next
+    })
   }
 
   // After answering, go to round results
@@ -104,7 +104,6 @@ export default function App() {
   const handleContinueFromStandings = () => {
     if (isLastQuestion) {
       setPhase('finished')
-      setShowLeaderboard(true)
     } else if (isDynamicMode) {
       // In dynamic mode, go to picking phase for next question
       setCurrentPicker(getHighestScorer())
@@ -183,8 +182,7 @@ export default function App() {
             players={players}
             currentTheme={currentTheme}
             currentQuestionIndex={currentQuestionIndex}
-            answers={answers}
-            onAnswer={handleAnswer}
+            onBatchAnswers={handleBatchAnswers}
             onNext={handleNext}
             isLastQuestion={isLastQuestion}
             onFinish={handleFinish}
@@ -220,23 +218,27 @@ export default function App() {
           </div>
         )}
 
-        {phase === 'finished' && !showLeaderboard && (
-          <div className="max-w-2xl mx-auto px-4 py-8 text-center">
-            <div className="game-card p-8">
-              <div className="editorial-stamp w-20 h-20 text-[#C23B22] text-3xl mx-auto mb-6">
+        {phase === 'finished' && (
+          <div className="max-w-2xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+            <div className="text-center mb-6">
+              <div className="editorial-stamp w-16 h-16 text-[#C23B22] text-2xl mx-auto mb-3">
                 TS
               </div>
-              <h2 className="text-3xl font-display text-[#1A1A1A] mb-3">Quiz Complete!</h2>
-              <p className="text-[#6B6560] mb-6">
-                Great job, everyone! Click the button below to see who won.
-              </p>
-              <button
-                onClick={() => setShowLeaderboard(true)}
-                className="btn-gold px-8 py-3 text-lg"
-              >
-                View Results
-              </button>
+              <h2 className="text-2xl font-display text-[#1A1A1A]">Quiz Complete!</h2>
             </div>
+            <Leaderboard
+              players={players}
+              answers={answers}
+              selectedThemes={activeThemes}
+              themes={themes}
+              isOverlay={false}
+            />
+            <button
+              onClick={handleNewGame}
+              className="w-full mt-4 btn-gold py-3 sm:py-4 font-bold text-base sm:text-lg"
+            >
+              New Game
+            </button>
           </div>
         )}
       </main>

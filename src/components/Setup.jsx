@@ -81,7 +81,7 @@ export default function Setup({
         </div>
 
         {/* Add player input */}
-        <div className="flex gap-3 mb-5">
+        <div className="flex gap-3 mb-5 overflow-hidden">
           <input
             type="text"
             id="player-name-input"
@@ -91,12 +91,12 @@ export default function Setup({
             onKeyPress={handleKeyPress}
             placeholder="Enter contestant name..."
             aria-label="Contestant name"
-            className="game-input flex-1"
+            className="game-input flex-1 min-w-0"
           />
           <button
             onClick={addPlayer}
             disabled={!newPlayer.trim()}
-            className="btn-teal px-4 text-sm flex-shrink-0"
+            className="btn-teal px-3 text-sm flex-shrink-0"
           >
             Add
           </button>
