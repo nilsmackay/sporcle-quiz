@@ -1,8 +1,11 @@
-import React from 'react'
+import React, { useState, useRef } from 'react'
 import Select, { components } from 'react-select'
 import { getPercentageColor } from '../utils/colors'
 
 export default function PlayerDropdown({ player, playerIndex = 0, options, selectedAnswer, onSelect }) {
+  const [inputValue, setInputValue] = useState('')
+  const selectRef = useRef(null)
+
   // Calculate min and max percentages from available options
   const percentages = options.map(opt => opt.percentage)
   const minPercent = Math.min(...percentages)
@@ -30,11 +33,42 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
         percentage: selected.percentage
       })
     }
+    setInputValue('')
   }
 
   const handleMenuClose = () => {
     if (document.activeElement) {
       document.activeElement.blur()
+    }
+  }
+
+  const handleInputChange = (value, { action }) => {
+    // Only update input value if user is typing
+    if (action === 'input-change') {
+      setInputValue(value)
+    } else if (action === 'menu-close') {
+      setInputValue('')
+    }
+    return value
+  }
+
+  const handleKeyDown = (event) => {
+    // Handle Enter key on mobile keyboards
+    if (event.key === 'Enter' && inputValue) {
+      event.preventDefault()
+
+      // Find the first option that matches the current input
+      const filteredOptions = selectOptions.filter(opt =>
+        opt.label.toLowerCase().includes(inputValue.toLowerCase())
+      )
+
+      if (filteredOptions.length > 0) {
+        handleChange(filteredOptions[0])
+        // Close the menu and blur
+        if (selectRef.current) {
+          selectRef.current.blur()
+        }
+      }
     }
   }
 
@@ -150,12 +184,16 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
 
       {/* Select dropdown */}
       <Select
+        ref={selectRef}
         inputId={`player-answer-${player.replace(/\s+/g, '-').toLowerCase()}`}
         name={`answer-${player}`}
         options={selectOptions}
         value={currentValue}
         onChange={handleChange}
         onMenuClose={handleMenuClose}
+        onInputChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        inputValue={inputValue}
         placeholder="Search answers..."
         isSearchable
         styles={customStyles}
