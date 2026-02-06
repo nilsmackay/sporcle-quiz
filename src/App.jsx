@@ -213,30 +213,28 @@ export default function App() {
             />
             <button
               onClick={handleContinueFromStandings}
-              className="w-full mt-4 btn-success py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg shadow-xl flex items-center justify-center gap-2"
+              className="w-full mt-4 btn-gold py-3 sm:py-4 font-bold text-base sm:text-lg"
             >
-              <span>{isLastQuestion ? '🏆' : '➡️'}</span>
-              <span>{isLastQuestion ? 'Final Results' : 'Next Question'}</span>
+              {isLastQuestion ? 'Final Results' : 'Next Question'}
             </button>
           </div>
         )}
 
         {phase === 'finished' && !showLeaderboard && (
           <div className="max-w-2xl mx-auto px-4 py-8 text-center">
-            <div className="quiz-card p-8">
-              <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <span className="text-4xl trophy-animation">🎉</span>
+            <div className="game-card p-8">
+              <div className="editorial-stamp w-20 h-20 text-[#C23B22] text-3xl mx-auto mb-6">
+                TS
               </div>
-              <h2 className="text-3xl font-bold text-gray-800 mb-3">Quiz Complete!</h2>
-              <p className="text-gray-600 mb-6">
+              <h2 className="text-3xl font-display text-[#1A1A1A] mb-3">Quiz Complete!</h2>
+              <p className="text-[#6B6560] mb-6">
                 Great job, everyone! Click the button below to see who won.
               </p>
               <button
                 onClick={() => setShowLeaderboard(true)}
-                className="btn-primary px-8 py-3 text-lg inline-flex items-center gap-2"
+                className="btn-gold px-8 py-3 text-lg"
               >
-                <span>🏆</span>
-                <span>View Results</span>
+                View Results
               </button>
             </div>
           </div>

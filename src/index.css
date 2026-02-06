@@ -3,96 +3,78 @@
 @tailwind utilities;
 
 /* ============================================
-   RETRO GAME SHOW - Trivia Showdown
-   Inspired by 70s-80s TV game shows
+   PAPER & INK EDITORIAL - Trivia Showdown
+   Sophisticated magazine / broadsheet aesthetic
    ============================================ */
 
 :root {
-  /* Warm cream base */
-  --cream: #FDF6E3;
-  --cream-dark: #F5EBCE;
-  --cream-darker: #E8DDB5;
+  /* Paper & Ink base */
+  --paper: #F7F3ED;
+  --paper-dark: #EDE8DF;
+  --rule: #D4CFC7;
 
-  /* Rich wood tones */
-  --wood: #8B4513;
-  --wood-dark: #5D2E0C;
-  --wood-light: #A0522D;
+  /* Ink */
+  --ink: #1A1A1A;
+  --ink-light: #6B6560;
 
-  /* Luxe gold/brass */
-  --gold: #D4A017;
-  --gold-light: #F4C430;
-  --gold-dark: #B8860B;
-  --brass: #CD853F;
+  /* Accent */
+  --red: #C23B22;
+  --red-dark: #A33020;
+  --red-light: #D4564A;
 
-  /* Teal accent - classic game show blue-green */
-  --teal: #008080;
-  --teal-light: #20B2AA;
-  --teal-dark: #006666;
+  /* Gold (muted) */
+  --gold: #B8924A;
 
   /* Signal colors */
-  --correct: #228B22;
-  --wrong: #CD5C5C;
-  --warning: #DAA520;
+  --correct: #2D6A4F;
+  --wrong: #C23B22;
+  --warning: #B8924A;
 
-  /* Rich burgundy for accents */
-  --burgundy: #722F37;
-  --burgundy-light: #8B3A3A;
-
-  /* Text */
-  --text-dark: #2C1810;
-  --text-medium: #5D4037;
-  --text-light: #8B7355;
-
-  /* Shadows and effects */
-  --shadow-warm: rgba(139, 69, 19, 0.3);
-  --glow-gold: rgba(212, 160, 23, 0.5);
+  /* Shadows */
+  --shadow-soft: rgba(26, 26, 26, 0.08);
+  --shadow-medium: rgba(26, 26, 26, 0.12);
 }
 
 /* Typography */
 .font-display {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Fraunces', serif;
   font-weight: 700;
+  font-optical-sizing: auto;
   letter-spacing: -0.01em;
 }
 
 .font-body {
-  font-family: 'Lexend', sans-serif;
+  font-family: 'Outfit', sans-serif;
 }
 
 * {
-  font-family: 'Lexend', sans-serif;
+  font-family: 'Outfit', sans-serif;
 }
 
 .emoji {
   font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
 }
 
-/* Base body */
+/* Base body - paper background */
 body {
-  background: var(--cream);
-  color: var(--text-dark);
+  background: var(--paper);
+  color: var(--ink);
   min-height: 100vh;
 }
 
-/* Decorative stage curtain effect at top */
+/* Thin red rule at top */
 body::before {
   content: '';
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 8px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--burgundy) 0px,
-    var(--burgundy) 20px,
-    var(--burgundy-light) 20px,
-    var(--burgundy-light) 40px
-  );
+  height: 3px;
+  background: var(--red);
   z-index: 1000;
 }
 
-/* Subtle texture overlay */
+/* Subtle noise texture overlay */
 body::after {
   content: '';
   position: fixed;
@@ -100,50 +82,40 @@ body::after {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%238B4513' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 0;
 }
 
 /* ============================================
-   HEADER - Wood panel with brass trim
+   HEADER - White masthead with rule border
    ============================================ */
 .show-header {
-  background: linear-gradient(180deg, var(--wood) 0%, var(--wood-dark) 100%);
-  border-bottom: 4px solid var(--gold);
-  box-shadow:
-    0 4px 20px var(--shadow-warm),
-    inset 0 2px 0 rgba(255, 255, 255, 0.1);
+  background: white;
+  border-bottom: 1px solid var(--rule);
+  box-shadow: 0 1px 4px var(--shadow-soft);
   position: relative;
 }
 
 .show-header::after {
   content: '';
   position: absolute;
-  bottom: -4px;
+  bottom: -2px;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg,
-    var(--gold-dark),
-    var(--gold-light) 25%,
-    var(--gold) 50%,
-    var(--gold-light) 75%,
-    var(--gold-dark)
-  );
+  height: 1px;
+  background: var(--red);
+  opacity: 0.3;
 }
 
 /* ============================================
-   CARDS - Vintage panel style
+   CARDS - Clean white panels, thin borders
    ============================================ */
 .game-card {
-  background: linear-gradient(135deg, #FFFEF9 0%, var(--cream) 100%);
-  border: 3px solid var(--wood);
-  border-radius: 12px;
-  box-shadow:
-    0 8px 32px var(--shadow-warm),
-    inset 0 2px 0 rgba(255, 255, 255, 0.8),
-    inset 0 -2px 0 rgba(139, 69, 19, 0.1);
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  box-shadow: 0 1px 4px var(--shadow-soft);
   position: relative;
   overflow: hidden;
 }
@@ -154,32 +126,29 @@ body::after {
   top: 0;
   left: 0;
   right: 0;
-  height: 6px;
-  background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-dark));
+  height: 2px;
+  background: var(--red);
 }
 
 /* Answer/theme cards */
 .choice-card {
-  background: var(--cream);
-  border: 2px solid var(--cream-darker);
-  border-radius: 8px;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  transition: all 0.2s ease;
   position: relative;
 }
 
 .choice-card:hover {
-  border-color: var(--teal);
-  background: linear-gradient(135deg, #FFFEF9 0%, var(--cream-dark) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--shadow-warm);
+  border-color: var(--ink);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px var(--shadow-soft);
 }
 
 .choice-card.selected {
-  border-color: var(--gold);
-  background: linear-gradient(135deg, rgba(212, 160, 23, 0.1) 0%, rgba(212, 160, 23, 0.05) 100%);
-  box-shadow:
-    0 0 0 3px rgba(212, 160, 23, 0.2),
-    0 6px 20px var(--shadow-warm);
+  border-color: var(--red);
+  background: rgba(194, 59, 34, 0.03);
+  box-shadow: 0 0 0 1px var(--red);
 }
 
 /* ============================================
@@ -190,28 +159,27 @@ body::after {
   align-items: center;
   gap: 8px;
   padding: 6px 14px;
-  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
-  color: white;
-  border-radius: 20px;
+  background: white;
+  color: var(--ink);
+  border-radius: 0;
+  font-family: 'Fraunces', serif;
   font-weight: 600;
   font-size: 0.875rem;
-  border: 2px solid var(--teal-light);
-  box-shadow: 0 3px 10px rgba(0, 128, 128, 0.3);
+  border: 1px solid var(--ink);
   transition: all 0.2s ease;
 }
 
 .contestant-badge:hover {
-  transform: scale(1.03);
-  box-shadow: 0 4px 15px rgba(0, 128, 128, 0.4);
+  background: var(--paper);
 }
 
 .player-podium {
-  background: linear-gradient(180deg, var(--cream) 0%, var(--cream-dark) 100%);
-  border: 3px solid var(--wood);
-  border-radius: 12px;
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .player-podium::before {
@@ -220,144 +188,130 @@ body::after {
   top: 0;
   left: 0;
   right: 0;
-  height: 5px;
-  background: linear-gradient(90deg, var(--teal-dark), var(--teal-light), var(--teal-dark));
+  height: 2px;
+  background: var(--red);
 }
 
 .player-podium:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px var(--shadow-warm);
+  box-shadow: 0 2px 12px var(--shadow-medium);
 }
 
 /* ============================================
-   BUTTONS - Big chunky game show buttons
+   BUTTONS - Clean editorial style
    ============================================ */
 .btn-gold {
-  background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dark) 100%);
-  color: var(--wood-dark);
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
+  background: var(--red);
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
   font-size: 1rem;
   padding: 14px 28px;
   border: none;
-  border-radius: 8px;
+  border-radius: 2px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  box-shadow:
-    0 4px 0 var(--gold-dark),
-    0 6px 20px var(--glow-gold);
+  letter-spacing: 0.06em;
+  box-shadow: none;
   transition: all 0.15s ease;
   cursor: pointer;
 }
 
 .btn-gold:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow:
-    0 6px 0 var(--gold-dark),
-    0 10px 30px var(--glow-gold);
+  background: var(--red-dark);
+  box-shadow: 0 2px 8px rgba(194, 59, 34, 0.25);
 }
 
 .btn-gold:active:not(:disabled) {
-  transform: translateY(2px);
-  box-shadow:
-    0 2px 0 var(--gold-dark),
-    0 4px 10px var(--glow-gold);
+  background: var(--red-dark);
+  transform: translateY(1px);
 }
 
 .btn-gold:disabled {
-  background: linear-gradient(180deg, #E8DDB5 0%, #D4C5A9 100%);
-  color: #5D4037;
-  border: 2px solid #8B7355;
-  box-shadow: 0 4px 0 #8B7355;
+  background: var(--rule);
+  color: var(--ink-light);
+  border: 1px solid var(--rule);
   cursor: not-allowed;
 }
 
 .btn-teal {
-  background: linear-gradient(180deg, var(--teal-light) 0%, var(--teal) 50%, var(--teal-dark) 100%);
-  color: white;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
+  background: transparent;
+  color: var(--ink);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
   font-size: 1rem;
   padding: 14px 28px;
-  border: none;
-  border-radius: 8px;
+  border: 2px solid var(--ink);
+  border-radius: 2px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  box-shadow:
-    0 4px 0 var(--teal-dark),
-    0 6px 20px rgba(0, 128, 128, 0.4);
+  letter-spacing: 0.06em;
+  box-shadow: none;
   transition: all 0.15s ease;
   cursor: pointer;
 }
 
 .btn-teal:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow:
-    0 6px 0 var(--teal-dark),
-    0 10px 30px rgba(0, 128, 128, 0.5);
+  background: var(--ink);
+  color: white;
 }
 
 .btn-teal:active:not(:disabled) {
-  transform: translateY(2px);
-  box-shadow:
-    0 2px 0 var(--teal-dark),
-    0 4px 10px rgba(0, 128, 128, 0.3);
+  transform: translateY(1px);
 }
 
 .btn-teal:disabled {
-  background: linear-gradient(180deg, #ccc 0%, #aaa 100%);
-  color: #666;
-  box-shadow: 0 4px 0 #888;
+  background: transparent;
+  color: var(--rule);
+  border-color: var(--rule);
   cursor: not-allowed;
 }
 
 /* ============================================
-   SCORE DISPLAY - LCD style
+   SCORE DISPLAY - Bordered callout, serif font
    ============================================ */
 .score-display {
-  background: #1a1a1a;
-  border: 3px solid var(--brass);
-  border-radius: 6px;
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
   padding: 6px 12px;
-  font-family: 'Courier New', monospace;
-  font-weight: bold;
-  color: #00ff00;
-  text-shadow: 0 0 10px #00ff00;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  color: var(--ink);
 }
 
 .score-badge-good {
-  background: linear-gradient(135deg, var(--correct) 0%, #1e6b1e 100%);
+  background: var(--correct);
   color: white;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: 0;
+  font-family: 'Fraunces', serif;
   font-weight: 700;
   font-size: 0.75rem;
-  border: 2px solid #2e8b2e;
+  border: none;
 }
 
 .score-badge-ok {
-  background: linear-gradient(135deg, var(--warning) 0%, #b8960b 100%);
-  color: var(--wood-dark);
+  background: var(--gold);
+  color: white;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: 0;
+  font-family: 'Fraunces', serif;
   font-weight: 700;
   font-size: 0.75rem;
-  border: 2px solid var(--gold-dark);
+  border: none;
 }
 
 .score-badge-bad {
-  background: linear-gradient(135deg, var(--wrong) 0%, #a03030 100%);
+  background: var(--red);
   color: white;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: 0;
+  font-family: 'Fraunces', serif;
   font-weight: 700;
   font-size: 0.75rem;
-  border: 2px solid #b84040;
+  border: none;
 }
 
 /* ============================================
-   ANIMATIONS
+   ANIMATIONS - Restrained, editorial
    ============================================ */
 @keyframes spotlight {
   0%, 100% { opacity: 1; }
@@ -369,18 +323,17 @@ body::after {
 }
 
 @keyframes bounce-in {
-  0% { transform: scale(0.8); opacity: 0; }
-  50% { transform: scale(1.05); }
+  0% { transform: scale(0.95); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
 
 .bounce-in {
-  animation: bounce-in 0.5s ease-out forwards;
+  animation: bounce-in 0.3s ease-out forwards;
 }
 
 @keyframes slide-up {
   from {
-    transform: translateY(30px);
+    transform: translateY(16px);
     opacity: 0;
   }
   to {
@@ -390,50 +343,39 @@ body::after {
 }
 
 .slide-up {
-  animation: slide-up 0.4s ease-out forwards;
+  animation: slide-up 0.3s ease-out forwards;
 }
 
 .stagger-in > * {
   opacity: 0;
-  animation: slide-up 0.4s ease-out forwards;
+  animation: slide-up 0.3s ease-out forwards;
 }
-.stagger-in > *:nth-child(1) { animation-delay: 0.05s; }
-.stagger-in > *:nth-child(2) { animation-delay: 0.1s; }
-.stagger-in > *:nth-child(3) { animation-delay: 0.15s; }
-.stagger-in > *:nth-child(4) { animation-delay: 0.2s; }
-.stagger-in > *:nth-child(5) { animation-delay: 0.25s; }
-.stagger-in > *:nth-child(6) { animation-delay: 0.3s; }
-.stagger-in > *:nth-child(7) { animation-delay: 0.35s; }
-.stagger-in > *:nth-child(8) { animation-delay: 0.4s; }
+.stagger-in > *:nth-child(1) { animation-delay: 0.03s; }
+.stagger-in > *:nth-child(2) { animation-delay: 0.06s; }
+.stagger-in > *:nth-child(3) { animation-delay: 0.09s; }
+.stagger-in > *:nth-child(4) { animation-delay: 0.12s; }
+.stagger-in > *:nth-child(5) { animation-delay: 0.15s; }
+.stagger-in > *:nth-child(6) { animation-delay: 0.18s; }
+.stagger-in > *:nth-child(7) { animation-delay: 0.21s; }
+.stagger-in > *:nth-child(8) { animation-delay: 0.24s; }
 
-@keyframes shine {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
+/* shine-text disabled - just show solid color */
 .shine-text {
-  background: linear-gradient(
-    90deg,
-    var(--gold-dark) 0%,
-    var(--gold-light) 25%,
-    var(--gold) 50%,
-    var(--gold-light) 75%,
-    var(--gold-dark) 100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shine 3s linear infinite;
+  color: var(--ink);
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: unset;
+  animation: none;
 }
 
 @keyframes trophy-wobble {
-  0%, 100% { transform: rotate(-3deg); }
-  50% { transform: rotate(3deg); }
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
 }
 
 .trophy-wobble {
-  animation: trophy-wobble 1s ease-in-out infinite;
+  animation: trophy-wobble 2s ease-in-out infinite;
   display: inline-block;
 }
 
@@ -443,8 +385,8 @@ body::after {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(44, 24, 16, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -453,12 +395,10 @@ body::after {
 }
 
 .leaderboard-panel {
-  background: linear-gradient(180deg, var(--cream) 0%, var(--cream-dark) 100%);
-  border: 4px solid var(--wood);
-  border-radius: 16px;
-  box-shadow:
-    0 0 0 4px var(--gold),
-    0 20px 60px rgba(0, 0, 0, 0.5);
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  box-shadow: 0 8px 40px rgba(26, 26, 26, 0.2);
   max-width: 95vw;
   max-height: 85vh;
   overflow: hidden;
@@ -474,23 +414,22 @@ body::after {
    SCROLLBAR
    ============================================ */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--cream-dark);
-  border-radius: 5px;
+  background: var(--paper);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--wood-light), var(--wood));
-  border-radius: 5px;
-  border: 2px solid var(--cream-dark);
+  background: var(--ink-light);
+  border-radius: 0;
+  border: 2px solid var(--paper);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--wood), var(--wood-dark));
+  background: var(--ink);
 }
 
 /* ============================================
@@ -498,22 +437,34 @@ body::after {
    ============================================ */
 .game-input {
   background: white;
-  border: 3px solid var(--cream-darker);
-  border-radius: 8px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
   padding: 12px 16px;
   font-size: 1rem;
-  color: var(--text-dark);
+  color: var(--ink);
   transition: all 0.2s ease;
 }
 
 .game-input:focus {
   outline: none;
-  border-color: var(--teal);
-  box-shadow: 0 0 0 3px rgba(0, 128, 128, 0.2);
+  border-color: var(--red);
+  box-shadow: 0 0 0 2px rgba(194, 59, 34, 0.15);
 }
 
 .game-input::placeholder {
-  color: var(--text-light);
+  color: var(--ink-light);
+}
+
+/* ============================================
+   FOCUS STYLES - Accessibility
+   ============================================ */
+button:focus {
+  outline: none;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
 }
 
 /* ============================================
@@ -522,21 +473,16 @@ body::after {
 .main-content {
   position: relative;
   z-index: 1;
-  padding-top: 8px;
-}
-
-/* Remove default button/input styles */
-button:focus {
-  outline: none;
+  padding-top: 3px;
 }
 
 /* ============================================
    UTILITY OVERRIDES
    ============================================ */
-.text-gray-800 { color: var(--text-dark) !important; }
-.text-gray-700 { color: var(--text-dark) !important; }
-.text-gray-600 { color: var(--text-medium) !important; }
-.text-gray-500 { color: var(--text-light) !important; }
+.text-gray-800 { color: var(--ink) !important; }
+.text-gray-700 { color: var(--ink) !important; }
+.text-gray-600 { color: var(--ink-light) !important; }
+.text-gray-500 { color: var(--ink-light) !important; }
 
 /* Map old classes to new design */
 .quiz-card { @apply game-card; }
@@ -546,3 +492,22 @@ button:focus {
 .theme-card { @apply choice-card; }
 .btn-primary { @apply btn-teal; }
 .btn-success { @apply btn-gold; }
+
+/* ============================================
+   EDITORIAL UTILITIES
+   ============================================ */
+.editorial-rule {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 1rem 0;
+}
+
+.editorial-stamp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ink);
+  border-radius: 9999px;
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+}

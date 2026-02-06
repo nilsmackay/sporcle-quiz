@@ -35,14 +35,14 @@ export default function QuizQuestion({
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           {/* Category icon and name */}
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-[#008080] to-[#006666] rounded-xl flex items-center justify-center shadow-lg border-3 border-[#20B2AA]">
+            <div className="w-16 h-16 bg-[#F7F3ED] border border-[#D4CFC7] flex items-center justify-center">
               <span className="text-3xl emoji">{getThemeIcon(currentTheme.name)}</span>
             </div>
             <div>
-              <h2 className="text-2xl font-display text-[#2C1810]">
+              <h2 className="text-2xl font-display text-[#1A1A1A]">
                 {currentTheme.name}
               </h2>
-              <p className="text-[#008080] font-medium">
+              <p className="text-[#6B6560] font-medium">
                 {currentTheme.options.length} possible answers
               </p>
             </div>
@@ -50,8 +50,8 @@ export default function QuizQuestion({
 
           {/* Answer counter */}
           <div className="sm:ml-auto">
-            <div className="inline-flex items-center gap-3 bg-[#FDF6E3] border-2 border-[#E8DDB5] px-4 py-2 rounded-lg">
-              <span className="text-[#8B7355]">Responses:</span>
+            <div className="inline-flex items-center gap-3 bg-[#F7F3ED] border border-[#D4CFC7] px-4 py-2">
+              <span className="text-[#6B6560]">Responses:</span>
               <span className="score-display">
                 {answeredCount}/{players.length}
               </span>
@@ -60,10 +60,9 @@ export default function QuizQuestion({
         </div>
 
         {/* Tip */}
-        <div className="mt-5 pt-4 border-t-2 border-[#E8DDB5]">
-          <p className="text-[#8B7355] text-sm flex items-center gap-2">
-            <span>💡</span>
-            <span>Pick the most obscure answer you think is correct! Type to search.</span>
+        <div className="mt-5 pt-4 border-t border-[#D4CFC7]">
+          <p className="text-[#6B6560] text-sm italic">
+            Pick the most obscure answer you think is correct. Type to search.
           </p>
         </div>
       </div>
@@ -87,8 +86,7 @@ export default function QuizQuestion({
         {/* Waiting message */}
         <div className="text-center sm:text-left order-2 sm:order-1">
           {!allPlayersAnswered && (
-            <p className="text-[#8B7355] text-sm flex items-center justify-center sm:justify-start gap-2">
-              <span className="spotlight">⏳</span>
+            <p className="text-[#6B6560] text-sm flex items-center justify-center sm:justify-start gap-2">
               <span>Waiting for {players.length - answeredCount} more answer{players.length - answeredCount !== 1 ? 's' : ''}...</span>
             </p>
           )}
@@ -100,10 +98,9 @@ export default function QuizQuestion({
             <button
               onClick={onFinish}
               disabled={!allPlayersAnswered}
-              className="w-full sm:w-auto btn-gold px-8 py-4 text-lg flex items-center justify-center gap-2"
+              className="w-full sm:w-auto btn-gold px-8 py-4 text-lg"
             >
-              <span>🏁</span>
-              <span>{allPlayersAnswered ? 'Final Round!' : 'All Must Answer'}</span>
+              {allPlayersAnswered ? 'Final Round' : 'All Must Answer'}
             </button>
           ) : (
             <button

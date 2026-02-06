@@ -24,31 +24,27 @@ export default function QuestionPicker({
     <div className="max-w-2xl mx-auto px-4 py-6 slide-up">
       {/* Header */}
       <div className="game-card p-6 mb-6 text-center">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#F4C430] to-[#B8860B] rounded-full mb-4 shadow-xl border-4 border-[#F4C430]/50 spotlight">
-          <span className="text-4xl">🎯</span>
+        <div className="editorial-stamp w-20 h-20 text-[#C23B22] text-3xl mb-4 mx-auto">
+          ?
         </div>
-        <h2 className="text-2xl font-display text-[#2C1810] mb-2">
-          Pick a Category!
+        <h2 className="text-2xl font-display text-[#1A1A1A] mb-2">
+          Pick a Category
         </h2>
-        <p className="text-[#008080] font-medium mb-4">
+        <p className="text-[#6B6560] font-medium mb-4">
           Round {currentQuestionIndex + 1} of {totalQuestions}
         </p>
 
         {/* Current picker highlight */}
-        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#F4C430]/30 to-[#DAA520]/20 border-2 border-[#D4A017] px-5 py-3 rounded-full">
-          <span className="text-2xl">👑</span>
-          <span className="font-display text-[#B8860B] text-lg">{currentPicker}'s turn!</span>
+        <div className="inline-flex items-center gap-3 border-2 border-[#C23B22] px-5 py-3">
+          <span className="font-display text-[#C23B22] text-lg">{currentPicker}'s turn</span>
         </div>
       </div>
 
       {/* Available Categories */}
       <div className="game-card p-6">
         <div className="flex items-center justify-between gap-3 mb-5">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">📖</span>
-            <h3 className="text-xl font-display text-[#2C1810]">Available Categories</h3>
-          </div>
-          <span className="bg-[#008080] text-white text-sm font-bold px-3 py-1 rounded-full">
+          <h3 className="text-xl font-display text-[#1A1A1A]">Available Categories</h3>
+          <span className="border-2 border-[#1A1A1A] text-[#1A1A1A] text-sm font-bold px-3 py-1">
             {availableThemes.length} left
           </span>
         </div>
@@ -61,18 +57,18 @@ export default function QuestionPicker({
               className="choice-card w-full flex items-center gap-4 p-4 text-left group"
             >
               {/* Icon */}
-              <div className="w-12 h-12 bg-gradient-to-br from-[#008080] to-[#006666] rounded-xl flex items-center justify-center text-2xl shadow-md group-hover:scale-110 transition-transform border-2 border-[#20B2AA]">
+              <div className="w-12 h-12 bg-[#F7F3ED] border border-[#D4CFC7] flex items-center justify-center text-2xl group-hover:border-[#1A1A1A] transition-colors">
                 <span className="emoji">{getThemeIcon(theme.name)}</span>
               </div>
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <span className="font-bold text-[#2C1810] block line-clamp-2 text-lg">{theme.name}</span>
-                <span className="text-sm text-[#008080]">{theme.options.length} possible answers</span>
+                <span className="font-bold text-[#1A1A1A] block line-clamp-2 text-lg">{theme.name}</span>
+                <span className="text-sm text-[#6B6560]">{theme.options.length} possible answers</span>
               </div>
 
               {/* Arrow */}
-              <div className="text-[#008080] group-hover:translate-x-1 transition-transform">
+              <div className="text-[#6B6560] group-hover:text-[#1A1A1A] group-hover:translate-x-1 transition-all">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
@@ -83,10 +79,9 @@ export default function QuestionPicker({
       </div>
 
       {/* Info footer */}
-      <div className="mt-6 text-center">
-        <p className="text-[#8B7355] text-sm flex items-center justify-center gap-2">
-          <span>💡</span>
-          <span>The player with the highest score picks next!</span>
+      <div className="mt-6 text-center border-t border-[#D4CFC7] pt-4">
+        <p className="text-[#6B6560] text-sm italic">
+          The player with the highest score picks next.
         </p>
       </div>
     </div>

@@ -1,8 +1,6 @@
 import React from 'react'
 import Select, { components } from 'react-select'
 
-const playerIcons = ['🎤', '🎬', '⭐', '🎪', '🎭', '🎨', '🎵', '🎲']
-
 export default function PlayerDropdown({ player, playerIndex = 0, options, selectedAnswer, onSelect }) {
   const getScoreBadgeClass = (percentage) => {
     if (percentage <= 20) return 'score-badge-good'
@@ -11,11 +9,11 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
   }
 
   const getPercentageColor = (percentage) => {
-    if (percentage <= 20) return { bg: '#228B22', text: 'white' }
-    if (percentage <= 40) return { bg: '#20B2AA', text: 'white' }
-    if (percentage <= 60) return { bg: '#DAA520', text: '#2C1810' }
-    if (percentage <= 80) return { bg: '#CD853F', text: 'white' }
-    return { bg: '#CD5C5C', text: 'white' }
+    if (percentage <= 20) return { bg: '#2D6A4F', text: 'white' }
+    if (percentage <= 40) return { bg: '#6B6560', text: 'white' }
+    if (percentage <= 60) return { bg: '#B8924A', text: 'white' }
+    if (percentage <= 80) return { bg: '#D4564A', text: 'white' }
+    return { bg: '#C23B22', text: 'white' }
   }
 
   const selectOptions = [
@@ -60,8 +58,9 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
             backgroundColor: colors.bg,
             color: colors.text,
             padding: '3px 10px',
-            borderRadius: '4px',
+            borderRadius: '0',
             fontSize: '12px',
+            fontFamily: "'Fraunces', serif",
             fontWeight: 'bold',
             marginLeft: '8px',
             flexShrink: 0
@@ -77,23 +76,23 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
     control: (base, state) => ({
       ...base,
       backgroundColor: 'white',
-      borderColor: state.isFocused ? '#008080' : '#E8DDB5',
-      borderWidth: '3px',
-      borderRadius: '8px',
-      boxShadow: state.isFocused ? '0 0 0 3px rgba(0, 128, 128, 0.2)' : '0 2px 8px rgba(139, 69, 19, 0.1)',
+      borderColor: state.isFocused ? '#C23B22' : '#D4CFC7',
+      borderWidth: '1px',
+      borderRadius: '2px',
+      boxShadow: state.isFocused ? '0 0 0 2px rgba(194, 59, 34, 0.15)' : 'none',
       padding: '4px',
       '&:hover': {
-        borderColor: '#008080'
+        borderColor: '#1A1A1A'
       }
     }),
     option: (base, state) => ({
       ...base,
       backgroundColor: state.isSelected
-        ? '#008080'
+        ? '#1A1A1A'
         : state.isFocused
-        ? '#F5EBCE'
+        ? '#F7F3ED'
         : 'white',
-      color: state.isSelected ? 'white' : '#2C1810',
+      color: state.isSelected ? 'white' : '#1A1A1A',
       cursor: 'pointer',
       padding: '12px 14px',
       fontSize: '0.9rem',
@@ -102,9 +101,9 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
     menu: (base) => ({
       ...base,
       zIndex: 50,
-      borderRadius: '8px',
-      boxShadow: '0 8px 32px rgba(139, 69, 19, 0.25)',
-      border: '3px solid #8B4513',
+      borderRadius: '2px',
+      boxShadow: '0 4px 20px rgba(26, 26, 26, 0.15)',
+      border: '1px solid #D4CFC7',
       backgroundColor: 'white',
       overflow: 'hidden'
     }),
@@ -114,19 +113,19 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
     }),
     placeholder: (base) => ({
       ...base,
-      color: '#8B7355',
+      color: '#6B6560',
       fontSize: '0.9rem'
     }),
     singleValue: (base) => ({
       ...base,
-      color: '#2C1810',
+      color: '#1A1A1A',
       fontSize: '0.9rem',
       fontWeight: '500'
     }),
     input: (base) => ({
       ...base,
       fontSize: '0.9rem',
-      color: '#2C1810'
+      color: '#1A1A1A'
     }),
     menuPortal: (base) => ({
       ...base,
@@ -139,10 +138,10 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
       {/* Player header */}
       <div className="flex items-center justify-between mb-4 pt-2">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-[#008080] to-[#006666] rounded-lg flex items-center justify-center text-lg shadow-sm">
-            {playerIcons[playerIndex % playerIcons.length]}
+          <div className="editorial-stamp w-8 h-8 text-sm text-[#C23B22]">
+            {playerIndex + 1}
           </div>
-          <h3 className="font-display text-[#2C1810] text-lg">{player}</h3>
+          <h3 className="font-display text-[#1A1A1A] text-lg">{player}</h3>
         </div>
         {selectedAnswer && (
           <span className={getScoreBadgeClass(selectedAnswer.percentage)}>
@@ -159,7 +158,7 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
         value={currentValue}
         onChange={handleChange}
         onMenuClose={handleMenuClose}
-        placeholder="🔍 Search answers..."
+        placeholder="Search answers..."
         isSearchable
         styles={customStyles}
         components={{ Option: CustomOption }}
@@ -173,10 +172,10 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
 
       {/* Selected answer display */}
       {selectedAnswer && (
-        <div className="mt-3 pt-3 border-t-2 border-[#E8DDB5]">
-          <p className="text-sm text-[#5D4037] flex items-center gap-2">
-            <span className="text-[#228B22]">✓</span>
-            <span className="font-semibold text-[#008080] truncate">{selectedAnswer.option}</span>
+        <div className="mt-3 pt-3 border-t border-[#D4CFC7]">
+          <p className="text-sm text-[#6B6560] flex items-center gap-2">
+            <span className="text-[#2D6A4F]">✓</span>
+            <span className="font-semibold text-[#1A1A1A] truncate">{selectedAnswer.option}</span>
           </p>
         </div>
       )}
