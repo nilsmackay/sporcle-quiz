@@ -45,7 +45,8 @@ const CATEGORIES = [
       'harry-potter-characters',
       'monopoly-streets-dutch',
       'pixar-movies',
-      'disney-animated-movies'
+      'disney-animated-movies',
+      'james-bond-movies'
     ]
   }
 ]

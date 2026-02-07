@@ -1529,5 +1529,36 @@
       { "name": "Saludos Amigos (1943)", "percentage": 21.4 },
       { "name": "The Adventures of Ichabod and Mr. Toad / De Avonturen van Ichabod en Meneer Pad (1949)", "percentage": 20.9 }
     ]
+  },
+  {
+    "id": "james-bond-movies",
+    "name": "James Bond Movies",
+    "options": [
+      { "name": "Casino Royale (2006)", "percentage": 93.1 },
+      { "name": "Goldfinger (1964)", "percentage": 90.7 },
+      { "name": "Dr. No (1962)", "percentage": 90.3 },
+      { "name": "Skyfall (2012)", "percentage": 87.9 },
+      { "name": "GoldenEye (1995)", "percentage": 86 },
+      { "name": "Octopussy (1983)", "percentage": 84 },
+      { "name": "From Russia With Love (1963)", "percentage": 82.1 },
+      { "name": "Spectre (2015)", "percentage": 81.6 },
+      { "name": "Quantum of Solace (2008)", "percentage": 79.9 },
+      { "name": "Moonraker (1979)", "percentage": 79.2 },
+      { "name": "No Time to Die (2021)", "percentage": 79.1 },
+      { "name": "Die Another Day (2002)", "percentage": 78.4 },
+      { "name": "The Man with the Golden Gun (1974)", "percentage": 75.4 },
+      { "name": "Tomorrow Never Dies (1997)", "percentage": 72.9 },
+      { "name": "Thunderball (1965)", "percentage": 72.4 },
+      { "name": "Live and Let Die (1973)", "percentage": 72.1 },
+      { "name": "The World Is Not Enough (1999)", "percentage": 70.9 },
+      { "name": "On Her Majesty's Secret Service (1969)", "percentage": 69.9 },
+      { "name": "Diamonds Are Forever (1971)", "percentage": 69.5 },
+      { "name": "You Only Live Twice (1967)", "percentage": 67.1 },
+      { "name": "The Spy Who Loved Me (1977)", "percentage": 66.8 },
+      { "name": "Licence to Kill (1989)", "percentage": 65.6 },
+      { "name": "A View to a Kill (1985)", "percentage": 62.2 },
+      { "name": "The Living Daylights (1987)", "percentage": 59.9 },
+      { "name": "For Your Eyes Only (1981)", "percentage": 51 }
+    ]
   }
 ]
