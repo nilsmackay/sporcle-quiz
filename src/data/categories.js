@@ -44,7 +44,8 @@ const CATEGORIES = [
       'periodic-table',
       'harry-potter-characters',
       'monopoly-streets-dutch',
-      'pixar-movies'
+      'pixar-movies',
+      'disney-animated-movies'
     ]
   }
 ]
