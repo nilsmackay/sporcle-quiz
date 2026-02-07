@@ -32,7 +32,10 @@ const CATEGORIES = [
       'oscar-best-picture',
       'time-person-of-the-year',
       'grammy-album-of-the-year',
-      'grammy-record-of-the-year'
+      'grammy-record-of-the-year',
+      'pixar-movies',
+      'disney-animated-movies',
+      'james-bond-movies'
     ]
   },
   {
@@ -44,9 +47,6 @@ const CATEGORIES = [
       'periodic-table',
       'harry-potter-characters',
       'monopoly-streets-dutch',
-      'pixar-movies',
-      'disney-animated-movies',
-      'james-bond-movies',
       'greek-alphabet'
     ]
   }
