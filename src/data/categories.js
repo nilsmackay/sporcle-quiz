@@ -7,7 +7,9 @@ const CATEGORIES = [
       'champions-league-winners',
       'f1-champions',
       'summer-olympics-gold',
-      'winter-olympics-gold-medal-countries'
+      'winter-olympics-gold-medal-countries',
+      'winter-olympics-2026-sports',
+      'summer-olympics-2024-sports'
     ]
   },
   {
@@ -30,7 +32,11 @@ const CATEGORIES = [
       'oscar-best-picture',
       'time-person-of-the-year',
       'grammy-album-of-the-year',
-      'grammy-record-of-the-year'
+      'grammy-record-of-the-year',
+      'pixar-movies',
+      'disney-animated-movies',
+      'james-bond-movies',
+      'iba-official-cocktails'
     ]
   },
   {
@@ -41,7 +47,8 @@ const CATEGORIES = [
       'pokemon-gen1',
       'periodic-table',
       'harry-potter-characters',
-      'monopoly-streets-dutch'
+      'monopoly-streets-dutch',
+      'greek-alphabet'
     ]
   }
 ]
