@@ -46,7 +46,8 @@ const CATEGORIES = [
       'monopoly-streets-dutch',
       'pixar-movies',
       'disney-animated-movies',
-      'james-bond-movies'
+      'james-bond-movies',
+      'greek-alphabet'
     ]
   }
 ]

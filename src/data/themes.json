@@ -1560,5 +1560,35 @@
       { "name": "The Living Daylights (1987)", "percentage": 59.9 },
       { "name": "For Your Eyes Only (1981)", "percentage": 51 }
     ]
+  },
+  {
+    "id": "greek-alphabet",
+    "name": "Greek Alphabet",
+    "options": [
+      { "name": "Alpha", "percentage": 99.5 },
+      { "name": "Beta", "percentage": 99.2 },
+      { "name": "Delta", "percentage": 96.5 },
+      { "name": "Gamma", "percentage": 94.3 },
+      { "name": "Omega", "percentage": 93.1 },
+      { "name": "Epsilon", "percentage": 92 },
+      { "name": "Pi", "percentage": 89.9 },
+      { "name": "Zeta", "percentage": 89.5 },
+      { "name": "Theta", "percentage": 89.3 },
+      { "name": "Mu", "percentage": 88.8 },
+      { "name": "Kappa", "percentage": 87.7 },
+      { "name": "Sigma", "percentage": 84.9 },
+      { "name": "Nu", "percentage": 83.8 },
+      { "name": "Phi", "percentage": 82.7 },
+      { "name": "Lambda", "percentage": 81.8 },
+      { "name": "Iota", "percentage": 76.8 },
+      { "name": "Chi", "percentage": 76.4 },
+      { "name": "Tau", "percentage": 75.9 },
+      { "name": "Psi", "percentage": 74.4 },
+      { "name": "Eta", "percentage": 73.5 },
+      { "name": "Rho", "percentage": 73.3 },
+      { "name": "Omicron", "percentage": 73.1 },
+      { "name": "Upsilon", "percentage": 69.2 },
+      { "name": "Xi", "percentage": 68.1 }
+    ]
   }
 ]
