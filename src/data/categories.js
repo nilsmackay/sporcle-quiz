@@ -43,7 +43,8 @@ const CATEGORIES = [
       'pokemon-gen1',
       'periodic-table',
       'harry-potter-characters',
-      'monopoly-streets-dutch'
+      'monopoly-streets-dutch',
+      'pixar-movies'
     ]
   }
 ]
