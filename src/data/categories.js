@@ -7,7 +7,8 @@ const CATEGORIES = [
       'champions-league-winners',
       'f1-champions',
       'summer-olympics-gold',
-      'winter-olympics-gold-medal-countries'
+      'winter-olympics-gold-medal-countries',
+      'winter-olympics-2026-sports'
     ]
   },
   {

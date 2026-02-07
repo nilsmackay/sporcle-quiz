@@ -1352,5 +1352,27 @@
       { "name": "Houtstraat (Haarlem)", "percentage": 48 },
       { "name": "Zijlweg (Haarlem)", "percentage": 46 }
     ]
+  },
+  {
+    "id": "winter-olympics-2026-sports",
+    "name": "Sports at the 2026 Winter Olympics",
+    "options": [
+      { "name": "Ice Hockey / IJshockey", "percentage": 83.3 },
+      { "name": "Figure Skating / Kunstschaatsen", "percentage": 81.4 },
+      { "name": "Bobsleigh / Bobsleeën", "percentage": 80.7 },
+      { "name": "Curling / Curling", "percentage": 77.1 },
+      { "name": "Luge / Rodelen", "percentage": 75.6 },
+      { "name": "Snowboarding / Snowboarden", "percentage": 74.1 },
+      { "name": "Speed Skating / Schaatsen", "percentage": 74 },
+      { "name": "Skeleton / Skeleton", "percentage": 71.8 },
+      { "name": "Cross-country Skiing / Langlaufen", "percentage": 65.6 },
+      { "name": "Biathlon / Biatlon", "percentage": 65.3 },
+      { "name": "Ski Jumping / Schansspringen", "percentage": 63.9 },
+      { "name": "Alpine Skiing / Alpineskiën", "percentage": 62.9 },
+      { "name": "Freestyle Skiing / Freestyleskiën", "percentage": 46.7 },
+      { "name": "Short Track / Shorttrack", "percentage": 36.1 },
+      { "name": "Nordic Combined / Noordse Combinatie", "percentage": 32.2 },
+      { "name": "Ski Mountaineering / Skibergbeklimmen", "percentage": 21.4 }
+    ]
   }
 ]
