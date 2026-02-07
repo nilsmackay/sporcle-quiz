@@ -20,6 +20,7 @@ export default function App() {
   const [dynamicQuestionCount, setDynamicQuestionCount] = useState(3)
   const [currentPicker, setCurrentPicker] = useState('')
   const [playedThemes, setPlayedThemes] = useState([])
+  const [dynamicAvailableThemes, setDynamicAvailableThemes] = useState(themes.map(t => t.id))
 
   // In dynamic mode, use playedThemes; otherwise use selectedThemes
   const activeThemes = isDynamicMode ? playedThemes : selectedThemes
@@ -128,6 +129,7 @@ export default function App() {
     setDynamicQuestionCount(3)
     setCurrentPicker('')
     setPlayedThemes([])
+    setDynamicAvailableThemes(themes.map(t => t.id))
   }
 
   // Determine total questions based on mode
@@ -163,6 +165,8 @@ export default function App() {
             setDynamicQuestionCount={setDynamicQuestionCount}
             currentPicker={currentPicker}
             setCurrentPicker={setCurrentPicker}
+            dynamicAvailableThemes={dynamicAvailableThemes}
+            setDynamicAvailableThemes={setDynamicAvailableThemes}
           />
         )}
 
@@ -170,6 +174,7 @@ export default function App() {
           <QuestionPicker
             themes={themes}
             playedThemes={playedThemes}
+            availableThemes={dynamicAvailableThemes}
             currentPicker={currentPicker}
             currentQuestionIndex={currentQuestionIndex}
             totalQuestions={dynamicQuestionCount}
