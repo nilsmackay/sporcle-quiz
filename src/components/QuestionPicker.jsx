@@ -4,6 +4,7 @@ import CATEGORIES from '../data/categories'
 export default function QuestionPicker({
   themes,
   playedThemes,
+  availableThemes,
   currentPicker,
   currentQuestionIndex,
   totalQuestions,
@@ -14,8 +15,10 @@ export default function QuestionPicker({
 
   // For each category, get the themes that haven't been played yet
   const getAvailableThemes = useCallback((category) => {
-    return category.themes.filter(themeId => !playedThemes.includes(themeId))
-  }, [playedThemes])
+    return category.themes.filter(themeId =>
+      availableThemes.includes(themeId) && !playedThemes.includes(themeId)
+    )
+  }, [availableThemes, playedThemes])
 
   const handleCategoryClick = (category) => {
     if (flippedCategory) return // already picked
