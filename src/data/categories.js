@@ -35,7 +35,8 @@ const CATEGORIES = [
       'grammy-record-of-the-year',
       'pixar-movies',
       'disney-animated-movies',
-      'james-bond-movies'
+      'james-bond-movies',
+      'iba-official-cocktails'
     ]
   },
   {
