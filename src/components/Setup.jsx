@@ -16,7 +16,8 @@ export default function Setup({
   currentPicker,
   setCurrentPicker,
   dynamicAvailableThemes,
-  setDynamicAvailableThemes
+  setDynamicAvailableThemes,
+  youtubeVideoCount
 }) {
   const [newPlayer, setNewPlayer] = useState('')
 
@@ -89,6 +90,27 @@ export default function Setup({
           Welcome, Contestants!
         </h1>
         <p className="text-[#6B6560] text-lg">The ultimate trivia challenge awaits</p>
+      </div>
+
+      {/* Tonight's Format */}
+      <div className="game-card p-5 mb-6">
+        <h2 className="text-lg font-display text-[#1A1A1A] mb-3">Tonight's Format</h2>
+        <div className="space-y-2">
+          <div className="flex items-center gap-3 text-sm">
+            <span className="editorial-stamp w-7 h-7 text-xs flex-shrink-0">1</span>
+            <div>
+              <span className="font-bold text-[#1A1A1A]">YouTube Views</span>
+              <span className="text-[#6B6560] ml-1">— Guess the view count ({youtubeVideoCount} videos)</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <span className="editorial-stamp w-7 h-7 text-xs flex-shrink-0">2</span>
+            <div>
+              <span className="font-bold text-[#1A1A1A]">The Sporcle Round</span>
+              <span className="text-[#6B6560] ml-1">— Pick the most obscure answer</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Contestants Card */}

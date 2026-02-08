@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { getPercentageColor } from '../utils/colors'
+import { calculateYouTubeScore, getYouTubeScoreColor } from '../utils/youtube'
 
 // Tooltip for truncated text: hover on desktop, tap on mobile.
 // Renders via portal to avoid clipping by overflow-x-auto on the table.
@@ -53,7 +54,20 @@ function TruncatedText({ text, className = '' }) {
   )
 }
 
-export default function Leaderboard({ players, answers, selectedThemes, themes, onClose, isOverlay = true }) {
+export default function Leaderboard({
+  players,
+  answers,
+  selectedThemes,
+  themes,
+  onClose,
+  isOverlay = true,
+  youtubeGuesses,
+  youtubeVideos,
+  videoMetadata
+}) {
+  const hasYouTube = youtubeVideos && youtubeVideos.length > 0 && youtubeGuesses && Object.keys(youtubeGuesses).length > 0
+  const hasSporcle = selectedThemes && selectedThemes.length > 0
+
   // Helper to get min/max percentages for a theme
   const getThemeRange = (themeId) => {
     const theme = themes.find(t => t.id === themeId)
@@ -62,8 +76,9 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
     return { minPercent: Math.min(...percentages), maxPercent: Math.max(...percentages) }
   }
 
-  const calculateTotalScore = (player) => {
+  const calculateSporcleTotal = (player) => {
     let total = 0
+    if (!selectedThemes) return total
     selectedThemes.forEach((_, index) => {
       const answer = answers[player]?.[index]
       if (answer) {
@@ -73,11 +88,27 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
     return total
   }
 
+  const calculateYouTubeTotal = (player) => {
+    if (!hasYouTube) return 0
+    let total = 0
+    youtubeVideos.forEach((video, index) => {
+      const guess = youtubeGuesses[player]?.[index]
+      if (guess !== undefined) {
+        total += calculateYouTubeScore(guess, video.views)
+      }
+    })
+    return total
+  }
+
+  const calculateGrandTotal = (player) => {
+    return calculateYouTubeTotal(player) + calculateSporcleTotal(player)
+  }
+
   const sortedPlayers = [...players].sort((a, b) => {
-    return calculateTotalScore(a) - calculateTotalScore(b)
+    return calculateGrandTotal(a) - calculateGrandTotal(b)
   })
 
-  const lowestScore = sortedPlayers.length > 0 ? calculateTotalScore(sortedPlayers[0]) : null
+  const lowestScore = sortedPlayers.length > 0 ? calculateGrandTotal(sortedPlayers[0]) : null
 
   const getThemeIcon = (themeName) => {
     const name = themeName?.toLowerCase() || ''
@@ -86,6 +117,14 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
     if (name.includes('europe') || name.includes('capital')) return '🏛️'
     if (name.includes('states') || name.includes('america')) return '🗽'
     return '📚'
+  }
+
+  // Compute YouTube average ratio for color grading
+  const getYouTubeAvgRatio = (player) => {
+    if (!hasYouTube) return 1
+    const total = calculateYouTubeTotal(player)
+    const count = youtubeVideos.filter((_, i) => youtubeGuesses[player]?.[i] !== undefined).length
+    return count > 0 ? total / count : 1
   }
 
   const content = (
@@ -99,7 +138,9 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
             </div>
             <div>
               <h2 className="text-2xl font-display text-[#1A1A1A]">Leaderboard</h2>
-              <p className="text-[#6B6560] text-sm">Final Standings</p>
+              <p className="text-[#6B6560] text-sm">
+                {hasYouTube && hasSporcle ? 'Combined Standings' : hasYouTube ? 'YouTube Round' : 'Final Standings'}
+              </p>
             </div>
           </div>
           {isOverlay && (
@@ -107,7 +148,7 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
               onClick={onClose}
               className="w-10 h-10 flex items-center justify-center border-2 border-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white text-[#1A1A1A] font-bold text-xl transition-colors"
             >
-              ×
+              &times;
             </button>
           )}
         </div>
@@ -124,7 +165,17 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
               <th className="text-left py-3 px-3 font-display text-[#1A1A1A] text-sm">
                 Contestant
               </th>
-              {selectedThemes.map((themeId) => {
+              {/* YouTube summary column */}
+              {hasYouTube && (
+                <th className="text-center py-3 px-2 min-w-[80px]">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-lg">📺</span>
+                    <span className="text-xs text-[#6B6560]">YouTube</span>
+                  </div>
+                </th>
+              )}
+              {/* Sporcle theme columns */}
+              {hasSporcle && selectedThemes.map((themeId) => {
                 const theme = themes.find(t => t.id === themeId)
                 return (
                   <th key={themeId} className="text-center py-3 px-2 min-w-[80px]">
@@ -136,14 +187,14 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
                 )
               })}
               <th className="text-center py-3 px-4 font-display text-[#C23B22] text-sm border-l border-[#D4CFC7]">
-                Total
+                {hasYouTube && hasSporcle ? 'Grand Total' : 'Total'}
               </th>
             </tr>
           </thead>
           <tbody>
             {sortedPlayers.map((player, playerIndex) => {
-              const totalScore = calculateTotalScore(player)
-              const isLeader = totalScore === lowestScore
+              const grandTotal = calculateGrandTotal(player)
+              const isLeader = grandTotal === lowestScore
 
               return (
                 <tr
@@ -166,8 +217,31 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
                     </span>
                   </td>
 
-                  {/* Round scores */}
-                  {selectedThemes.map((themeId, index) => {
+                  {/* YouTube score cell */}
+                  {hasYouTube && (
+                    <td className="py-3 px-2 text-center">
+                      {(() => {
+                        const ytTotal = calculateYouTubeTotal(player)
+                        const avgRatio = getYouTubeAvgRatio(player)
+                        const colors = getYouTubeScoreColor(avgRatio)
+                        return (
+                          <span style={{
+                            backgroundColor: colors.bg,
+                            color: colors.text,
+                            padding: '3px 10px',
+                            fontSize: '12px',
+                            fontFamily: "'Fraunces', serif",
+                            fontWeight: 'bold',
+                          }}>
+                            {ytTotal.toFixed(1)}
+                          </span>
+                        )
+                      })()}
+                    </td>
+                  )}
+
+                  {/* Sporcle round scores */}
+                  {hasSporcle && selectedThemes.map((themeId, index) => {
                     const answer = answers[player]?.[index]
                     const { minPercent, maxPercent } = getThemeRange(themeId)
                     return (
@@ -192,16 +266,16 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
                             <TruncatedText text={answer.option} className="text-xs text-[#6B6560]" />
                           </div>
                         ) : (
-                          <span className="text-[#D4CFC7]">—</span>
+                          <span className="text-[#D4CFC7]">&mdash;</span>
                         )}
                       </td>
                     )
                   })}
 
-                  {/* Total */}
+                  {/* Grand Total */}
                   <td className="py-3 px-4 text-center border-l border-[#D4CFC7]">
                     <span className={`text-xl font-display ${isLeader ? 'text-[#C23B22]' : 'text-[#1A1A1A]'}`}>
-                      {totalScore}
+                      {grandTotal.toFixed(1)}
                     </span>
                   </td>
                 </tr>
@@ -214,7 +288,11 @@ export default function Leaderboard({ players, answers, selectedThemes, themes, 
       {/* Footer */}
       <div className="p-4 border-t border-[#D4CFC7]">
         <p className="text-sm text-[#6B6560] text-center italic">
-          Lower scores win. Invalid answers count as 100%.
+          {hasYouTube && hasSporcle
+            ? 'Lower scores win. YouTube ratios + Sporcle percentages combined.'
+            : hasYouTube
+            ? 'Lower scores win. Closer to 1.0x = better guess.'
+            : 'Lower scores win. Invalid answers count as 100%.'}
         </p>
       </div>
     </div>

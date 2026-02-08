@@ -2,9 +2,10 @@
 
 ## Architecture
 - React + Vite + Tailwind CSS
-- Components: Header, Setup, QuizQuestion, QuestionPicker, PlayerDropdown, RoundResults, Leaderboard
-- App.jsx is a state machine routing phases: setup -> picking/playing -> round-results -> standings -> finished
-- App.jsx also renders its own JSX for standings and finished states - don't forget these during restyling
+- **Two-round game**: Round 1 (YouTube Views) → Round 2 (The Sporcle Round)
+- Components: Header, Setup, QuizQuestion, QuestionPicker, PlayerDropdown, RoundResults, Leaderboard, YouTubeQuestion, YouTubeResults
+- App.jsx is a state machine routing phases: setup → youtube-playing → youtube-results → youtube-standings → picking/playing → round-results → standings → finished
+- App.jsx also renders its own JSX for standings, youtube-standings, and finished states - don't forget these during restyling
 - Uses react-select for dropdowns, react-switch for toggles
 
 ## Design System: Paper & Ink Editorial
@@ -18,8 +19,18 @@
 - **colors.js**: `interpolateColor(color1, color2, factor)` and `getPercentageColor(percentage, minPercent, maxPercent)`
   - Returns `{ bg, text }` for inline styles
   - Always pass actual min/max from theme.options, not fixed thresholds
+- **youtube.js**: `extractVideoId`, `formatViews`, `abbreviateViews`, `calculateYouTubeScore`, `fetchVideoMetadata`, `getYouTubeScoreColor`, `parseViewsInput`
+  - Score formula: `Math.max(guess/actual, actual/guess)` — symmetric ratio, 1.0x = perfect
+  - Metadata fetched from `noembed.com/embed?url=...` (CORS-friendly oEmbed proxy)
 
-## State Management
+## YouTube Round (Round 1)
+- Data: `src/data/youtube-videos.js` — array of `{ url, views }` objects (hardcoded)
+- Video metadata (title, channel) fetched at runtime via oEmbed
+- Scores added directly to Sporcle percentages for grand total (lower wins)
+- State: `youtubeGuesses[player][videoIndex] = number`, `videoMetadata[videoIndex] = { title, author_name }`
+- Leaderboard accepts optional `youtubeGuesses`, `youtubeVideos`, `videoMetadata` props for combined display
+
+## Sporcle Round (Round 2) State Management
 - App.jsx is source of truth for committed answers: `answers[player][questionIndex] = { option, percentage }`
 - QuizQuestion buffers answers locally in `pendingAnswers` until submit via `handleBatchAnswers`
 - `isLastQuestion` controls button labels and routing
