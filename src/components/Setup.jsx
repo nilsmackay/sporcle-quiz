@@ -17,7 +17,9 @@ export default function Setup({
   setCurrentPicker,
   dynamicAvailableThemes,
   setDynamicAvailableThemes,
-  youtubeVideoCount
+  youtubeVideoCount,
+  enabledRounds,
+  setEnabledRounds
 }) {
   const [newPlayer, setNewPlayer] = useState('')
 
@@ -66,9 +68,13 @@ export default function Setup({
     }
   }
 
-  const canStart = isDynamicMode
-    ? players.length > 0 && currentPicker && dynamicQuestionCount > 0 && dynamicQuestionCount <= dynamicAvailableThemes.length && dynamicAvailableThemes.length > 0
-    : players.length > 0 && selectedThemes.length > 0
+  const hasEnabledRound = enabledRounds.youtube || enabledRounds.sporcle
+
+  const canStart = hasEnabledRound && (
+    isDynamicMode
+      ? players.length > 0 && (!enabledRounds.sporcle || (dynamicQuestionCount > 0 && dynamicQuestionCount <= dynamicAvailableThemes.length && dynamicAvailableThemes.length > 0))
+      : players.length > 0 && (!enabledRounds.sporcle || selectedThemes.length > 0)
+  )
 
   const getThemeIcon = (themeName) => {
     const name = themeName.toLowerCase()
@@ -92,24 +98,74 @@ export default function Setup({
         <p className="text-[#6B6560] text-lg">The ultimate trivia challenge awaits</p>
       </div>
 
-      {/* Tonight's Format */}
+      {/* Rounds Selection */}
       <div className="game-card p-5 mb-6">
-        <h2 className="text-lg font-display text-[#1A1A1A] mb-3">Tonight's Format</h2>
+        <h2 className="text-lg font-display text-[#1A1A1A] mb-3">Rounds</h2>
+        <p className="text-sm text-[#6B6560] mb-4">Select which rounds to play</p>
         <div className="space-y-2">
-          <div className="flex items-center gap-3 text-sm">
-            <span className="editorial-stamp w-7 h-7 text-xs flex-shrink-0">1</span>
-            <div>
-              <span className="font-bold text-[#1A1A1A]">YouTube Views</span>
-              <span className="text-[#6B6560] ml-1">— Guess the view count ({youtubeVideoCount} videos)</span>
+          <label
+            htmlFor="round-youtube"
+            className={`choice-card flex items-center gap-4 p-4 cursor-pointer ${enabledRounds.youtube ? 'selected' : ''}`}
+          >
+            <div className={`w-6 h-6 border flex items-center justify-center transition-all ${
+              enabledRounds.youtube
+                ? 'bg-[#C23B22] border-[#C23B22]'
+                : 'border-[#D4CFC7] bg-white'
+            }`}>
+              {enabledRounds.youtube && (
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              )}
             </div>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <span className="editorial-stamp w-7 h-7 text-xs flex-shrink-0">2</span>
-            <div>
-              <span className="font-bold text-[#1A1A1A]">The Sporcle Round</span>
-              <span className="text-[#6B6560] ml-1">— Pick the most obscure answer</span>
+            <input
+              type="checkbox"
+              id="round-youtube"
+              name="round-youtube"
+              checked={enabledRounds.youtube}
+              onChange={(e) => setEnabledRounds({ ...enabledRounds, youtube: e.target.checked })}
+              className="sr-only"
+            />
+            <div className="flex items-center gap-3 flex-1">
+              <span className="editorial-stamp w-7 h-7 text-xs flex-shrink-0">1</span>
+              <div>
+                <span className="font-bold text-[#1A1A1A] block">YouTube Views</span>
+                <span className="text-sm text-[#6B6560]">Guess the view count ({youtubeVideoCount} videos)</span>
+              </div>
             </div>
-          </div>
+          </label>
+
+          <label
+            htmlFor="round-sporcle"
+            className={`choice-card flex items-center gap-4 p-4 cursor-pointer ${enabledRounds.sporcle ? 'selected' : ''}`}
+          >
+            <div className={`w-6 h-6 border flex items-center justify-center transition-all ${
+              enabledRounds.sporcle
+                ? 'bg-[#C23B22] border-[#C23B22]'
+                : 'border-[#D4CFC7] bg-white'
+            }`}>
+              {enabledRounds.sporcle && (
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+            </div>
+            <input
+              type="checkbox"
+              id="round-sporcle"
+              name="round-sporcle"
+              checked={enabledRounds.sporcle}
+              onChange={(e) => setEnabledRounds({ ...enabledRounds, sporcle: e.target.checked })}
+              className="sr-only"
+            />
+            <div className="flex items-center gap-3 flex-1">
+              <span className="editorial-stamp w-7 h-7 text-xs flex-shrink-0">2</span>
+              <div>
+                <span className="font-bold text-[#1A1A1A] block">The Sporcle Round</span>
+                <span className="text-sm text-[#6B6560]">Pick the most obscure answer</span>
+              </div>
+            </div>
+          </label>
         </div>
       </div>
 
@@ -171,7 +227,8 @@ export default function Setup({
         )}
       </div>
 
-      {/* Game Mode Card */}
+      {/* Game Mode Card - Only show when Sporcle round is enabled */}
+      {enabledRounds.sporcle && (
       <div className="game-card p-6 mb-6">
         <div className="flex items-center gap-3 mb-5">
           <h2 className="text-xl font-display text-[#1A1A1A]">Game Mode</h2>
@@ -235,37 +292,13 @@ export default function Setup({
               />
               <p className="text-xs text-[#6B6560] mt-1">Up to {dynamicAvailableThemes.length} theme{dynamicAvailableThemes.length !== 1 ? 's' : ''} selected</p>
             </div>
-
-            <div>
-              <label className="block text-sm font-bold text-[#1A1A1A] mb-2">
-                Who picks first?
-              </label>
-              {players.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {players.map((player) => (
-                    <button
-                      key={player}
-                      onClick={() => setCurrentPicker(player)}
-                      className={`p-3 text-sm font-bold transition-all border ${
-                        currentPicker === player
-                          ? 'bg-[#C23B22] text-white border-[#C23B22]'
-                          : 'bg-white text-[#1A1A1A] border-[#D4CFC7] hover:border-[#1A1A1A]'
-                      }`}
-                    >
-                      {player}
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-[#6B6560] italic">Add contestants first</p>
-              )}
-            </div>
           </div>
         )}
       </div>
+      )}
 
-      {/* Theme Pool Card - Dynamic mode */}
-      {isDynamicMode && (
+      {/* Theme Pool Card - Dynamic mode and when Sporcle round is enabled */}
+      {isDynamicMode && enabledRounds.sporcle && (
         <div className="game-card p-6 mb-6">
           <div className="flex items-center gap-3 mb-5">
             <h2 className="text-xl font-display text-[#1A1A1A]">Theme Pool</h2>
@@ -349,8 +382,8 @@ export default function Setup({
         </div>
       )}
 
-      {/* Categories Card - Only in standard mode */}
-      {!isDynamicMode && (
+      {/* Categories Card - Only in standard mode and when Sporcle round is enabled */}
+      {!isDynamicMode && enabledRounds.sporcle && (
         <div className="game-card p-6 mb-6">
           <div className="flex items-center gap-3 mb-5">
             <h2 className="text-xl font-display text-[#1A1A1A]">Categories</h2>
@@ -414,29 +447,28 @@ export default function Setup({
           <span>Begin the Quiz</span>
         ) : (
           <span>
-            {isDynamicMode ? (
-              players.length === 0
-                ? 'Add contestants to begin'
-                : !currentPicker
-                ? 'Select who picks first'
-                : 'Configure rounds to start'
-            ) : (
-              players.length === 0 && selectedThemes.length === 0
-                ? 'Add contestants & select categories'
-                : players.length === 0
-                ? 'Add at least one contestant'
-                : 'Select at least one category'
-            )}
+            {!hasEnabledRound
+              ? 'Select at least one round'
+              : players.length === 0
+              ? 'Add at least one contestant'
+              : enabledRounds.sporcle && isDynamicMode
+              ? 'Configure rounds & theme pool'
+              : enabledRounds.sporcle && !isDynamicMode
+              ? 'Select at least one category'
+              : 'Configure game settings'
+            }
           </span>
         )}
       </button>
 
-      {/* Tip */}
-      <div className="mt-6 text-center border-t border-[#D4CFC7] pt-4">
-        <p className="text-[#6B6560] text-sm italic">
-          Pick obscure answers for lower scores!
-        </p>
-      </div>
+      {/* Tip - Only show when Sporcle round is enabled */}
+      {enabledRounds.sporcle && (
+        <div className="mt-6 text-center border-t border-[#D4CFC7] pt-4">
+          <p className="text-[#6B6560] text-sm italic">
+            Pick obscure answers for lower scores!
+          </p>
+        </div>
+      )}
     </div>
   )
 }

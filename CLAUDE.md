@@ -41,6 +41,11 @@
 - Don't use `menuPortalTarget={document.body}` with react-select - breaks mobile focus/Enter key. Use `menuPlacement="auto"` instead
 - Flex layouts on 375px mobile can overflow - use `min-w-0` on flex children and `overflow-hidden` on parent
 
+## Git Workflow
+- **ALWAYS create a feature branch** for changes - never commit directly to main
+- All changes must go through a feature branch → PR → main
+- Use descriptive branch names (e.g., `feature/`, `fix/`, `design/`)
+
 ## Build & Test
 - `npx vite build` to validate changes
 - Test on 375px viewport minimum for mobile

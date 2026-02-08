@@ -31,6 +31,12 @@ export default function App() {
   const [youtubeGuesses, setYoutubeGuesses] = useState({})
   const [videoMetadata, setVideoMetadata] = useState({})
 
+  // Enabled rounds
+  const [enabledRounds, setEnabledRounds] = useState({
+    youtube: true,
+    sporcle: true
+  })
+
   // Prefetch YouTube video metadata when YouTube round starts
   useEffect(() => {
     if (phase === 'youtube-playing' && Object.keys(videoMetadata).length === 0) {
@@ -74,16 +80,17 @@ export default function App() {
     return total
   }
 
-  // Get the player with the highest/worst score (for dynamic mode)
+  // Get the player with the highest total score across all rounds (for dynamic mode)
   // In this game, lower scores are better, so the player doing worst picks next
+  // Total = YouTube score + Sporcle score
   const getHighestScorer = () => {
     if (players.length === 0) return ''
     let highestPlayer = players[0]
-    let highestScore = calculatePlayerScore(players[0])
+    let highestScore = calculateYouTubePlayerScore(players[0]) + calculatePlayerScore(players[0])
     players.forEach(player => {
-      const score = calculatePlayerScore(player)
-      if (score > highestScore) {
-        highestScore = score
+      const totalScore = calculateYouTubePlayerScore(player) + calculatePlayerScore(player)
+      if (totalScore > highestScore) {
+        highestScore = totalScore
         highestPlayer = player
       }
     })
@@ -91,7 +98,7 @@ export default function App() {
   }
 
   const handleStart = () => {
-    // Always start with YouTube round
+    // Reset state
     setYoutubeVideoIndex(0)
     setYoutubeGuesses({})
     setVideoMetadata({})
@@ -100,7 +107,18 @@ export default function App() {
     if (isDynamicMode) {
       setPlayedThemes([])
     }
-    setPhase('youtube-playing')
+
+    // Start with first enabled round
+    if (enabledRounds.youtube) {
+      setPhase('youtube-playing')
+    } else if (enabledRounds.sporcle) {
+      if (isDynamicMode) {
+        setCurrentPicker(getHighestScorer())
+        setPhase('picking')
+      } else {
+        setPhase('playing')
+      }
+    }
   }
 
   // YouTube round handlers
@@ -123,11 +141,17 @@ export default function App() {
 
   const handleYouTubeContinueFromStandings = () => {
     if (isLastYouTubeVideo) {
-      // Transition to Sporcle round
-      if (isDynamicMode) {
-        setPhase('picking')
+      // Transition to Sporcle round if enabled, otherwise finish
+      if (enabledRounds.sporcle) {
+        if (isDynamicMode) {
+          // Set the player with the worst total score as first picker
+          setCurrentPicker(getHighestScorer())
+          setPhase('picking')
+        } else {
+          setPhase('playing')
+        }
       } else {
-        setPhase('playing')
+        setPhase('finished')
       }
     } else {
       setYoutubeVideoIndex(youtubeVideoIndex + 1)
@@ -199,6 +223,8 @@ export default function App() {
     setYoutubeVideoIndex(0)
     setYoutubeGuesses({})
     setVideoMetadata({})
+    // Reset enabled rounds
+    setEnabledRounds({ youtube: true, sporcle: true })
   }
 
   // Determine total questions based on mode
@@ -242,6 +268,8 @@ export default function App() {
             dynamicAvailableThemes={dynamicAvailableThemes}
             setDynamicAvailableThemes={setDynamicAvailableThemes}
             youtubeVideoCount={YOUTUBE_VIDEOS.length}
+            enabledRounds={enabledRounds}
+            setEnabledRounds={setEnabledRounds}
           />
         )}
 
