@@ -543,7 +543,6 @@ button:focus-visible {
 }
 
 .category-flip-front {
-  z-index: 2;
 }
 
 .category-flip-front::before {

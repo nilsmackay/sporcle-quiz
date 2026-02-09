@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { getPercentageColor, interpolateColor } from '../utils/colors'
-import { calculateYouTubeScore, getYouTubeScoreColor } from '../utils/youtube'
+import { calculateYouTubeScore, getYouTubeScoreColor, abbreviateViews } from '../utils/youtube'
 
 // Tooltip for truncated text: hover on desktop, tap on mobile.
 // Renders via portal to avoid clipping by overflow-x-auto on the table.
@@ -167,6 +167,19 @@ export default function Leaderboard({
     return { bg, text: 'white' }
   }
 
+  // Only show columns for questions that have actually been played
+  const playedVideoIndices = hasYouTube
+    ? youtubeVideos.map((_, i) => i).filter(i =>
+        players.some(p => youtubeGuesses[p]?.[i] !== undefined)
+      )
+    : []
+
+  const playedThemeIndices = hasSporcle
+    ? selectedThemes.map((_, i) => i).filter(i =>
+        players.some(p => answers[p]?.[i] !== undefined)
+      )
+    : []
+
   const youtubeExpanded = expandedRound === 'youtube'
   const sporcleExpanded = expandedRound === 'sporcle'
 
@@ -221,7 +234,7 @@ export default function Leaderboard({
                   </div>
                 </th>
               )}
-              {hasYouTube && youtubeExpanded && youtubeVideos.map((_, vidIdx) => (
+              {hasYouTube && youtubeExpanded && playedVideoIndices.map((vidIdx, i) => (
                 <th
                   key={`yt-${vidIdx}`}
                   className={`text-center py-3 px-2 min-w-[80px] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED]' : ''} transition-colors select-none`}
@@ -229,7 +242,7 @@ export default function Leaderboard({
                 >
                   <div className="flex flex-col items-center gap-1">
                     <span className="text-lg">
-                      {vidIdx === 0 && (
+                      {i === 0 && (
                         <span
                           className="cursor-pointer"
                           onClick={(e) => { e.stopPropagation(); toggleRound('youtube') }}
@@ -260,7 +273,8 @@ export default function Leaderboard({
                   </div>
                 </th>
               )}
-              {hasSporcle && sporcleExpanded && selectedThemes.map((themeId, index) => {
+              {hasSporcle && sporcleExpanded && playedThemeIndices.map((index, i) => {
+                const themeId = selectedThemes[index]
                 const theme = themes.find(t => t.id === themeId)
                 return (
                   <th
@@ -270,7 +284,7 @@ export default function Leaderboard({
                   >
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-lg">
-                        {index === 0 && (
+                        {i === 0 && (
                           <span
                             className="cursor-pointer"
                             onClick={(e) => { e.stopPropagation(); toggleRound('sporcle') }}
@@ -329,16 +343,20 @@ export default function Leaderboard({
                   )}
 
                   {/* YouTube: expanded = per-video cells */}
-                  {hasYouTube && youtubeExpanded && youtubeVideos.map((video, vidIdx) => {
+                  {hasYouTube && youtubeExpanded && playedVideoIndices.map((vidIdx) => {
+                    const video = youtubeVideos[vidIdx]
                     const guess = youtubeGuesses[player]?.[vidIdx]
                     return (
                       <td key={`yt-${vidIdx}`} className="py-3 px-2 text-center">
                         {guess !== undefined ? (
-                          (() => {
-                            const score = calculateYouTubeScore(guess, video.views)
-                            const colors = getYouTubeScoreColor(score)
-                            return <span style={badgeStyle(colors)}>{score}</span>
-                          })()
+                          <div className="flex flex-col items-center gap-1">
+                            {(() => {
+                              const score = calculateYouTubeScore(guess, video.views)
+                              const colors = getYouTubeScoreColor(score)
+                              return <span style={badgeStyle(colors)}>{score}</span>
+                            })()}
+                            <TruncatedText text={abbreviateViews(guess)} className="text-xs text-[#6B6560]" />
+                          </div>
                         ) : (
                           <span className="text-[#D4CFC7]">&mdash;</span>
                         )}
@@ -352,13 +370,14 @@ export default function Leaderboard({
                       {(() => {
                         const sporcleTotal = calculateSporcleTotal(player)
                         const colors = getSporcleRelativeColor(sporcleTotal)
-                        return <span style={badgeStyle(colors)}>{sporcleTotal}%</span>
+                        return <span style={badgeStyle(colors)}>{sporcleTotal}</span>
                       })()}
                     </td>
                   )}
 
                   {/* Sporcle: expanded = per-theme cells */}
-                  {hasSporcle && sporcleExpanded && selectedThemes.map((themeId, index) => {
+                  {hasSporcle && sporcleExpanded && playedThemeIndices.map((index) => {
+                    const themeId = selectedThemes[index]
                     const answer = answers[player]?.[index]
                     const { minPercent, maxPercent } = getThemeRange(themeId)
                     return (
