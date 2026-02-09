@@ -8,13 +8,30 @@ export default function YouTubeQuestion({
   totalVideos,
   metadata,
   onSubmitGuesses,
-  isLastVideo
+  isLastVideo,
+  isEditing,
+  onSaveAndReturn,
+  onCancelEdit,
+  committedGuesses,
+  canGoBack,
+  canGoForward,
+  onGoBack,
+  onGoForward
 }) {
   const [guesses, setGuesses] = useState({})
 
-  // Reset guesses when video changes
+  // Reset guesses when video changes, pre-fill in edit mode
   useEffect(() => {
-    setGuesses({})
+    if (isEditing && committedGuesses) {
+      const existing = {}
+      players.forEach(player => {
+        const committed = committedGuesses[player]?.[videoIndex]
+        if (committed !== undefined) existing[player] = formatViews(committed)
+      })
+      setGuesses(existing)
+    } else {
+      setGuesses({})
+    }
   }, [videoIndex])
 
   const handleGuessChange = (player, rawValue) => {
@@ -34,6 +51,9 @@ export default function YouTubeQuestion({
       if (isNaN(parsed[player])) parsed[player] = 0
     }
     onSubmitGuesses(videoIndex, parsed)
+    if (isEditing) {
+      onSaveAndReturn()
+    }
   }
 
   const answeredCount = players.filter(p => {
@@ -121,36 +141,76 @@ export default function YouTubeQuestion({
       </div>
 
       {/* Navigation */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        <div className="text-center sm:text-left order-2 sm:order-1">
-          {!allPlayersAnswered && (
-            <p className="text-[#6B6560] text-sm flex items-center justify-center sm:justify-start gap-2">
-              <span>Waiting for {players.length - answeredCount} more guess{players.length - answeredCount !== 1 ? 'es' : ''}...</span>
-            </p>
-          )}
-        </div>
-
-        <div className="order-1 sm:order-2">
-          {isLastVideo ? (
+      {isEditing ? (
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-2 order-2 sm:order-1">
+            <button
+              onClick={onCancelEdit}
+              className="btn-teal px-6 py-4 text-lg"
+            >
+              Cancel
+            </button>
+            {canGoBack && (
+              <button
+                onClick={onGoBack}
+                className="btn-teal px-4 py-4 text-lg"
+                title="Previous video"
+              >
+                &larr;
+              </button>
+            )}
+            {canGoForward && (
+              <button
+                onClick={onGoForward}
+                className="btn-teal px-4 py-4 text-lg"
+                title="Next video"
+              >
+                &rarr;
+              </button>
+            )}
+          </div>
+          <div className="order-1 sm:order-2">
             <button
               onClick={handleSubmit}
               disabled={!allPlayersAnswered}
               className="w-full sm:w-auto btn-gold px-8 py-4 text-lg"
             >
-              {allPlayersAnswered ? 'Final Video' : 'All Must Guess'}
+              {allPlayersAnswered ? 'Save & Return' : 'All Must Guess'}
             </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={!allPlayersAnswered}
-              className="w-full sm:w-auto btn-teal px-8 py-4 text-lg flex items-center justify-center gap-2"
-            >
-              <span>Next Video</span>
-              <span>&rarr;</span>
-            </button>
-          )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <div className="text-center sm:text-left order-2 sm:order-1">
+            {!allPlayersAnswered && (
+              <p className="text-[#6B6560] text-sm flex items-center justify-center sm:justify-start gap-2">
+                <span>Waiting for {players.length - answeredCount} more guess{players.length - answeredCount !== 1 ? 'es' : ''}...</span>
+              </p>
+            )}
+          </div>
+
+          <div className="order-1 sm:order-2">
+            {isLastVideo ? (
+              <button
+                onClick={handleSubmit}
+                disabled={!allPlayersAnswered}
+                className="w-full sm:w-auto btn-gold px-8 py-4 text-lg"
+              >
+                {allPlayersAnswered ? 'Final Video' : 'All Must Guess'}
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={!allPlayersAnswered}
+                className="w-full sm:w-auto btn-teal px-8 py-4 text-lg flex items-center justify-center gap-2"
+              >
+                <span>Next Video</span>
+                <span>&rarr;</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

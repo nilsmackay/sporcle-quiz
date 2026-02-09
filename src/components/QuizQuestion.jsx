@@ -8,13 +8,26 @@ export default function QuizQuestion({
   onBatchAnswers,
   onNext,
   isLastQuestion,
-  onFinish
+  onFinish,
+  isEditing,
+  onSaveAndReturn,
+  onCancelEdit,
+  committedAnswers
 }) {
   const [pendingAnswers, setPendingAnswers] = useState({})
 
-  // Reset pending answers when question changes
+  // Reset pending answers when question changes, pre-fill in edit mode
   useEffect(() => {
-    setPendingAnswers({})
+    if (isEditing && committedAnswers) {
+      const existing = {}
+      players.forEach(player => {
+        const committed = committedAnswers[player]?.[currentQuestionIndex]
+        if (committed) existing[player] = committed
+      })
+      setPendingAnswers(existing)
+    } else {
+      setPendingAnswers({})
+    }
   }, [currentQuestionIndex])
 
   const handleLocalAnswer = (player, answer) => {
@@ -23,7 +36,9 @@ export default function QuizQuestion({
 
   const handleSubmit = () => {
     onBatchAnswers(currentQuestionIndex, pendingAnswers)
-    if (isLastQuestion) {
+    if (isEditing) {
+      onSaveAndReturn()
+    } else if (isLastQuestion) {
       onFinish()
     } else {
       onNext()
@@ -96,38 +111,60 @@ export default function QuizQuestion({
       </div>
 
       {/* Navigation */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        {/* Waiting message */}
-        <div className="text-center sm:text-left order-2 sm:order-1">
-          {!allPlayersAnswered && (
-            <p className="text-[#6B6560] text-sm flex items-center justify-center sm:justify-start gap-2">
-              <span>Waiting for {players.length - answeredCount} more answer{players.length - answeredCount !== 1 ? 's' : ''}...</span>
-            </p>
-          )}
-        </div>
-
-        {/* Action button */}
-        <div className="order-1 sm:order-2">
-          {isLastQuestion ? (
+      {isEditing ? (
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <div className="order-2 sm:order-1">
+            <button
+              onClick={onCancelEdit}
+              className="w-full sm:w-auto btn-teal px-8 py-4 text-lg"
+            >
+              Cancel
+            </button>
+          </div>
+          <div className="order-1 sm:order-2">
             <button
               onClick={handleSubmit}
               disabled={!allPlayersAnswered}
               className="w-full sm:w-auto btn-gold px-8 py-4 text-lg"
             >
-              {allPlayersAnswered ? 'Final Round' : 'All Must Answer'}
+              {allPlayersAnswered ? 'Save & Return' : 'All Must Answer'}
             </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={!allPlayersAnswered}
-              className="w-full sm:w-auto btn-teal px-8 py-4 text-lg flex items-center justify-center gap-2"
-            >
-              <span>Next Round</span>
-              <span>→</span>
-            </button>
-          )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          {/* Waiting message */}
+          <div className="text-center sm:text-left order-2 sm:order-1">
+            {!allPlayersAnswered && (
+              <p className="text-[#6B6560] text-sm flex items-center justify-center sm:justify-start gap-2">
+                <span>Waiting for {players.length - answeredCount} more answer{players.length - answeredCount !== 1 ? 's' : ''}...</span>
+              </p>
+            )}
+          </div>
+
+          {/* Action button */}
+          <div className="order-1 sm:order-2">
+            {isLastQuestion ? (
+              <button
+                onClick={handleSubmit}
+                disabled={!allPlayersAnswered}
+                className="w-full sm:w-auto btn-gold px-8 py-4 text-lg"
+              >
+                {allPlayersAnswered ? 'Final Round' : 'All Must Answer'}
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={!allPlayersAnswered}
+                className="w-full sm:w-auto btn-teal px-8 py-4 text-lg flex items-center justify-center gap-2"
+              >
+                <span>Next Round</span>
+                <span>→</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

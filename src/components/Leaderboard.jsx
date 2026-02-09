@@ -63,7 +63,8 @@ export default function Leaderboard({
   isOverlay = true,
   youtubeGuesses,
   youtubeVideos,
-  videoMetadata
+  videoMetadata,
+  onEditQuestion
 }) {
   const hasYouTube = youtubeVideos && youtubeVideos.length > 0 && youtubeGuesses && Object.keys(youtubeGuesses).length > 0
   const hasSporcle = selectedThemes && selectedThemes.length > 0
@@ -167,21 +168,30 @@ export default function Leaderboard({
               </th>
               {/* YouTube summary column */}
               {hasYouTube && (
-                <th className="text-center py-3 px-2 min-w-[80px]">
+                <th
+                  className={`text-center py-3 px-2 min-w-[80px] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED] transition-colors' : ''}`}
+                  onClick={() => onEditQuestion?.('youtube', 0)}
+                >
                   <div className="flex flex-col items-center gap-1">
                     <span className="text-lg">📺</span>
                     <span className="text-xs text-[#6B6560]">YouTube</span>
+                    {onEditQuestion && <span className="text-[10px] text-[#B8924A]">click to edit</span>}
                   </div>
                 </th>
               )}
               {/* Sporcle theme columns */}
-              {hasSporcle && selectedThemes.map((themeId) => {
+              {hasSporcle && selectedThemes.map((themeId, index) => {
                 const theme = themes.find(t => t.id === themeId)
                 return (
-                  <th key={themeId} className="text-center py-3 px-2 min-w-[80px]">
+                  <th
+                    key={themeId}
+                    className={`text-center py-3 px-2 min-w-[80px] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED] transition-colors' : ''}`}
+                    onClick={() => onEditQuestion?.('sporcle', index)}
+                  >
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-lg">{getThemeIcon(theme?.name)}</span>
                       <TruncatedText text={theme?.name} className="text-xs text-[#6B6560]" />
+                      {onEditQuestion && <span className="text-[10px] text-[#B8924A]">click to edit</span>}
                     </div>
                   </th>
                 )
