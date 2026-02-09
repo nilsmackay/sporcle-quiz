@@ -28,11 +28,12 @@ export function abbreviateViews(num) {
   return num.toString()
 }
 
-// Score = symmetric ratio. 1.0 = perfect, 10.0 = order of magnitude off
+// Score = log-scaled integer. 0 = perfect, 3 ≈ 2x off, 10 = 10x off, 20 = 100x off
 export function calculateYouTubeScore(guess, actual) {
   const safeGuess = Math.max(1, guess)
   const safeActual = Math.max(1, actual)
-  return Math.max(safeGuess / safeActual, safeActual / safeGuess)
+  const ratio = Math.max(safeGuess / safeActual, safeActual / safeGuess)
+  return Math.round(10 * Math.log10(ratio))
 }
 
 // Fetch video metadata from noembed.com (CORS-friendly oEmbed proxy)
@@ -52,19 +53,19 @@ export async function fetchVideoMetadata(url) {
   }
 }
 
-// Color for a YouTube score ratio: green (1-2x) -> gold (2-5x) -> red (5x+)
-export function getYouTubeScoreColor(ratio) {
+// Color for a YouTube score (integer): green (0-3) -> gold (3-10) -> red (10+)
+export function getYouTubeScoreColor(score) {
   const green = '#2D6A4F'
   const gold = '#B8924A'
   const red = '#C23B22'
 
-  if (ratio <= 1.0) return { bg: green, text: 'white' }
-  if (ratio <= 2.0) {
-    const factor = (ratio - 1.0) / 1.0
+  if (score <= 0) return { bg: green, text: 'white' }
+  if (score <= 3) {
+    const factor = score / 3
     return { bg: interpolateColor(green, gold, factor), text: 'white' }
   }
-  if (ratio <= 10.0) {
-    const factor = Math.min(1, (ratio - 2.0) / 8.0)
+  if (score <= 10) {
+    const factor = (score - 3) / 7
     return { bg: interpolateColor(gold, red, factor), text: 'white' }
   }
   return { bg: red, text: 'white' }

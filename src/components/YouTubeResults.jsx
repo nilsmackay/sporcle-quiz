@@ -91,7 +91,7 @@ export default function YouTubeResults({
                     fontWeight: 'bold',
                     whiteSpace: 'nowrap',
                   }}>
-                    &times;{result.score.toFixed(1)}
+                    {result.score} pts
                   </span>
                 </div>
               </div>

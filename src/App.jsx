@@ -322,10 +322,6 @@ export default function App() {
             onSaveAndReturn={handleSaveAndReturn}
             onCancelEdit={handleCancelEdit}
             committedGuesses={youtubeGuesses}
-            canGoBack={youtubeVideoIndex > 0}
-            canGoForward={youtubeVideoIndex < YOUTUBE_VIDEOS.length - 1}
-            onGoBack={() => setYoutubeVideoIndex(youtubeVideoIndex - 1)}
-            onGoForward={() => setYoutubeVideoIndex(youtubeVideoIndex + 1)}
           />
         )}
 
@@ -357,6 +353,7 @@ export default function App() {
               youtubeVideos={YOUTUBE_VIDEOS}
               videoMetadata={videoMetadata}
               onEditQuestion={handleEditQuestion}
+              defaultExpandedRound="youtube"
             />
             <button
               onClick={handleYouTubeContinueFromStandings}
@@ -418,6 +415,7 @@ export default function App() {
               youtubeVideos={YOUTUBE_VIDEOS}
               videoMetadata={videoMetadata}
               onEditQuestion={handleEditQuestion}
+              defaultExpandedRound="sporcle"
             />
             <button
               onClick={handleContinueFromStandings}
@@ -446,6 +444,7 @@ export default function App() {
               youtubeVideos={YOUTUBE_VIDEOS}
               videoMetadata={videoMetadata}
               onEditQuestion={handleEditQuestion}
+              defaultExpandedRound={null}
             />
             <button
               onClick={handleNewGame}
@@ -468,6 +467,7 @@ export default function App() {
           youtubeVideos={YOUTUBE_VIDEOS}
           videoMetadata={videoMetadata}
           onEditQuestion={handleEditQuestion}
+          defaultExpandedRound={isYouTubePhase ? 'youtube' : 'sporcle'}
         />
       )}
     </div>

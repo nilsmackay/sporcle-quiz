@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { getPercentageColor } from '../utils/colors'
+import { getPercentageColor, interpolateColor } from '../utils/colors'
 import { calculateYouTubeScore, getYouTubeScoreColor } from '../utils/youtube'
 
 // Tooltip for truncated text: hover on desktop, tap on mobile.
@@ -54,6 +54,16 @@ function TruncatedText({ text, className = '' }) {
   )
 }
 
+// Inline badge style helper
+const badgeStyle = (colors) => ({
+  backgroundColor: colors.bg,
+  color: colors.text,
+  padding: '3px 10px',
+  fontSize: '12px',
+  fontFamily: "'Fraunces', serif",
+  fontWeight: 'bold',
+})
+
 export default function Leaderboard({
   players,
   answers,
@@ -64,8 +74,17 @@ export default function Leaderboard({
   youtubeGuesses,
   youtubeVideos,
   videoMetadata,
-  onEditQuestion
+  onEditQuestion,
+  defaultExpandedRound = null
 }) {
+  const [expandedRound, setExpandedRound] = useState(defaultExpandedRound)
+
+  useEffect(() => {
+    setExpandedRound(defaultExpandedRound)
+  }, [defaultExpandedRound])
+
+  const toggleRound = (round) => setExpandedRound(prev => prev === round ? null : round)
+
   const hasYouTube = youtubeVideos && youtubeVideos.length > 0 && youtubeGuesses && Object.keys(youtubeGuesses).length > 0
   const hasSporcle = selectedThemes && selectedThemes.length > 0
 
@@ -120,13 +139,36 @@ export default function Leaderboard({
     return '📚'
   }
 
-  // Compute YouTube average ratio for color grading
-  const getYouTubeAvgRatio = (player) => {
-    if (!hasYouTube) return 1
+  // Compute YouTube average score for color grading
+  const getYouTubeAvgScore = (player) => {
+    if (!hasYouTube) return 0
     const total = calculateYouTubeTotal(player)
     const count = youtubeVideos.filter((_, i) => youtubeGuesses[player]?.[i] !== undefined).length
-    return count > 0 ? total / count : 1
+    return count > 0 ? total / count : 0
   }
+
+  // Compute Sporcle total color based on player-relative range
+  const getSporcleRelativeColor = (playerTotal) => {
+    if (!hasSporcle || sortedPlayers.length <= 1) return { bg: '#B8924A', text: 'white' }
+    const totals = sortedPlayers.map(p => calculateSporcleTotal(p))
+    const min = Math.min(...totals)
+    const max = Math.max(...totals)
+    if (min === max) return { bg: '#2D6A4F', text: 'white' }
+    const factor = (playerTotal - min) / (max - min)
+    const green = '#2D6A4F'
+    const gold = '#B8924A'
+    const red = '#C23B22'
+    let bg
+    if (factor <= 0.5) {
+      bg = interpolateColor(green, gold, factor * 2)
+    } else {
+      bg = interpolateColor(gold, red, (factor - 0.5) * 2)
+    }
+    return { bg, text: 'white' }
+  }
+
+  const youtubeExpanded = expandedRound === 'youtube'
+  const sporcleExpanded = expandedRound === 'sporcle'
 
   const content = (
     <div className={`leaderboard-panel ${isOverlay ? 'w-full' : ''}`}>
@@ -166,36 +208,83 @@ export default function Leaderboard({
               <th className="text-left py-3 px-3 font-display text-[#1A1A1A] text-sm">
                 Contestant
               </th>
-              {/* YouTube summary column */}
-              {hasYouTube && (
+
+              {/* YouTube columns */}
+              {hasYouTube && !youtubeExpanded && (
                 <th
-                  className={`text-center py-3 px-2 min-w-[80px] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED] transition-colors' : ''}`}
-                  onClick={() => onEditQuestion?.('youtube', 0)}
+                  className="text-center py-3 px-2 min-w-[80px] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
+                  onClick={() => toggleRound('youtube')}
                 >
                   <div className="flex flex-col items-center gap-1">
-                    <span className="text-lg">📺</span>
+                    <span className="text-lg">▸ 📺</span>
                     <span className="text-xs text-[#6B6560]">YouTube</span>
-                    {onEditQuestion && <span className="text-[10px] text-[#B8924A]">click to edit</span>}
                   </div>
                 </th>
               )}
-              {/* Sporcle theme columns */}
-              {hasSporcle && selectedThemes.map((themeId, index) => {
+              {hasYouTube && youtubeExpanded && youtubeVideos.map((_, vidIdx) => (
+                <th
+                  key={`yt-${vidIdx}`}
+                  className={`text-center py-3 px-2 min-w-[80px] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED]' : ''} transition-colors select-none`}
+                  onClick={() => onEditQuestion?.('youtube', vidIdx)}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-lg">
+                      {vidIdx === 0 && (
+                        <span
+                          className="cursor-pointer"
+                          onClick={(e) => { e.stopPropagation(); toggleRound('youtube') }}
+                        >▾ </span>
+                      )}
+                      📺
+                    </span>
+                    <span className="text-xs text-[#6B6560]">
+                      {videoMetadata?.[vidIdx]?.title
+                        ? <TruncatedText text={videoMetadata[vidIdx].title} className="text-xs text-[#6B6560]" />
+                        : `Video ${vidIdx + 1}`
+                      }
+                    </span>
+                    {onEditQuestion && <span className="text-[10px] text-[#B8924A]">edit</span>}
+                  </div>
+                </th>
+              ))}
+
+              {/* Sporcle columns */}
+              {hasSporcle && !sporcleExpanded && (
+                <th
+                  className="text-center py-3 px-2 min-w-[80px] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
+                  onClick={() => toggleRound('sporcle')}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-lg">▸ 📚</span>
+                    <span className="text-xs text-[#6B6560]">Sporcle</span>
+                  </div>
+                </th>
+              )}
+              {hasSporcle && sporcleExpanded && selectedThemes.map((themeId, index) => {
                 const theme = themes.find(t => t.id === themeId)
                 return (
                   <th
                     key={themeId}
-                    className={`text-center py-3 px-2 min-w-[80px] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED] transition-colors' : ''}`}
+                    className={`text-center py-3 px-2 min-w-[80px] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED]' : ''} transition-colors select-none`}
                     onClick={() => onEditQuestion?.('sporcle', index)}
                   >
                     <div className="flex flex-col items-center gap-1">
-                      <span className="text-lg">{getThemeIcon(theme?.name)}</span>
+                      <span className="text-lg">
+                        {index === 0 && (
+                          <span
+                            className="cursor-pointer"
+                            onClick={(e) => { e.stopPropagation(); toggleRound('sporcle') }}
+                          >▾ </span>
+                        )}
+                        {getThemeIcon(theme?.name)}
+                      </span>
                       <TruncatedText text={theme?.name} className="text-xs text-[#6B6560]" />
-                      {onEditQuestion && <span className="text-[10px] text-[#B8924A]">click to edit</span>}
+                      {onEditQuestion && <span className="text-[10px] text-[#B8924A]">edit</span>}
                     </div>
                   </th>
                 )
               })}
+
               <th className="text-center py-3 px-4 font-display text-[#C23B22] text-sm border-l border-[#D4CFC7]">
                 {hasYouTube && hasSporcle ? 'Grand Total' : 'Total'}
               </th>
@@ -227,31 +316,49 @@ export default function Leaderboard({
                     </span>
                   </td>
 
-                  {/* YouTube score cell */}
-                  {hasYouTube && (
+                  {/* YouTube: collapsed = single total cell */}
+                  {hasYouTube && !youtubeExpanded && (
                     <td className="py-3 px-2 text-center">
                       {(() => {
                         const ytTotal = calculateYouTubeTotal(player)
-                        const avgRatio = getYouTubeAvgRatio(player)
-                        const colors = getYouTubeScoreColor(avgRatio)
-                        return (
-                          <span style={{
-                            backgroundColor: colors.bg,
-                            color: colors.text,
-                            padding: '3px 10px',
-                            fontSize: '12px',
-                            fontFamily: "'Fraunces', serif",
-                            fontWeight: 'bold',
-                          }}>
-                            {ytTotal.toFixed(1)}
-                          </span>
-                        )
+                        const avgScore = getYouTubeAvgScore(player)
+                        const colors = getYouTubeScoreColor(avgScore)
+                        return <span style={badgeStyle(colors)}>{ytTotal}</span>
                       })()}
                     </td>
                   )}
 
-                  {/* Sporcle round scores */}
-                  {hasSporcle && selectedThemes.map((themeId, index) => {
+                  {/* YouTube: expanded = per-video cells */}
+                  {hasYouTube && youtubeExpanded && youtubeVideos.map((video, vidIdx) => {
+                    const guess = youtubeGuesses[player]?.[vidIdx]
+                    return (
+                      <td key={`yt-${vidIdx}`} className="py-3 px-2 text-center">
+                        {guess !== undefined ? (
+                          (() => {
+                            const score = calculateYouTubeScore(guess, video.views)
+                            const colors = getYouTubeScoreColor(score)
+                            return <span style={badgeStyle(colors)}>{score}</span>
+                          })()
+                        ) : (
+                          <span className="text-[#D4CFC7]">&mdash;</span>
+                        )}
+                      </td>
+                    )
+                  })}
+
+                  {/* Sporcle: collapsed = single total cell */}
+                  {hasSporcle && !sporcleExpanded && (
+                    <td className="py-3 px-2 text-center">
+                      {(() => {
+                        const sporcleTotal = calculateSporcleTotal(player)
+                        const colors = getSporcleRelativeColor(sporcleTotal)
+                        return <span style={badgeStyle(colors)}>{sporcleTotal}%</span>
+                      })()}
+                    </td>
+                  )}
+
+                  {/* Sporcle: expanded = per-theme cells */}
+                  {hasSporcle && sporcleExpanded && selectedThemes.map((themeId, index) => {
                     const answer = answers[player]?.[index]
                     const { minPercent, maxPercent } = getThemeRange(themeId)
                     return (
@@ -260,18 +367,7 @@ export default function Leaderboard({
                           <div className="flex flex-col items-center gap-1">
                             {(() => {
                               const colors = getPercentageColor(answer.percentage, minPercent, maxPercent)
-                              return (
-                                <span style={{
-                                  backgroundColor: colors.bg,
-                                  color: colors.text,
-                                  padding: '3px 10px',
-                                  fontSize: '12px',
-                                  fontFamily: "'Fraunces', serif",
-                                  fontWeight: 'bold'
-                                }}>
-                                  {answer.percentage}%
-                                </span>
-                              )
+                              return <span style={badgeStyle(colors)}>{answer.percentage}%</span>
                             })()}
                             <TruncatedText text={answer.option} className="text-xs text-[#6B6560]" />
                           </div>
@@ -285,7 +381,7 @@ export default function Leaderboard({
                   {/* Grand Total */}
                   <td className="py-3 px-4 text-center border-l border-[#D4CFC7]">
                     <span className={`text-xl font-display ${isLeader ? 'text-[#C23B22]' : 'text-[#1A1A1A]'}`}>
-                      {grandTotal.toFixed(1)}
+                      {grandTotal}
                     </span>
                   </td>
                 </tr>
@@ -299,9 +395,9 @@ export default function Leaderboard({
       <div className="p-4 border-t border-[#D4CFC7]">
         <p className="text-sm text-[#6B6560] text-center italic">
           {hasYouTube && hasSporcle
-            ? 'Lower scores win. YouTube ratios + Sporcle percentages combined.'
+            ? 'Lower scores win. YouTube points + Sporcle percentages combined.'
             : hasYouTube
-            ? 'Lower scores win. Closer to 1.0x = better guess.'
+            ? 'Lower scores win. 0 = perfect guess.'
             : 'Lower scores win. Invalid answers count as 100%.'}
         </p>
       </div>
