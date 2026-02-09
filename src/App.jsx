@@ -31,6 +31,9 @@ export default function App() {
   const [youtubeGuesses, setYoutubeGuesses] = useState({})
   const [videoMetadata, setVideoMetadata] = useState({})
 
+  // Edit mode state
+  const [editReturnState, setEditReturnState] = useState(null)
+
   // Enabled rounds
   const [enabledRounds, setEnabledRounds] = useState({
     youtube: true,
@@ -132,7 +135,9 @@ export default function App() {
       }
       return next
     })
-    setPhase('youtube-results')
+    if (!isEditing) {
+      setPhase('youtube-results')
+    }
   }
 
   const handleYouTubeShowStandings = () => {
@@ -140,6 +145,41 @@ export default function App() {
   }
 
   const isLastYouTubeVideo = youtubeVideoIndex === YOUTUBE_VIDEOS.length - 1
+  const isEditing = editReturnState !== null
+
+  // Edit mode handlers
+  const handleEditQuestion = (type, index) => {
+    setEditReturnState({
+      phase,
+      questionIndex: currentQuestionIndex,
+      youtubeVideoIndex: youtubeVideoIndex
+    })
+    setShowLeaderboard(false)
+
+    if (type === 'youtube') {
+      setYoutubeVideoIndex(index)
+      setPhase('youtube-playing')
+    } else {
+      setCurrentQuestionIndex(index)
+      setPhase('playing')
+    }
+  }
+
+  const handleSaveAndReturn = () => {
+    const returnTo = editReturnState
+    setEditReturnState(null)
+    setCurrentQuestionIndex(returnTo.questionIndex)
+    setYoutubeVideoIndex(returnTo.youtubeVideoIndex)
+    setPhase(returnTo.phase)
+  }
+
+  const handleCancelEdit = () => {
+    const returnTo = editReturnState
+    setEditReturnState(null)
+    setCurrentQuestionIndex(returnTo.questionIndex)
+    setYoutubeVideoIndex(returnTo.youtubeVideoIndex)
+    setPhase(returnTo.phase)
+  }
 
   const handleYouTubeContinueFromStandings = () => {
     if (isLastYouTubeVideo) {
@@ -278,6 +318,14 @@ export default function App() {
             metadata={videoMetadata[youtubeVideoIndex] || null}
             onSubmitGuesses={handleYouTubeSubmitGuesses}
             isLastVideo={isLastYouTubeVideo}
+            isEditing={isEditing}
+            onSaveAndReturn={handleSaveAndReturn}
+            onCancelEdit={handleCancelEdit}
+            committedGuesses={youtubeGuesses}
+            canGoBack={youtubeVideoIndex > 0}
+            canGoForward={youtubeVideoIndex < YOUTUBE_VIDEOS.length - 1}
+            onGoBack={() => setYoutubeVideoIndex(youtubeVideoIndex - 1)}
+            onGoForward={() => setYoutubeVideoIndex(youtubeVideoIndex + 1)}
           />
         )}
 
@@ -308,6 +356,7 @@ export default function App() {
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
               videoMetadata={videoMetadata}
+              onEditQuestion={handleEditQuestion}
             />
             <button
               onClick={handleYouTubeContinueFromStandings}
@@ -339,6 +388,10 @@ export default function App() {
             onNext={handleNext}
             isLastQuestion={isLastQuestion}
             onFinish={handleFinish}
+            isEditing={isEditing}
+            onSaveAndReturn={handleSaveAndReturn}
+            onCancelEdit={handleCancelEdit}
+            committedAnswers={answers}
           />
         )}
 
@@ -364,6 +417,7 @@ export default function App() {
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
               videoMetadata={videoMetadata}
+              onEditQuestion={handleEditQuestion}
             />
             <button
               onClick={handleContinueFromStandings}
@@ -391,6 +445,7 @@ export default function App() {
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
               videoMetadata={videoMetadata}
+              onEditQuestion={handleEditQuestion}
             />
             <button
               onClick={handleNewGame}
@@ -412,6 +467,7 @@ export default function App() {
           youtubeGuesses={youtubeGuesses}
           youtubeVideos={YOUTUBE_VIDEOS}
           videoMetadata={videoMetadata}
+          onEditQuestion={handleEditQuestion}
         />
       )}
     </div>
