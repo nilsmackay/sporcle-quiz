@@ -12,11 +12,7 @@ export default function YouTubeQuestion({
   isEditing,
   onSaveAndReturn,
   onCancelEdit,
-  committedGuesses,
-  canGoBack,
-  canGoForward,
-  onGoBack,
-  onGoForward
+  committedGuesses
 }) {
   const [guesses, setGuesses] = useState({})
 
@@ -143,31 +139,13 @@ export default function YouTubeQuestion({
       {/* Navigation */}
       {isEditing ? (
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-2 order-2 sm:order-1">
+          <div className="order-2 sm:order-1">
             <button
               onClick={onCancelEdit}
               className="btn-teal px-6 py-4 text-lg"
             >
               Cancel
             </button>
-            {canGoBack && (
-              <button
-                onClick={onGoBack}
-                className="btn-teal px-4 py-4 text-lg"
-                title="Previous video"
-              >
-                &larr;
-              </button>
-            )}
-            {canGoForward && (
-              <button
-                onClick={onGoForward}
-                className="btn-teal px-4 py-4 text-lg"
-                title="Next video"
-              >
-                &rarr;
-              </button>
-            )}
           </div>
           <div className="order-1 sm:order-2">
             <button
