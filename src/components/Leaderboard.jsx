@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { getPercentageColor, interpolateColor } from '../utils/colors'
 import { calculateYouTubeScore, getYouTubeScoreColor, abbreviateViews } from '../utils/youtube'
+import { useLanguage } from '../i18n.jsx'
 
 // Tooltip for truncated text: hover on desktop, tap on mobile.
 // Renders via portal to avoid clipping by overflow-x-auto on the table.
@@ -78,6 +79,7 @@ export default function Leaderboard({
   defaultExpandedRound = null
 }) {
   const [expandedRound, setExpandedRound] = useState(defaultExpandedRound)
+  const { t, themeName: translateThemeName } = useLanguage()
 
   useEffect(() => {
     setExpandedRound(defaultExpandedRound)
@@ -132,10 +134,10 @@ export default function Leaderboard({
 
   const getThemeIcon = (themeName) => {
     const name = themeName?.toLowerCase() || ''
-    if (name.includes('africa')) return '🌍'
-    if (name.includes('asia')) return '🌏'
-    if (name.includes('europe') || name.includes('capital')) return '🏛️'
-    if (name.includes('states') || name.includes('america')) return '🗽'
+    if (name.includes('africa') || name.includes('afrika')) return '🌍'
+    if (name.includes('asia') || name.includes('azië')) return '🌏'
+    if (name.includes('europe') || name.includes('capital') || name.includes('europese') || name.includes('hoofdsted')) return '🏛️'
+    if (name.includes('states') || name.includes('america') || name.includes('staten') || name.includes('amerika')) return '🗽'
     return '📚'
   }
 
@@ -193,9 +195,9 @@ export default function Leaderboard({
               L
             </div>
             <div>
-              <h2 className="text-2xl font-display text-[#1A1A1A]">Leaderboard</h2>
+              <h2 className="text-2xl font-display text-[#1A1A1A]">{t('board.title')}</h2>
               <p className="text-[#6B6560] text-sm">
-                {hasYouTube && hasSporcle ? 'Combined Standings' : hasYouTube ? 'YouTube Round' : 'Final Standings'}
+                {hasYouTube && hasSporcle ? t('board.combined') : hasYouTube ? t('board.youtubeRound') : t('board.finalStandings')}
               </p>
             </div>
           </div>
@@ -216,10 +218,10 @@ export default function Leaderboard({
           <thead>
             <tr className="border-b-2 border-[#1A1A1A]">
               <th className="text-left py-3 px-3 font-display text-[#1A1A1A] text-sm">
-                Rank
+                {t('board.rank')}
               </th>
               <th className="text-left py-3 px-3 font-display text-[#1A1A1A] text-sm">
-                Contestant
+                {t('board.contestant')}
               </th>
 
               {/* YouTube columns */}
@@ -230,7 +232,7 @@ export default function Leaderboard({
                 >
                   <div className="flex flex-col items-center gap-1">
                     <span className="text-lg">▸ 📺</span>
-                    <span className="text-xs text-[#6B6560]">YouTube</span>
+                    <span className="text-xs text-[#6B6560]">{t('board.youtube')}</span>
                   </div>
                 </th>
               )}
@@ -256,7 +258,7 @@ export default function Leaderboard({
                         : `Video ${vidIdx + 1}`
                       }
                     </span>
-                    {onEditQuestion && <span className="text-[10px] text-[#B8924A]">edit</span>}
+                    {onEditQuestion && <span className="text-[10px] text-[#B8924A]">{t('board.edit')}</span>}
                   </div>
                 </th>
               ))}
@@ -269,13 +271,14 @@ export default function Leaderboard({
                 >
                   <div className="flex flex-col items-center gap-1">
                     <span className="text-lg">▸ 📚</span>
-                    <span className="text-xs text-[#6B6560]">Sporcle</span>
+                    <span className="text-xs text-[#6B6560]">{t('board.sporcle')}</span>
                   </div>
                 </th>
               )}
               {hasSporcle && sporcleExpanded && playedThemeIndices.map((index, i) => {
                 const themeId = selectedThemes[index]
                 const theme = themes.find(t => t.id === themeId)
+                const translatedName = translateThemeName(themeId)
                 return (
                   <th
                     key={themeId}
@@ -290,17 +293,17 @@ export default function Leaderboard({
                             onClick={(e) => { e.stopPropagation(); toggleRound('sporcle') }}
                           >▾ </span>
                         )}
-                        {getThemeIcon(theme?.name)}
+                        {getThemeIcon(translatedName)}
                       </span>
-                      <TruncatedText text={theme?.name} className="text-xs text-[#6B6560]" />
-                      {onEditQuestion && <span className="text-[10px] text-[#B8924A]">edit</span>}
+                      <TruncatedText text={translatedName} className="text-xs text-[#6B6560]" />
+                      {onEditQuestion && <span className="text-[10px] text-[#B8924A]">{t('board.edit')}</span>}
                     </div>
                   </th>
                 )
               })}
 
               <th className="text-center py-3 px-4 font-display text-[#C23B22] text-sm border-l border-[#D4CFC7]">
-                {hasYouTube && hasSporcle ? 'Grand Total' : 'Total'}
+                {hasYouTube && hasSporcle ? t('board.grandTotal') : t('board.total')}
               </th>
             </tr>
           </thead>
@@ -414,10 +417,10 @@ export default function Leaderboard({
       <div className="p-4 border-t border-[#D4CFC7]">
         <p className="text-sm text-[#6B6560] text-center italic">
           {hasYouTube && hasSporcle
-            ? 'Lower scores win. YouTube points + Sporcle percentages combined.'
+            ? t('board.footerBoth')
             : hasYouTube
-            ? 'Lower scores win. 0 = perfect guess.'
-            : 'Lower scores win. Invalid answers count as 100%.'}
+            ? t('board.footerYoutube')
+            : t('board.footerSporcle')}
         </p>
       </div>
     </div>

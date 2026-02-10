@@ -10,8 +10,10 @@ import YouTubeResults from './components/YouTubeResults'
 import themes from './data/themes.json'
 import YOUTUBE_VIDEOS from './data/youtube-videos.js'
 import { fetchVideoMetadata, calculateYouTubeScore } from './utils/youtube'
+import { useLanguage } from './i18n.jsx'
 
 export default function App() {
+  const { t, themeName: translateThemeName } = useLanguage()
   const [phase, setPhase] = useState('setup')
   const [players, setPlayers] = useState([])
   const [selectedThemes, setSelectedThemes] = useState([])
@@ -278,7 +280,7 @@ export default function App() {
         phase={phase}
         currentQuestionIndex={currentQuestionIndex}
         totalQuestions={totalQuestions}
-        themeName={currentTheme?.name}
+        themeName={currentTheme ? translateThemeName(currentTheme.id) : undefined}
         showLeaderboard={showLeaderboard}
         setShowLeaderboard={setShowLeaderboard}
         onNewGame={handleNewGame}
@@ -359,7 +361,7 @@ export default function App() {
               onClick={handleYouTubeContinueFromStandings}
               className="w-full mt-4 btn-gold py-3 sm:py-4 font-bold text-base sm:text-lg"
             >
-              {isLastYouTubeVideo ? 'Start Round 2: The Sporcle Round' : 'Next Video'}
+              {isLastYouTubeVideo ? t('app.startRound2') : t('app.nextVideo')}
             </button>
           </div>
         )}
@@ -421,7 +423,7 @@ export default function App() {
               onClick={handleContinueFromStandings}
               className="w-full mt-4 btn-gold py-3 sm:py-4 font-bold text-base sm:text-lg"
             >
-              {isLastQuestion ? 'Final Results' : 'Next Question'}
+              {isLastQuestion ? t('app.finalResults') : t('app.nextQuestion')}
             </button>
           </div>
         )}
@@ -432,7 +434,7 @@ export default function App() {
               <div className="editorial-stamp w-16 h-16 text-[#C23B22] text-2xl mx-auto mb-3">
                 TS
               </div>
-              <h2 className="text-2xl font-display text-[#1A1A1A]">Quiz Complete!</h2>
+              <h2 className="text-2xl font-display text-[#1A1A1A]">{t('app.quizComplete')}</h2>
             </div>
             <Leaderboard
               players={players}
@@ -450,7 +452,7 @@ export default function App() {
               onClick={handleNewGame}
               className="w-full mt-4 btn-gold py-3 sm:py-4 font-bold text-base sm:text-lg"
             >
-              New Game
+              {t('app.newGame')}
             </button>
           </div>
         )}

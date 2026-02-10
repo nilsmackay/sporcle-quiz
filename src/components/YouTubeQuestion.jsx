@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { extractVideoId, formatViews, parseViewsInput } from '../utils/youtube'
+import { useLanguage } from '../i18n.jsx'
 
 export default function YouTubeQuestion({
   players,
@@ -15,6 +16,7 @@ export default function YouTubeQuestion({
   committedGuesses
 }) {
   const [guesses, setGuesses] = useState({})
+  const { t } = useLanguage()
 
   // Reset guesses when video changes, pre-fill in edit mode
   useEffect(() => {
@@ -71,7 +73,7 @@ export default function YouTubeQuestion({
             </div>
             <div className="min-w-0">
               <h2 className="text-xl sm:text-2xl font-display text-[#1A1A1A] truncate">
-                {metadata?.title || 'Loading video...'}
+                {metadata?.title || t('yt.loading')}
               </h2>
               {metadata?.author_name && (
                 <p className="text-[#6B6560] font-medium truncate">
@@ -83,7 +85,7 @@ export default function YouTubeQuestion({
 
           <div className="sm:ml-auto">
             <div className="inline-flex items-center gap-3 bg-[#F7F3ED] border border-[#D4CFC7] px-4 py-2">
-              <span className="text-[#6B6560]">Video:</span>
+              <span className="text-[#6B6560]">{t('yt.video')}</span>
               <span className="score-display">
                 {videoIndex + 1}/{totalVideos}
               </span>
@@ -107,10 +109,10 @@ export default function YouTubeQuestion({
       {/* Guessing Card */}
       <div className="game-card p-6 mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <h3 className="text-xl font-display text-[#1A1A1A]">How many views?</h3>
+          <h3 className="text-xl font-display text-[#1A1A1A]">{t('yt.howManyViews')}</h3>
         </div>
         <p className="text-[#6B6560] text-sm italic mb-5">
-          Enter your best guess for the total view count.
+          {t('yt.guessDesc')}
         </p>
 
         {/* Player Grid */}
@@ -128,7 +130,7 @@ export default function YouTubeQuestion({
                 inputMode="numeric"
                 value={guesses[player] || ''}
                 onChange={(e) => handleGuessChange(player, e.target.value)}
-                placeholder="Enter your guess..."
+                placeholder={t('yt.guessPlaceholder')}
                 className="game-input w-full text-center text-lg font-display"
               />
             </div>
@@ -144,7 +146,7 @@ export default function YouTubeQuestion({
               onClick={onCancelEdit}
               className="btn-teal px-6 py-4 text-lg"
             >
-              Cancel
+              {t('yt.cancel')}
             </button>
           </div>
           <div className="order-1 sm:order-2">
@@ -153,7 +155,7 @@ export default function YouTubeQuestion({
               disabled={!allPlayersAnswered}
               className="w-full sm:w-auto btn-gold px-8 py-4 text-lg"
             >
-              {allPlayersAnswered ? 'Save & Return' : 'All Must Guess'}
+              {allPlayersAnswered ? t('yt.saveReturn') : t('yt.allMustGuess')}
             </button>
           </div>
         </div>
@@ -162,7 +164,7 @@ export default function YouTubeQuestion({
           <div className="text-center sm:text-left order-2 sm:order-1">
             {!allPlayersAnswered && (
               <p className="text-[#6B6560] text-sm flex items-center justify-center sm:justify-start gap-2">
-                <span>Waiting for {players.length - answeredCount} more guess{players.length - answeredCount !== 1 ? 'es' : ''}...</span>
+                <span>{t('yt.waiting', { count: players.length - answeredCount, es: players.length - answeredCount !== 1 ? 'es' : '', en: players.length - answeredCount !== 1 ? 'en' : '' })}</span>
               </p>
             )}
           </div>
@@ -174,7 +176,7 @@ export default function YouTubeQuestion({
                 disabled={!allPlayersAnswered}
                 className="w-full sm:w-auto btn-gold px-8 py-4 text-lg"
               >
-                {allPlayersAnswered ? 'Final Video' : 'All Must Guess'}
+                {allPlayersAnswered ? t('yt.finalVideo') : t('yt.allMustGuess')}
               </button>
             ) : (
               <button
@@ -182,7 +184,7 @@ export default function YouTubeQuestion({
                 disabled={!allPlayersAnswered}
                 className="w-full sm:w-auto btn-teal px-8 py-4 text-lg flex items-center justify-center gap-2"
               >
-                <span>Next Video</span>
+                <span>{t('yt.nextVideo')}</span>
                 <span>&rarr;</span>
               </button>
             )}
