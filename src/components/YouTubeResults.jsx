@@ -1,5 +1,6 @@
 import React from 'react'
 import { formatViews, abbreviateViews, calculateYouTubeScore, getYouTubeScoreColor } from '../utils/youtube'
+import { useLanguage } from '../i18n.jsx'
 
 export default function YouTubeResults({
   players,
@@ -9,6 +10,8 @@ export default function YouTubeResults({
   videoIndex,
   onContinue
 }) {
+  const { t } = useLanguage()
+
   // Compute player results sorted by score (best/lowest first)
   const playerResults = players.map(player => {
     const guess = guesses[player] ?? 0
@@ -24,7 +27,7 @@ export default function YouTubeResults({
           <span>📺</span>
         </div>
         <h2 className="text-2xl font-display text-[#1A1A1A] mb-2">
-          Round Complete
+          {t('ytResults.roundComplete')}
         </h2>
         <p className="text-[#C23B22] font-display text-lg">
           {metadata?.title || `Video ${videoIndex + 1}`}
@@ -34,7 +37,7 @@ export default function YouTubeResults({
       {/* The Answer */}
       <div className="game-card p-6 mb-6 text-center">
         <p className="text-[#6B6560] text-sm uppercase tracking-wider font-bold mb-3">
-          Actual View Count
+          {t('ytResults.actualViews')}
         </p>
         <div className="bounce-in">
           <span className="text-3xl sm:text-4xl font-display text-[#C23B22]">
@@ -42,14 +45,14 @@ export default function YouTubeResults({
           </span>
         </div>
         <p className="text-[#6B6560] text-sm mt-2">
-          ({abbreviateViews(video.views)} views)
+          ({abbreviateViews(video.views)} {t('ytResults.views')})
         </p>
       </div>
 
       {/* Player Guesses - Ranked */}
       <div className="game-card p-6 mb-6">
         <div className="flex items-center gap-3 mb-5">
-          <h3 className="text-xl font-display text-[#1A1A1A]">Player Guesses</h3>
+          <h3 className="text-xl font-display text-[#1A1A1A]">{t('ytResults.playerGuesses')}</h3>
         </div>
 
         <div className="stagger-in">
@@ -91,7 +94,7 @@ export default function YouTubeResults({
                     fontWeight: 'bold',
                     whiteSpace: 'nowrap',
                   }}>
-                    {result.score} pts
+                    {result.score} {t('ytResults.pts')}
                   </span>
                 </div>
               </div>
@@ -105,7 +108,7 @@ export default function YouTubeResults({
         onClick={onContinue}
         className="w-full btn-teal py-5 text-xl"
       >
-        View Standings
+        {t('ytResults.viewStandings')}
       </button>
     </div>
   )

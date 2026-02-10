@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import Switch from 'react-switch'
 import CATEGORIES from '../data/categories'
+import { useLanguage } from '../i18n.jsx'
 
 export default function Setup({
   themes,
@@ -22,6 +23,7 @@ export default function Setup({
   setEnabledRounds
 }) {
   const [newPlayer, setNewPlayer] = useState('')
+  const { t, themeName: translateThemeName, categoryName } = useLanguage()
 
   const addPlayer = () => {
     const trimmed = newPlayer.trim()
@@ -78,10 +80,10 @@ export default function Setup({
 
   const getThemeIcon = (themeName) => {
     const name = themeName.toLowerCase()
-    if (name.includes('africa')) return '🌍'
-    if (name.includes('asia')) return '🌏'
-    if (name.includes('europe') || name.includes('capital')) return '🏛️'
-    if (name.includes('states') || name.includes('america')) return '🗽'
+    if (name.includes('africa') || name.includes('afrika')) return '🌍'
+    if (name.includes('asia') || name.includes('azië')) return '🌏'
+    if (name.includes('europe') || name.includes('capital') || name.includes('europese') || name.includes('hoofdsted')) return '🏛️'
+    if (name.includes('states') || name.includes('america') || name.includes('staten') || name.includes('amerika')) return '🗽'
     return '📚'
   }
 
@@ -93,15 +95,15 @@ export default function Setup({
           TS
         </div>
         <h1 className="text-3xl sm:text-4xl font-display text-[#1A1A1A] mb-2">
-          Welcome, Contestants!
+          {t('setup.welcome')}
         </h1>
-        <p className="text-[#6B6560] text-lg">The ultimate trivia challenge awaits</p>
+        <p className="text-[#6B6560] text-lg">{t('setup.subtitle')}</p>
       </div>
 
       {/* Rounds Selection */}
       <div className="game-card p-5 mb-6">
-        <h2 className="text-lg font-display text-[#1A1A1A] mb-3">Rounds</h2>
-        <p className="text-sm text-[#6B6560] mb-4">Select which rounds to play</p>
+        <h2 className="text-lg font-display text-[#1A1A1A] mb-3">{t('setup.rounds')}</h2>
+        <p className="text-sm text-[#6B6560] mb-4">{t('setup.roundsDesc')}</p>
         <div className="space-y-2">
           <label
             htmlFor="round-youtube"
@@ -129,8 +131,8 @@ export default function Setup({
             <div className="flex items-center gap-3 flex-1">
               <span className="editorial-stamp w-7 h-7 text-xs flex-shrink-0">1</span>
               <div>
-                <span className="font-bold text-[#1A1A1A] block">YouTube Views</span>
-                <span className="text-sm text-[#6B6560]">Guess the view count ({youtubeVideoCount} videos)</span>
+                <span className="font-bold text-[#1A1A1A] block">{t('setup.youtubeViews')}</span>
+                <span className="text-sm text-[#6B6560]">{t('setup.youtubeDesc', { count: youtubeVideoCount })}</span>
               </div>
             </div>
           </label>
@@ -161,8 +163,8 @@ export default function Setup({
             <div className="flex items-center gap-3 flex-1">
               <span className="editorial-stamp w-7 h-7 text-xs flex-shrink-0">2</span>
               <div>
-                <span className="font-bold text-[#1A1A1A] block">The Sporcle Round</span>
-                <span className="text-sm text-[#6B6560]">Pick the most obscure answer</span>
+                <span className="font-bold text-[#1A1A1A] block">{t('setup.sporcleRound')}</span>
+                <span className="text-sm text-[#6B6560]">{t('setup.sporcleDesc')}</span>
               </div>
             </div>
           </label>
@@ -172,10 +174,10 @@ export default function Setup({
       {/* Contestants Card */}
       <div className="game-card p-6 mb-6">
         <div className="flex items-center gap-3 mb-5">
-          <h2 className="text-xl font-display text-[#1A1A1A]">Contestants</h2>
+          <h2 className="text-xl font-display text-[#1A1A1A]">{t('setup.contestants')}</h2>
           {players.length > 0 && (
             <span className="ml-auto border-2 border-[#1A1A1A] text-[#1A1A1A] text-sm font-bold px-3 py-1">
-              {players.length} ready
+              {t('setup.ready', { count: players.length })}
             </span>
           )}
         </div>
@@ -189,7 +191,7 @@ export default function Setup({
             value={newPlayer}
             onChange={(e) => setNewPlayer(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Enter contestant name..."
+            placeholder={t('setup.placeholder')}
             aria-label="Contestant name"
             className="game-input flex-1 min-w-0"
           />
@@ -198,7 +200,7 @@ export default function Setup({
             disabled={!newPlayer.trim()}
             className="btn-teal px-3 text-sm flex-shrink-0"
           >
-            Add
+            {t('setup.add')}
           </button>
         </div>
 
@@ -222,7 +224,7 @@ export default function Setup({
           </div>
         ) : (
           <div className="text-center py-8 border border-dashed border-[#D4CFC7] bg-[#F7F3ED]/50">
-            <p className="text-[#6B6560] font-display italic">Add contestants to begin</p>
+            <p className="text-[#6B6560] font-display italic">{t('setup.emptyState')}</p>
           </div>
         )}
       </div>
@@ -231,14 +233,14 @@ export default function Setup({
       {enabledRounds.sporcle && (
       <div className="game-card p-6 mb-6">
         <div className="flex items-center gap-3 mb-5">
-          <h2 className="text-xl font-display text-[#1A1A1A]">Game Mode</h2>
+          <h2 className="text-xl font-display text-[#1A1A1A]">{t('setup.gameMode')}</h2>
         </div>
 
         {/* Dynamic mode toggle */}
         <div className="flex items-center justify-between p-4 bg-[#F7F3ED] hover:bg-[#EDE8DF] transition-colors border border-[#D4CFC7] mb-4">
           <div>
-            <span className="font-bold text-[#1A1A1A] block">Dynamic Mode</span>
-            <span className="text-sm text-[#6B6560]">Players choose categories during play</span>
+            <span className="font-bold text-[#1A1A1A] block">{t('setup.dynamicMode')}</span>
+            <span className="text-sm text-[#6B6560]">{t('setup.dynamicDesc')}</span>
           </div>
           <Switch
             checked={isDynamicMode}
@@ -264,7 +266,7 @@ export default function Setup({
           <div className="space-y-4 border-t border-[#D4CFC7] pt-4">
             <div>
               <label htmlFor="round-count" className="block text-sm font-bold text-[#1A1A1A] mb-2">
-                Number of Rounds
+                {t('setup.numberOfRounds')}
               </label>
               <input
                 type="number"
@@ -290,7 +292,7 @@ export default function Setup({
                 aria-label="Number of rounds"
                 className="game-input w-full"
               />
-              <p className="text-xs text-[#6B6560] mt-1">Up to {dynamicAvailableThemes.length} theme{dynamicAvailableThemes.length !== 1 ? 's' : ''} selected</p>
+              <p className="text-xs text-[#6B6560] mt-1">{t('setup.themesSelected', { count: dynamicAvailableThemes.length, s: dynamicAvailableThemes.length !== 1 ? 's' : '' })}</p>
             </div>
           </div>
         )}
@@ -301,9 +303,9 @@ export default function Setup({
       {isDynamicMode && enabledRounds.sporcle && (
         <div className="game-card p-6 mb-6">
           <div className="flex items-center gap-3 mb-5">
-            <h2 className="text-xl font-display text-[#1A1A1A]">Theme Pool</h2>
+            <h2 className="text-xl font-display text-[#1A1A1A]">{t('setup.themePool')}</h2>
             <span className="ml-auto border-2 border-[#1A1A1A] text-[#1A1A1A] text-sm font-bold px-3 py-1">
-              {dynamicAvailableThemes.length} selected
+              {t('setup.selected', { count: dynamicAvailableThemes.length })}
             </span>
           </div>
 
@@ -333,7 +335,7 @@ export default function Setup({
                       )}
                     </div>
                     <span className="emoji text-lg">{category.icon}</span>
-                    <span className="font-display text-[#1A1A1A]">{category.name}</span>
+                    <span className="font-display text-[#1A1A1A]">{categoryName(category.id)}</span>
                     <span className="text-xs text-[#6B6560] ml-auto">
                       {categoryThemeIds.filter(id => dynamicAvailableThemes.includes(id)).length}/{categoryThemeIds.length}
                     </span>
@@ -370,7 +372,7 @@ export default function Setup({
                             onChange={() => toggleDynamicTheme(themeId)}
                             className="sr-only"
                           />
-                          <span className="text-sm text-[#1A1A1A]">{theme.name}</span>
+                          <span className="text-sm text-[#1A1A1A]">{translateThemeName(themeId)}</span>
                         </label>
                       )
                     })}
@@ -386,10 +388,10 @@ export default function Setup({
       {!isDynamicMode && enabledRounds.sporcle && (
         <div className="game-card p-6 mb-6">
           <div className="flex items-center gap-3 mb-5">
-            <h2 className="text-xl font-display text-[#1A1A1A]">Categories</h2>
+            <h2 className="text-xl font-display text-[#1A1A1A]">{t('setup.categories')}</h2>
             {selectedThemes.length > 0 && (
               <span className="ml-auto border-2 border-[#1A1A1A] text-[#1A1A1A] text-sm font-bold px-3 py-1">
-                {selectedThemes.length} selected
+                {t('setup.selected', { count: selectedThemes.length })}
               </span>
             )}
           </div>
@@ -397,6 +399,7 @@ export default function Setup({
           <div className="space-y-2 stagger-in">
             {themes.map(theme => {
               const isSelected = selectedThemes.includes(theme.id)
+              const translatedName = translateThemeName(theme.id)
               return (
                 <label
                   key={theme.id}
@@ -420,15 +423,15 @@ export default function Setup({
                     name={`theme-${theme.id}`}
                     checked={isSelected}
                     onChange={() => toggleTheme(theme.id)}
-                    aria-label={`Select category ${theme.name}`}
+                    aria-label={`Select category ${translatedName}`}
                     className="sr-only"
                   />
                   <div className="w-10 h-10 bg-[#F7F3ED] border border-[#D4CFC7] flex items-center justify-center text-xl">
-                    <span className="emoji">{getThemeIcon(theme.name)}</span>
+                    <span className="emoji">{getThemeIcon(translatedName)}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="font-bold text-[#1A1A1A] block line-clamp-2">{theme.name}</span>
-                    <span className="text-sm text-[#6B6560]">{theme.options.length} answers</span>
+                    <span className="font-bold text-[#1A1A1A] block line-clamp-2">{translatedName}</span>
+                    <span className="text-sm text-[#6B6560]">{t('setup.answers', { count: theme.options.length })}</span>
                   </div>
                 </label>
               )
@@ -444,18 +447,18 @@ export default function Setup({
         className="w-full btn-gold py-5 text-xl"
       >
         {canStart ? (
-          <span>Begin the Quiz</span>
+          <span>{t('setup.beginQuiz')}</span>
         ) : (
           <span>
             {!hasEnabledRound
-              ? 'Select at least one round'
+              ? t('setup.selectRound')
               : players.length === 0
-              ? 'Add at least one contestant'
+              ? t('setup.addContestant')
               : enabledRounds.sporcle && isDynamicMode
-              ? 'Configure rounds & theme pool'
+              ? t('setup.configureRounds')
               : enabledRounds.sporcle && !isDynamicMode
-              ? 'Select at least one category'
-              : 'Configure game settings'
+              ? t('setup.selectCategory')
+              : t('setup.configureSettings')
             }
           </span>
         )}
@@ -465,7 +468,7 @@ export default function Setup({
       {enabledRounds.sporcle && (
         <div className="mt-6 text-center border-t border-[#D4CFC7] pt-4">
           <p className="text-[#6B6560] text-sm italic">
-            Pick obscure answers for lower scores!
+            {t('setup.tip')}
           </p>
         </div>
       )}

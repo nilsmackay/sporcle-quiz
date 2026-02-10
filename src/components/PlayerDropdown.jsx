@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react'
 import Select, { components } from 'react-select'
 import { getPercentageColor } from '../utils/colors'
+import { useLanguage } from '../i18n.jsx'
 
 // Custom components defined OUTSIDE the parent component to maintain stable
 // identity across renders. When defined inside, every re-render creates a new
@@ -62,6 +63,7 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
   const [inputValue, setInputValue] = useState('')
   const selectRef = useRef(null)
   const selectionMadeRef = useRef(false)
+  const { t } = useLanguage()
 
   // Calculate min and max percentages from available options
   const percentages = options.map(opt => opt.percentage)
@@ -76,7 +78,7 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
         label: opt.name,
         percentage: opt.percentage
       })),
-    { value: 'invalid', label: 'Invalid Answer', percentage: 100 }
+    { value: 'invalid', label: t('dropdown.invalid'), percentage: 100 }
   ]
 
   const currentValue = selectedAnswer
@@ -229,7 +231,7 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
         onChange={handleChange}
         onInputChange={handleInputChange}
         inputValue={inputValue}
-        placeholder="Search answers..."
+        placeholder={t('dropdown.search')}
         isSearchable
         styles={customStyles}
         components={customComponents}

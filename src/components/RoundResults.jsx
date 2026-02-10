@@ -1,5 +1,6 @@
 import React from 'react'
 import { getPercentageColor } from '../utils/colors'
+import { useLanguage } from '../i18n.jsx'
 
 export default function RoundResults({
   players,
@@ -8,6 +9,8 @@ export default function RoundResults({
   currentTheme,
   onContinue
 }) {
+  const { t, themeName: translateThemeName } = useLanguage()
+
   // Compute min/max from theme options for consistent color grading
   const percentages = currentTheme.options.map(opt => opt.percentage)
   const minPercent = Math.min(...percentages)
@@ -27,7 +30,7 @@ export default function RoundResults({
     const answer = answers[player]?.[currentQuestionIndex]
     return {
       player,
-      option: answer?.option || 'No answer',
+      option: answer?.option || t('results.noAnswer'),
       percentage: answer?.percentage ?? 100,
       rank: answer?.option === 'invalid' ? null : optionRanks[answer?.option] || null
     }
@@ -39,43 +42,45 @@ export default function RoundResults({
 
   const getRankSuffix = (rank) => {
     if (!rank) return ''
-    if (rank % 100 >= 11 && rank % 100 <= 13) return 'th'
+    if (rank % 100 >= 11 && rank % 100 <= 13) return t('rank.th')
     switch (rank % 10) {
-      case 1: return 'st'
-      case 2: return 'nd'
-      case 3: return 'rd'
-      default: return 'th'
+      case 1: return t('rank.st')
+      case 2: return t('rank.nd')
+      case 3: return t('rank.rd')
+      default: return t('rank.th')
     }
   }
 
   const getThemeIcon = (themeName) => {
     const name = themeName?.toLowerCase() || ''
-    if (name.includes('africa')) return '🌍'
-    if (name.includes('asia')) return '🌏'
-    if (name.includes('europe') || name.includes('capital')) return '🏛️'
-    if (name.includes('states') || name.includes('america')) return '🗽'
+    if (name.includes('africa') || name.includes('afrika')) return '🌍'
+    if (name.includes('asia') || name.includes('azië')) return '🌏'
+    if (name.includes('europe') || name.includes('capital') || name.includes('europese') || name.includes('hoofdsted')) return '🏛️'
+    if (name.includes('states') || name.includes('america') || name.includes('staten') || name.includes('amerika')) return '🗽'
     return '📚'
   }
+
+  const translatedName = translateThemeName(currentTheme.id)
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 slide-up">
       {/* Round Complete Header */}
       <div className="game-card p-6 mb-6 text-center">
         <div className="editorial-stamp w-20 h-20 text-3xl mb-4 mx-auto">
-          <span className="emoji">{getThemeIcon(currentTheme.name)}</span>
+          <span className="emoji">{getThemeIcon(translatedName)}</span>
         </div>
         <h2 className="text-2xl font-display text-[#1A1A1A] mb-2">
-          Round Complete
+          {t('results.roundComplete')}
         </h2>
         <p className="text-[#C23B22] font-display text-lg">
-          {currentTheme.name}
+          {translatedName}
         </p>
       </div>
 
       {/* Player Results */}
       <div className="game-card p-6 mb-6">
         <div className="flex items-center gap-3 mb-5">
-          <h3 className="text-xl font-display text-[#1A1A1A]">Player Picks</h3>
+          <h3 className="text-xl font-display text-[#1A1A1A]">{t('results.playerPicks')}</h3>
         </div>
 
         <div className="stagger-in">
@@ -104,7 +109,7 @@ export default function RoundResults({
                   </span>
                   {result.rank && (
                     <span className="text-xs text-[#6B6560] hidden sm:block">
-                      {result.rank}{getRankSuffix(result.rank)} most obscure
+                      {result.rank}{getRankSuffix(result.rank)} {t('results.mostObscure')}
                     </span>
                   )}
                 </div>
@@ -133,7 +138,7 @@ export default function RoundResults({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         {/* Best 3 */}
         <div className="game-card p-5">
-          <h4 className="font-display text-[#1A1A1A] mb-4">Most Obscure</h4>
+          <h4 className="font-display text-[#1A1A1A] mb-4">{t('results.bestTitle')}</h4>
           <div className="space-y-2">
             {best3.map((opt, index) => (
               <div key={opt.name} className="flex items-center justify-between gap-2 text-sm">
@@ -149,7 +154,7 @@ export default function RoundResults({
 
         {/* Worst 3 */}
         <div className="game-card p-5">
-          <h4 className="font-display text-[#1A1A1A] mb-4">Most Common</h4>
+          <h4 className="font-display text-[#1A1A1A] mb-4">{t('results.worstTitle')}</h4>
           <div className="space-y-2">
             {worst3.map((opt, index) => (
               <div key={opt.name} className="flex items-center justify-between gap-2 text-sm">
@@ -169,7 +174,7 @@ export default function RoundResults({
         onClick={onContinue}
         className="w-full btn-teal py-5 text-xl"
       >
-        View Standings
+        {t('results.viewStandings')}
       </button>
     </div>
   )
