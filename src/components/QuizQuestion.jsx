@@ -7,9 +7,8 @@ export default function QuizQuestion({
   currentTheme,
   currentQuestionIndex,
   onBatchAnswers,
-  onNext,
+  onSubmitRound,
   isLastQuestion,
-  onFinish,
   isEditing,
   onSaveAndReturn,
   onCancelEdit,
@@ -39,10 +38,8 @@ export default function QuizQuestion({
     onBatchAnswers(currentQuestionIndex, pendingAnswers)
     if (isEditing) {
       onSaveAndReturn()
-    } else if (isLastQuestion) {
-      onFinish()
     } else {
-      onNext()
+      onSubmitRound()
     }
   }
 

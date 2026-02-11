@@ -33,3 +33,16 @@ export function getPercentageColor(percentage, minPercent, maxPercent) {
 
   return { bg: bgColor, text: 'white' }
 }
+
+// Inline style object for score/percentage badges (Fraunces serif, 12px bold)
+// Accepts a { bg, text } color pair from getPercentageColor or getYouTubeScoreColor
+export function badgeStyle(colors) {
+  return {
+    backgroundColor: colors.bg,
+    color: colors.text,
+    padding: '3px 10px',
+    fontSize: '12px',
+    fontFamily: "'Fraunces', serif",
+    fontWeight: 'bold',
+  }
+}

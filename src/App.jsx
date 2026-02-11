@@ -11,6 +11,7 @@ import themes from './data/themes.json'
 import YOUTUBE_VIDEOS from './data/youtube-videos.js'
 import { fetchVideoMetadata } from './utils/youtube'
 import { gameReducer, initialState } from './gameReducer'
+import { getThemeById } from './utils/themes'
 
 export default function App() {
   const [state, dispatch] = useReducer(gameReducer, initialState)
@@ -36,7 +37,7 @@ export default function App() {
   // Derived state
   const activeThemes = isDynamicMode ? playedThemes : selectedThemes
   const currentTheme = activeThemes[currentQuestionIndex]
-    ? themes.find(t => t.id === activeThemes[currentQuestionIndex])
+    ? getThemeById(activeThemes[currentQuestionIndex])
     : null
   const totalQuestions = isDynamicMode ? dynamicQuestionCount : selectedThemes.length
   const isLastQuestion = isDynamicMode
@@ -170,9 +171,8 @@ export default function App() {
             onBatchAnswers={(questionIndex, playerAnswers) =>
               dispatch({ type: 'BATCH_ANSWERS', questionIndex, playerAnswers })
             }
-            onNext={() => dispatch({ type: 'SHOW_ROUND_RESULTS' })}
+            onSubmitRound={() => dispatch({ type: 'SHOW_ROUND_RESULTS' })}
             isLastQuestion={isLastQuestion}
-            onFinish={() => dispatch({ type: 'SHOW_ROUND_RESULTS' })}
             isEditing={isEditing}
             onSaveAndReturn={handleSaveAndReturn}
             onCancelEdit={handleCancelEdit}

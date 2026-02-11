@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { getPercentageColor, interpolateColor } from '../utils/colors'
+import { getPercentageColor, interpolateColor, badgeStyle } from '../utils/colors'
 import { calculateYouTubeScore, getYouTubeScoreColor, abbreviateViews } from '../utils/youtube'
-import { getThemeIcon } from '../utils/themes'
+import { getThemeIcon, getThemeById } from '../utils/themes'
 import { calculateSporcleTotal as calcSporcle, calculateYouTubeTotal as calcYouTube, calculateGrandTotal as calcGrand } from '../utils/scoring'
 
 // Tooltip for truncated text: hover on desktop, tap on mobile.
@@ -56,15 +56,6 @@ function TruncatedText({ text, className = '' }) {
   )
 }
 
-// Inline badge style helper
-const badgeStyle = (colors) => ({
-  backgroundColor: colors.bg,
-  color: colors.text,
-  padding: '3px 10px',
-  fontSize: '12px',
-  fontFamily: "'Fraunces', serif",
-  fontWeight: 'bold',
-})
 
 export default function Leaderboard({
   players,
@@ -92,7 +83,7 @@ export default function Leaderboard({
 
   // Helper to get min/max percentages for a theme
   const getThemeRange = (themeId) => {
-    const theme = themes.find(t => t.id === themeId)
+    const theme = getThemeById(themeId)
     if (!theme) return { minPercent: 0, maxPercent: 100 }
     const percentages = theme.options.map(opt => opt.percentage)
     return { minPercent: Math.min(...percentages), maxPercent: Math.max(...percentages) }
@@ -245,7 +236,7 @@ export default function Leaderboard({
               )}
               {hasSporcle && sporcleExpanded && playedThemeIndices.map((index, i) => {
                 const themeId = selectedThemes[index]
-                const theme = themes.find(t => t.id === themeId)
+                const theme = getThemeById(themeId)
                 return (
                   <th
                     key={themeId}

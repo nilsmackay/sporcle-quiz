@@ -1,5 +1,5 @@
 import React from 'react'
-import { getPercentageColor } from '../utils/colors'
+import { getPercentageColor, badgeStyle } from '../utils/colors'
 import { getThemeIcon } from '../utils/themes'
 
 export default function RoundResults({
@@ -104,14 +104,7 @@ export default function RoundResults({
                 {(() => {
                   const colors = getPercentageColor(result.percentage, minPercent, maxPercent)
                   return (
-                    <span style={{
-                      backgroundColor: colors.bg,
-                      color: colors.text,
-                      padding: '3px 10px',
-                      fontSize: '12px',
-                      fontFamily: "'Fraunces', serif",
-                      fontWeight: 'bold'
-                    }}>
+                    <span style={badgeStyle(colors)}>
                       {result.percentage}%
                     </span>
                   )
