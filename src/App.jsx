@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useReducer, useEffect } from 'react'
 import Header from './components/Header'
 import Setup from './components/Setup'
 import QuizQuestion from './components/QuizQuestion'
@@ -9,268 +9,53 @@ import YouTubeQuestion from './components/YouTubeQuestion'
 import YouTubeResults from './components/YouTubeResults'
 import themes from './data/themes.json'
 import YOUTUBE_VIDEOS from './data/youtube-videos.js'
-import { fetchVideoMetadata, calculateYouTubeScore } from './utils/youtube'
+import { fetchVideoMetadata } from './utils/youtube'
+import { gameReducer, initialState } from './gameReducer'
+import { getThemeById } from './utils/themes'
 
 export default function App() {
-  const [phase, setPhase] = useState('setup')
-  const [players, setPlayers] = useState([])
-  const [selectedThemes, setSelectedThemes] = useState([])
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [answers, setAnswers] = useState({})
-  const [showLeaderboard, setShowLeaderboard] = useState(false)
+  const [state, dispatch] = useReducer(gameReducer, initialState)
 
-  // Dynamic mode state
-  const [isDynamicMode, setIsDynamicMode] = useState(true)
-  const [dynamicQuestionCount, setDynamicQuestionCount] = useState(3)
-  const [currentPicker, setCurrentPicker] = useState('')
-  const [playedThemes, setPlayedThemes] = useState([])
-  const [dynamicAvailableThemes, setDynamicAvailableThemes] = useState(themes.map(t => t.id))
-
-  // YouTube round state
-  const [youtubeVideoIndex, setYoutubeVideoIndex] = useState(0)
-  const [youtubeGuesses, setYoutubeGuesses] = useState({})
-  const [videoMetadata, setVideoMetadata] = useState({})
-
-  // Edit mode state
-  const [editReturnState, setEditReturnState] = useState(null)
-
-  // Enabled rounds
-  const [enabledRounds, setEnabledRounds] = useState({
-    youtube: true,
-    sporcle: true
-  })
+  const {
+    phase, players, selectedThemes, currentQuestionIndex, answers,
+    showLeaderboard, isDynamicMode, dynamicQuestionCount, currentPicker,
+    playedThemes, dynamicAvailableThemes, youtubeVideoIndex,
+    youtubeGuesses, videoMetadata, editReturnState, enabledRounds,
+  } = state
 
   // Prefetch YouTube video metadata when YouTube round starts
   useEffect(() => {
     if (phase === 'youtube-playing' && Object.keys(videoMetadata).length === 0) {
       YOUTUBE_VIDEOS.forEach((video, index) => {
         fetchVideoMetadata(video.url).then(meta => {
-          if (meta) {
-            setVideoMetadata(prev => ({ ...prev, [index]: meta }))
-          }
+          if (meta) dispatch({ type: 'SET_VIDEO_METADATA', index, meta })
         })
       })
     }
   }, [phase])
 
-  // In dynamic mode, use playedThemes; otherwise use selectedThemes
+  // Derived state
   const activeThemes = isDynamicMode ? playedThemes : selectedThemes
   const currentTheme = activeThemes[currentQuestionIndex]
-    ? themes.find(t => t.id === activeThemes[currentQuestionIndex])
+    ? getThemeById(activeThemes[currentQuestionIndex])
     : null
-
-  // Calculate Sporcle score for a player
-  const calculatePlayerScore = (player) => {
-    let total = 0
-    activeThemes.forEach((_, index) => {
-      const answer = answers[player]?.[index]
-      if (answer) {
-        total += answer.percentage
-      }
-    })
-    return total
-  }
-
-  // Calculate YouTube score for a player
-  const calculateYouTubePlayerScore = (player) => {
-    let total = 0
-    YOUTUBE_VIDEOS.forEach((video, index) => {
-      const guess = youtubeGuesses[player]?.[index]
-      if (guess !== undefined) {
-        total += calculateYouTubeScore(guess, video.views)
-      }
-    })
-    return total
-  }
-
-  // Get the player with the highest total score across all rounds (for dynamic mode)
-  // In this game, lower scores are better, so the player doing worst picks next
-  // Total = YouTube score + Sporcle score
-  const getHighestScorer = () => {
-    if (players.length === 0) return ''
-    let highestPlayer = players[0]
-    let highestScore = calculateYouTubePlayerScore(players[0]) + calculatePlayerScore(players[0])
-    players.forEach(player => {
-      const totalScore = calculateYouTubePlayerScore(player) + calculatePlayerScore(player)
-      if (totalScore > highestScore) {
-        highestScore = totalScore
-        highestPlayer = player
-      }
-    })
-    return highestPlayer
-  }
-
-  // --- Phase handlers ---
-
-  const handleStart = () => {
-    // Reset state
-    setYoutubeVideoIndex(0)
-    setYoutubeGuesses({})
-    setVideoMetadata({})
-    setCurrentQuestionIndex(0)
-    setAnswers({})
-    if (isDynamicMode) {
-      setPlayedThemes([])
-    }
-
-    // Start with first enabled round
-    if (enabledRounds.youtube) {
-      setPhase('youtube-playing')
-    } else if (enabledRounds.sporcle) {
-      if (isDynamicMode) {
-        setCurrentPicker(getHighestScorer())
-        setPhase('picking')
-      } else {
-        setPhase('playing')
-      }
-    }
-  }
-
-  // YouTube round handlers
-  const handleYouTubeSubmitGuesses = (videoIndex, guesses) => {
-    setYoutubeGuesses(prev => {
-      const next = { ...prev }
-      for (const [player, guess] of Object.entries(guesses)) {
-        next[player] = { ...next[player], [videoIndex]: guess }
-      }
-      return next
-    })
-    if (!isEditing) {
-      setPhase('youtube-results')
-    }
-  }
-
-  const handleYouTubeShowStandings = () => {
-    setPhase('youtube-standings')
-  }
-
-  const isLastYouTubeVideo = youtubeVideoIndex === YOUTUBE_VIDEOS.length - 1
-  const isEditing = editReturnState !== null
-
-  // Edit mode handlers
-  const handleEditQuestion = (type, index) => {
-    setEditReturnState({
-      phase,
-      questionIndex: currentQuestionIndex,
-      youtubeVideoIndex: youtubeVideoIndex
-    })
-    setShowLeaderboard(false)
-
-    if (type === 'youtube') {
-      setYoutubeVideoIndex(index)
-      setPhase('youtube-playing')
-    } else {
-      setCurrentQuestionIndex(index)
-      setPhase('playing')
-    }
-  }
-
-  const handleSaveAndReturn = () => {
-    const returnTo = editReturnState
-    setEditReturnState(null)
-    setCurrentQuestionIndex(returnTo.questionIndex)
-    setYoutubeVideoIndex(returnTo.youtubeVideoIndex)
-    setPhase(returnTo.phase)
-  }
-
-  const handleCancelEdit = () => {
-    const returnTo = editReturnState
-    setEditReturnState(null)
-    setCurrentQuestionIndex(returnTo.questionIndex)
-    setYoutubeVideoIndex(returnTo.youtubeVideoIndex)
-    setPhase(returnTo.phase)
-  }
-
-  const handleYouTubeContinueFromStandings = () => {
-    if (isLastYouTubeVideo) {
-      // Transition to Sporcle round if enabled, otherwise finish
-      if (enabledRounds.sporcle) {
-        if (isDynamicMode) {
-          // Set the player with the worst total score as first picker
-          setCurrentPicker(getHighestScorer())
-          setPhase('picking')
-        } else {
-          setPhase('playing')
-        }
-      } else {
-        setPhase('finished')
-      }
-    } else {
-      setYoutubeVideoIndex(youtubeVideoIndex + 1)
-      setPhase('youtube-playing')
-    }
-  }
-
-  // Sporcle round handlers
-  const handleSelectQuestion = (themeId) => {
-    setPlayedThemes([...playedThemes, themeId])
-    setPhase('playing')
-  }
-
-  const handleBatchAnswers = (questionIndex, playerAnswers) => {
-    setAnswers(prev => {
-      const next = { ...prev }
-      for (const [player, answer] of Object.entries(playerAnswers)) {
-        next[player] = { ...next[player], [questionIndex]: answer }
-      }
-      return next
-    })
-  }
-
-  const handleNext = () => {
-    setPhase('round-results')
-  }
-
-  const handleFinish = () => {
-    setPhase('round-results')
-  }
-
-  const handleShowStandings = () => {
-    setPhase('standings')
-  }
-
-  const handleContinueFromStandings = () => {
-    if (isLastQuestion) {
-      setPhase('finished')
-    } else if (isDynamicMode) {
-      setCurrentPicker(getHighestScorer())
-      setCurrentQuestionIndex(currentQuestionIndex + 1)
-      setPhase('picking')
-    } else {
-      setCurrentQuestionIndex(currentQuestionIndex + 1)
-      setPhase('playing')
-    }
-  }
-
-  const handleNewGame = () => {
-    setPhase('setup')
-    setPlayers([])
-    setSelectedThemes([])
-    setCurrentQuestionIndex(0)
-    setAnswers({})
-    setShowLeaderboard(false)
-    // Reset dynamic mode state
-    setIsDynamicMode(true)
-    setDynamicQuestionCount(3)
-    setCurrentPicker('')
-    setPlayedThemes([])
-    setDynamicAvailableThemes(themes.map(t => t.id))
-    // Reset YouTube state
-    setYoutubeVideoIndex(0)
-    setYoutubeGuesses({})
-    setVideoMetadata({})
-    // Reset enabled rounds
-    setEnabledRounds({ youtube: true, sporcle: true })
-  }
-
-  // Determine total questions based on mode
   const totalQuestions = isDynamicMode ? dynamicQuestionCount : selectedThemes.length
   const isLastQuestion = isDynamicMode
     ? playedThemes.length >= dynamicQuestionCount
     : currentQuestionIndex === selectedThemes.length - 1
-
-  // Determine if we're in a YouTube phase (for leaderboard overlay)
+  const isLastYouTubeVideo = youtubeVideoIndex === YOUTUBE_VIDEOS.length - 1
+  const isEditing = editReturnState !== null
   const isYouTubePhase = phase === 'youtube-playing' || phase === 'youtube-results' || phase === 'youtube-standings'
+
+  // Field setter helper — lets Setup use the same setX={setField('x')} interface
+  const setField = (field) => (value) => dispatch({ type: 'SET_FIELD', field, value })
+
+  // Event handlers that dispatch actions
+  const handleEditQuestion = (type, index) =>
+    dispatch({ type: 'EDIT_QUESTION', questionType: type, index })
+
+  const handleSaveAndReturn = () => dispatch({ type: 'SAVE_AND_RETURN' })
+  const handleCancelEdit = () => dispatch({ type: 'CANCEL_EDIT' })
 
   return (
     <div className="min-h-screen relative">
@@ -280,8 +65,8 @@ export default function App() {
         totalQuestions={totalQuestions}
         themeName={currentTheme?.name}
         showLeaderboard={showLeaderboard}
-        setShowLeaderboard={setShowLeaderboard}
-        onNewGame={handleNewGame}
+        setShowLeaderboard={setField('showLeaderboard')}
+        onNewGame={() => dispatch({ type: 'NEW_GAME' })}
         youtubeVideoIndex={youtubeVideoIndex}
         totalYouTubeVideos={YOUTUBE_VIDEOS.length}
       />
@@ -291,21 +76,21 @@ export default function App() {
           <Setup
             themes={themes}
             players={players}
-            setPlayers={setPlayers}
+            setPlayers={setField('players')}
             selectedThemes={selectedThemes}
-            setSelectedThemes={setSelectedThemes}
-            onStart={handleStart}
+            setSelectedThemes={setField('selectedThemes')}
+            onStart={() => dispatch({ type: 'START_GAME' })}
             isDynamicMode={isDynamicMode}
-            setIsDynamicMode={setIsDynamicMode}
+            setIsDynamicMode={setField('isDynamicMode')}
             dynamicQuestionCount={dynamicQuestionCount}
-            setDynamicQuestionCount={setDynamicQuestionCount}
+            setDynamicQuestionCount={setField('dynamicQuestionCount')}
             currentPicker={currentPicker}
-            setCurrentPicker={setCurrentPicker}
+            setCurrentPicker={setField('currentPicker')}
             dynamicAvailableThemes={dynamicAvailableThemes}
-            setDynamicAvailableThemes={setDynamicAvailableThemes}
+            setDynamicAvailableThemes={setField('dynamicAvailableThemes')}
             youtubeVideoCount={YOUTUBE_VIDEOS.length}
             enabledRounds={enabledRounds}
-            setEnabledRounds={setEnabledRounds}
+            setEnabledRounds={setField('enabledRounds')}
           />
         )}
 
@@ -316,7 +101,9 @@ export default function App() {
             videoIndex={youtubeVideoIndex}
             totalVideos={YOUTUBE_VIDEOS.length}
             metadata={videoMetadata[youtubeVideoIndex] || null}
-            onSubmitGuesses={handleYouTubeSubmitGuesses}
+            onSubmitGuesses={(videoIndex, guesses) =>
+              dispatch({ type: 'SUBMIT_YOUTUBE_GUESSES', videoIndex, guesses })
+            }
             isLastVideo={isLastYouTubeVideo}
             isEditing={isEditing}
             onSaveAndReturn={handleSaveAndReturn}
@@ -336,7 +123,7 @@ export default function App() {
               )
             }
             videoIndex={youtubeVideoIndex}
-            onContinue={handleYouTubeShowStandings}
+            onContinue={() => dispatch({ type: 'SHOW_YOUTUBE_STANDINGS' })}
           />
         )}
 
@@ -347,7 +134,7 @@ export default function App() {
               answers={{}}
               selectedThemes={[]}
               themes={themes}
-              onClose={handleYouTubeContinueFromStandings}
+              onClose={() => dispatch({ type: 'YOUTUBE_CONTINUE_FROM_STANDINGS' })}
               isOverlay={false}
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
@@ -356,7 +143,7 @@ export default function App() {
               defaultExpandedRound="youtube"
             />
             <button
-              onClick={handleYouTubeContinueFromStandings}
+              onClick={() => dispatch({ type: 'YOUTUBE_CONTINUE_FROM_STANDINGS' })}
               className="w-full mt-4 btn-gold py-3 sm:py-4 font-bold text-base sm:text-lg"
             >
               {isLastYouTubeVideo ? 'Start Round 2: The Sporcle Round' : 'Next Video'}
@@ -372,7 +159,7 @@ export default function App() {
             currentPicker={currentPicker}
             currentQuestionIndex={currentQuestionIndex}
             totalQuestions={dynamicQuestionCount}
-            onSelectQuestion={handleSelectQuestion}
+            onSelectQuestion={(themeId) => dispatch({ type: 'SELECT_QUESTION', themeId })}
           />
         )}
 
@@ -381,10 +168,11 @@ export default function App() {
             players={players}
             currentTheme={currentTheme}
             currentQuestionIndex={currentQuestionIndex}
-            onBatchAnswers={handleBatchAnswers}
-            onNext={handleNext}
+            onBatchAnswers={(questionIndex, playerAnswers) =>
+              dispatch({ type: 'BATCH_ANSWERS', questionIndex, playerAnswers })
+            }
+            onSubmitRound={() => dispatch({ type: 'SHOW_ROUND_RESULTS' })}
             isLastQuestion={isLastQuestion}
-            onFinish={handleFinish}
             isEditing={isEditing}
             onSaveAndReturn={handleSaveAndReturn}
             onCancelEdit={handleCancelEdit}
@@ -398,7 +186,7 @@ export default function App() {
             answers={answers}
             currentQuestionIndex={currentQuestionIndex}
             currentTheme={currentTheme}
-            onContinue={handleShowStandings}
+            onContinue={() => dispatch({ type: 'SHOW_STANDINGS' })}
           />
         )}
 
@@ -409,7 +197,7 @@ export default function App() {
               answers={answers}
               selectedThemes={activeThemes}
               themes={themes}
-              onClose={handleContinueFromStandings}
+              onClose={() => dispatch({ type: 'CONTINUE_FROM_STANDINGS' })}
               isOverlay={false}
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
@@ -418,7 +206,7 @@ export default function App() {
               defaultExpandedRound="sporcle"
             />
             <button
-              onClick={handleContinueFromStandings}
+              onClick={() => dispatch({ type: 'CONTINUE_FROM_STANDINGS' })}
               className="w-full mt-4 btn-gold py-3 sm:py-4 font-bold text-base sm:text-lg"
             >
               {isLastQuestion ? 'Final Results' : 'Next Question'}
@@ -447,7 +235,7 @@ export default function App() {
               defaultExpandedRound={null}
             />
             <button
-              onClick={handleNewGame}
+              onClick={() => dispatch({ type: 'NEW_GAME' })}
               className="w-full mt-4 btn-gold py-3 sm:py-4 font-bold text-base sm:text-lg"
             >
               New Game
@@ -462,7 +250,7 @@ export default function App() {
           answers={isYouTubePhase ? {} : answers}
           selectedThemes={isYouTubePhase ? [] : activeThemes}
           themes={themes}
-          onClose={() => setShowLeaderboard(false)}
+          onClose={() => dispatch({ type: 'SET_FIELD', field: 'showLeaderboard', value: false })}
           youtubeGuesses={youtubeGuesses}
           youtubeVideos={YOUTUBE_VIDEOS}
           videoMetadata={videoMetadata}

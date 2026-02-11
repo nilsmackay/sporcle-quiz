@@ -1,5 +1,6 @@
 import React from 'react'
 import { formatViews, abbreviateViews, calculateYouTubeScore, getYouTubeScoreColor } from '../utils/youtube'
+import { badgeStyle } from '../utils/colors'
 
 export default function YouTubeResults({
   players,
@@ -82,15 +83,7 @@ export default function YouTubeResults({
                       ({abbreviateViews(result.guess)})
                     </span>
                   </div>
-                  <span style={{
-                    backgroundColor: colors.bg,
-                    color: colors.text,
-                    padding: '3px 10px',
-                    fontSize: '12px',
-                    fontFamily: "'Fraunces', serif",
-                    fontWeight: 'bold',
-                    whiteSpace: 'nowrap',
-                  }}>
+                  <span style={{ ...badgeStyle(colors), whiteSpace: 'nowrap' }}>
                     {result.score} pts
                   </span>
                 </div>

@@ -1,5 +1,6 @@
 import React from 'react'
-import { getPercentageColor } from '../utils/colors'
+import { getPercentageColor, badgeStyle } from '../utils/colors'
+import { getThemeIcon } from '../utils/themes'
 
 export default function RoundResults({
   players,
@@ -48,14 +49,6 @@ export default function RoundResults({
     }
   }
 
-  const getThemeIcon = (themeName) => {
-    const name = themeName?.toLowerCase() || ''
-    if (name.includes('africa')) return '🌍'
-    if (name.includes('asia')) return '🌏'
-    if (name.includes('europe') || name.includes('capital')) return '🏛️'
-    if (name.includes('states') || name.includes('america')) return '🗽'
-    return '📚'
-  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 slide-up">
@@ -111,14 +104,7 @@ export default function RoundResults({
                 {(() => {
                   const colors = getPercentageColor(result.percentage, minPercent, maxPercent)
                   return (
-                    <span style={{
-                      backgroundColor: colors.bg,
-                      color: colors.text,
-                      padding: '3px 10px',
-                      fontSize: '12px',
-                      fontFamily: "'Fraunces', serif",
-                      fontWeight: 'bold'
-                    }}>
+                    <span style={badgeStyle(colors)}>
                       {result.percentage}%
                     </span>
                   )

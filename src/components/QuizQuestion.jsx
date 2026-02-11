@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import PlayerDropdown from './PlayerDropdown'
+import { getThemeIcon } from '../utils/themes'
 
 export default function QuizQuestion({
   players,
   currentTheme,
   currentQuestionIndex,
   onBatchAnswers,
-  onNext,
+  onSubmitRound,
   isLastQuestion,
-  onFinish,
   isEditing,
   onSaveAndReturn,
   onCancelEdit,
@@ -38,24 +38,14 @@ export default function QuizQuestion({
     onBatchAnswers(currentQuestionIndex, pendingAnswers)
     if (isEditing) {
       onSaveAndReturn()
-    } else if (isLastQuestion) {
-      onFinish()
     } else {
-      onNext()
+      onSubmitRound()
     }
   }
 
   const allPlayersAnswered = players.every(player => pendingAnswers[player])
   const answeredCount = players.filter(player => pendingAnswers[player]).length
 
-  const getThemeIcon = (themeName) => {
-    const name = themeName.toLowerCase()
-    if (name.includes('africa')) return '🌍'
-    if (name.includes('asia')) return '🌏'
-    if (name.includes('europe') || name.includes('capital')) return '🏛️'
-    if (name.includes('states') || name.includes('america')) return '🗽'
-    return '📚'
-  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 slide-up">

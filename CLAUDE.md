@@ -3,7 +3,10 @@
 ## Architecture
 - React + Vite + Tailwind CSS
 - **Two-round game**: Round 1 (YouTube Views) → Round 2 (The Sporcle Round)
-- Components: Header, Setup, QuizQuestion, QuestionPicker, PlayerDropdown, RoundResults, Leaderboard, YouTubeQuestion, YouTubeResults
+- Components: Header, Setup (SetupRounds, SetupPlayers, SetupSporcleConfig), QuizQuestion, QuestionPicker, PlayerDropdown, RoundResults, Leaderboard, YouTubeQuestion, YouTubeResults
+- **State management**: `useReducer` in App.jsx with reducer logic in `src/gameReducer.js`
+  - All 18 state fields live in a single state object, transitions are explicit action types
+  - Setup component receives `setField('fieldName')` wrappers that dispatch `SET_FIELD` actions
 - App.jsx is a state machine routing phases: setup → youtube-playing → youtube-results → youtube-standings → picking/playing → round-results → standings → finished
 - App.jsx also renders its own JSX for standings, youtube-standings, and finished states - don't forget these during restyling
 - Uses react-select for dropdowns, react-switch for toggles
@@ -16,12 +19,15 @@
 - `.btn-gold` = solid red fill, `.btn-teal` = outlined black border
 
 ## Shared Utilities (src/utils/)
-- **colors.js**: `interpolateColor(color1, color2, factor)` and `getPercentageColor(percentage, minPercent, maxPercent)`
-  - Returns `{ bg, text }` for inline styles
-  - Always pass actual min/max from theme.options, not fixed thresholds
+- **colors.js**: `interpolateColor(color1, color2, factor)`, `getPercentageColor(percentage, minPercent, maxPercent)`, `badgeStyle(colors)`
+  - `getPercentageColor` returns `{ bg, text }` for inline styles — always pass actual min/max from theme.options, not fixed thresholds
+  - `badgeStyle(colors)` returns the shared inline style object for score/percentage badges
 - **youtube.js**: `extractVideoId`, `formatViews`, `abbreviateViews`, `calculateYouTubeScore`, `fetchVideoMetadata`, `getYouTubeScoreColor`, `parseViewsInput`
   - Score formula: `Math.max(guess/actual, actual/guess)` — symmetric ratio, 1.0x = perfect
   - Metadata fetched from `noembed.com/embed?url=...` (CORS-friendly oEmbed proxy)
+- **themes.js**: `getThemeIcon(themeName)`, `getThemeById(themeId)` — theme lookup utilities
+- **scoring.js**: `calculateSporcleTotal`, `calculateYouTubeTotal`, `calculateGrandTotal`, `getHighestScorer`
+  - Shared between App.jsx (via gameReducer) and Leaderboard.jsx — single source of truth for scoring
 
 ## YouTube Round (Round 1)
 - Data: `src/data/youtube-videos.js` — array of `{ url, views }` objects (hardcoded)
@@ -31,13 +37,12 @@
 - Leaderboard accepts optional `youtubeGuesses`, `youtubeVideos`, `videoMetadata` props for combined display
 
 ## Sporcle Round (Round 2) State Management
-- App.jsx is source of truth for committed answers: `answers[player][questionIndex] = { option, percentage }`
-- QuizQuestion buffers answers locally in `pendingAnswers` until submit via `handleBatchAnswers`
+- gameReducer.js is source of truth for committed answers: `answers[player][questionIndex] = { option, percentage }`
+- QuizQuestion buffers answers locally in `pendingAnswers` until submit via `BATCH_ANSWERS` dispatch
 - `isLastQuestion` controls button labels and routing
 
 ## Key Gotchas
-- **getThemeIcon()** is duplicated in Setup, QuizQuestion, RoundResults, Leaderboard - should be extracted to utils
-- PlayerDropdown has inline `customStyles` for react-select - update colors there too when restyling
+- PlayerDropdown has module-scoped `customStyles` for react-select - update colors there too when restyling
 - Don't use `menuPortalTarget={document.body}` with react-select - breaks mobile focus/Enter key. Use `menuPlacement="auto"` instead
 - Flex layouts on 375px mobile can overflow - use `min-w-0` on flex children and `overflow-hidden` on parent
 

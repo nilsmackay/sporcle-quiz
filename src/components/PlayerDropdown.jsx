@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import Select, { components } from 'react-select'
-import { getPercentageColor } from '../utils/colors'
+import { getPercentageColor, badgeStyle } from '../utils/colors'
 
 // Custom components defined OUTSIDE the parent component to maintain stable
 // identity across renders. When defined inside, every re-render creates a new
@@ -34,17 +34,7 @@ const CustomOption = (props) => {
     <components.Option {...props}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
         <span>{data.label}</span>
-        <span style={{
-          backgroundColor: colors.bg,
-          color: colors.text,
-          padding: '3px 10px',
-          borderRadius: '0',
-          fontSize: '12px',
-          fontFamily: "'Fraunces', serif",
-          fontWeight: 'bold',
-          marginLeft: '8px',
-          flexShrink: 0
-        }}>
+        <span style={{ ...badgeStyle(colors), marginLeft: '8px', flexShrink: 0 }}>
           {data.percentage}%
         </span>
       </div>
@@ -56,6 +46,64 @@ const CustomOption = (props) => {
 const customComponents = {
   Option: CustomOption,
   Input: CustomInput
+}
+
+// Stable styles object — no dependency on props or state
+const customStyles = {
+  control: (base, state) => ({
+    ...base,
+    backgroundColor: 'white',
+    borderColor: state.isFocused ? '#C23B22' : '#D4CFC7',
+    borderWidth: '1px',
+    borderRadius: '2px',
+    boxShadow: state.isFocused ? '0 0 0 2px rgba(194, 59, 34, 0.15)' : 'none',
+    padding: '4px',
+    '&:hover': {
+      borderColor: '#1A1A1A'
+    }
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? '#1A1A1A'
+      : state.isFocused
+      ? '#F7F3ED'
+      : 'white',
+    color: state.isSelected ? 'white' : '#1A1A1A',
+    cursor: 'pointer',
+    padding: '12px 14px',
+    fontSize: '0.9rem',
+    fontWeight: state.isSelected ? '600' : '400'
+  }),
+  menu: (base) => ({
+    ...base,
+    zIndex: 50,
+    borderRadius: '2px',
+    boxShadow: '0 4px 20px rgba(26, 26, 26, 0.15)',
+    border: '1px solid #D4CFC7',
+    backgroundColor: 'white',
+    overflow: 'hidden'
+  }),
+  menuList: (base) => ({
+    ...base,
+    padding: '4px'
+  }),
+  placeholder: (base) => ({
+    ...base,
+    color: '#6B6560',
+    fontSize: '0.9rem'
+  }),
+  singleValue: (base) => ({
+    ...base,
+    color: '#1A1A1A',
+    fontSize: '0.9rem',
+    fontWeight: '500'
+  }),
+  input: (base) => ({
+    ...base,
+    fontSize: '0.9rem',
+    color: '#1A1A1A'
+  }),
 }
 
 export default function PlayerDropdown({ player, playerIndex = 0, options, selectedAnswer, onSelect }) {
@@ -135,63 +183,6 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
     }
   }
 
-  const customStyles = {
-    control: (base, state) => ({
-      ...base,
-      backgroundColor: 'white',
-      borderColor: state.isFocused ? '#C23B22' : '#D4CFC7',
-      borderWidth: '1px',
-      borderRadius: '2px',
-      boxShadow: state.isFocused ? '0 0 0 2px rgba(194, 59, 34, 0.15)' : 'none',
-      padding: '4px',
-      '&:hover': {
-        borderColor: '#1A1A1A'
-      }
-    }),
-    option: (base, state) => ({
-      ...base,
-      backgroundColor: state.isSelected
-        ? '#1A1A1A'
-        : state.isFocused
-        ? '#F7F3ED'
-        : 'white',
-      color: state.isSelected ? 'white' : '#1A1A1A',
-      cursor: 'pointer',
-      padding: '12px 14px',
-      fontSize: '0.9rem',
-      fontWeight: state.isSelected ? '600' : '400'
-    }),
-    menu: (base) => ({
-      ...base,
-      zIndex: 50,
-      borderRadius: '2px',
-      boxShadow: '0 4px 20px rgba(26, 26, 26, 0.15)',
-      border: '1px solid #D4CFC7',
-      backgroundColor: 'white',
-      overflow: 'hidden'
-    }),
-    menuList: (base) => ({
-      ...base,
-      padding: '4px'
-    }),
-    placeholder: (base) => ({
-      ...base,
-      color: '#6B6560',
-      fontSize: '0.9rem'
-    }),
-    singleValue: (base) => ({
-      ...base,
-      color: '#1A1A1A',
-      fontSize: '0.9rem',
-      fontWeight: '500'
-    }),
-    input: (base) => ({
-      ...base,
-      fontSize: '0.9rem',
-      color: '#1A1A1A'
-    }),
-  }
-
   return (
     <div className="player-podium p-4">
       {/* Player header */}
@@ -205,14 +196,7 @@ export default function PlayerDropdown({ player, playerIndex = 0, options, selec
         {selectedAnswer && (() => {
           const colors = getPercentageColor(selectedAnswer.percentage, minPercent, maxPercent)
           return (
-            <span style={{
-              backgroundColor: colors.bg,
-              color: colors.text,
-              padding: '3px 10px',
-              fontSize: '12px',
-              fontFamily: "'Fraunces', serif",
-              fontWeight: 'bold'
-            }}>
+            <span style={badgeStyle(colors)}>
               {selectedAnswer.percentage}%
             </span>
           )

@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import CATEGORIES from '../data/categories'
+import { getThemeById } from '../utils/themes'
 
 export default function QuestionPicker({
   themes,
@@ -39,7 +40,7 @@ export default function QuestionPicker({
   }
 
   const getThemeName = (themeId) => {
-    const theme = themes.find(t => t.id === themeId)
+    const theme = getThemeById(themeId)
     return theme ? theme.name : themeId
   }
 
