@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import Switch from 'react-switch'
 import CATEGORIES from '../data/categories'
+import { getThemeIcon } from '../utils/themes'
 
 export default function Setup({
   themes,
@@ -76,14 +77,6 @@ export default function Setup({
       : players.length > 0 && (!enabledRounds.sporcle || selectedThemes.length > 0)
   )
 
-  const getThemeIcon = (themeName) => {
-    const name = themeName.toLowerCase()
-    if (name.includes('africa')) return '🌍'
-    if (name.includes('asia')) return '🌏'
-    if (name.includes('europe') || name.includes('capital')) return '🏛️'
-    if (name.includes('states') || name.includes('america')) return '🗽'
-    return '📚'
-  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 slide-up">

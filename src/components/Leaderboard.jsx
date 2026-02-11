@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { getPercentageColor, interpolateColor } from '../utils/colors'
 import { calculateYouTubeScore, getYouTubeScoreColor, abbreviateViews } from '../utils/youtube'
+import { getThemeIcon } from '../utils/themes'
+import { calculateSporcleTotal as calcSporcle, calculateYouTubeTotal as calcYouTube, calculateGrandTotal as calcGrand } from '../utils/scoring'
 
 // Tooltip for truncated text: hover on desktop, tap on mobile.
 // Renders via portal to avoid clipping by overflow-x-auto on the table.
@@ -96,33 +98,9 @@ export default function Leaderboard({
     return { minPercent: Math.min(...percentages), maxPercent: Math.max(...percentages) }
   }
 
-  const calculateSporcleTotal = (player) => {
-    let total = 0
-    if (!selectedThemes) return total
-    selectedThemes.forEach((_, index) => {
-      const answer = answers[player]?.[index]
-      if (answer) {
-        total += answer.percentage
-      }
-    })
-    return total
-  }
-
-  const calculateYouTubeTotal = (player) => {
-    if (!hasYouTube) return 0
-    let total = 0
-    youtubeVideos.forEach((video, index) => {
-      const guess = youtubeGuesses[player]?.[index]
-      if (guess !== undefined) {
-        total += calculateYouTubeScore(guess, video.views)
-      }
-    })
-    return total
-  }
-
-  const calculateGrandTotal = (player) => {
-    return calculateYouTubeTotal(player) + calculateSporcleTotal(player)
-  }
+  const calculateSporcleTotal = (player) => calcSporcle(player, answers, selectedThemes)
+  const calculateYouTubeTotal = (player) => calcYouTube(player, youtubeGuesses, youtubeVideos)
+  const calculateGrandTotal = (player) => calcGrand(player, answers, selectedThemes, youtubeGuesses, youtubeVideos)
 
   const sortedPlayers = [...players].sort((a, b) => {
     return calculateGrandTotal(a) - calculateGrandTotal(b)
@@ -130,14 +108,6 @@ export default function Leaderboard({
 
   const lowestScore = sortedPlayers.length > 0 ? calculateGrandTotal(sortedPlayers[0]) : null
 
-  const getThemeIcon = (themeName) => {
-    const name = themeName?.toLowerCase() || ''
-    if (name.includes('africa')) return '🌍'
-    if (name.includes('asia')) return '🌏'
-    if (name.includes('europe') || name.includes('capital')) return '🏛️'
-    if (name.includes('states') || name.includes('america')) return '🗽'
-    return '📚'
-  }
 
   // Compute YouTube average score for color grading
   const getYouTubeAvgScore = (player) => {
