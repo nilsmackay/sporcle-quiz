@@ -196,73 +196,25 @@ export default function Leaderboard({
             </tr>
           </thead>
           <tbody>
-            {/* YouTube round summary row (always shown when YouTube data exists) */}
-            {hasYouTube && (
-              <tr
-                className="border-b border-[#D4CFC7] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
-                onClick={() => toggleRound('youtube')}
-              >
-                <td className="py-3 px-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{youtubeExpanded ? '▾' : '▸'} 📺</span>
-                    <span className="font-display text-sm text-[#1A1A1A]">YouTube</span>
-                  </div>
-                </td>
-                {sortedPlayers.map(player => {
-                  const ytTotal = calculateYouTubeTotal(player)
-                  const avgScore = getYouTubeAvgScore(player)
-                  const colors = getYouTubeScoreColor(avgScore)
-                  return (
-                    <td key={player} className="py-3 px-2 text-center">
-                      <span style={badgeStyle(colors)}>{ytTotal}</span>
-                    </td>
-                  )
-                })}
-              </tr>
-            )}
-
-            {/* YouTube expanded: per-video rows */}
-            {hasYouTube && youtubeExpanded && playedVideoIndices.map(vidIdx => {
-              const video = youtubeVideos[vidIdx]
-              return (
-                <tr
-                  key={`yt-${vidIdx}`}
-                  className={`border-b border-[#D4CFC7] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED]' : ''} transition-colors`}
-                  onClick={() => onEditQuestion?.('youtube', vidIdx)}
-                >
-                  <td className="py-3 pl-9 pr-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">📺</span>
-                      <span className="text-sm text-[#6B6560] truncate">
-                        {videoMetadata?.[vidIdx]?.title || `Video ${vidIdx + 1}`}
-                      </span>
-                      {onEditQuestion && <span className="text-[10px] text-[#B8924A] shrink-0">edit</span>}
-                    </div>
+            {/* Grand Total row — immediately below player names */}
+            <tr className="border-b-2 border-[#1A1A1A]">
+              <td className="py-3 px-3 font-display text-[#C23B22] text-sm">
+                {hasYouTube && hasSporcle ? 'Grand Total' : 'Total'}
+              </td>
+              {sortedPlayers.map(player => {
+                const grandTotal = calculateGrandTotal(player)
+                const isLeader = grandTotal === lowestScore
+                return (
+                  <td key={player} className="py-3 px-2 text-center">
+                    <span className={`text-xl font-display ${isLeader ? 'text-[#C23B22]' : 'text-[#1A1A1A]'}`}>
+                      {grandTotal}
+                    </span>
                   </td>
-                  {sortedPlayers.map(player => {
-                    const guess = youtubeGuesses[player]?.[vidIdx]
-                    return (
-                      <td key={player} className="py-3 px-2 text-center">
-                        {guess !== undefined ? (
-                          <div className="flex flex-col items-center gap-1">
-                            {(() => {
-                              const score = calculateYouTubeScore(guess, video.views)
-                              const colors = getYouTubeScoreColor(score)
-                              return <span style={badgeStyle(colors)}>{score}</span>
-                            })()}
-                            <span className="text-xs text-[#6B6560]">{abbreviateViews(guess)}</span>
-                          </div>
-                        ) : (
-                          <span className="text-[#D4CFC7]">&mdash;</span>
-                        )}
-                      </td>
-                    )
-                  })}
-                </tr>
-              )
-            })}
+                )
+              })}
+            </tr>
 
-            {/* Sporcle round summary row (always shown when Sporcle data exists) */}
+            {/* Sporcle round (Round 2 — most recent, shown first) */}
             {hasSporcle && (
               <tr
                 className="border-b border-[#D4CFC7] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
@@ -286,8 +238,8 @@ export default function Leaderboard({
               </tr>
             )}
 
-            {/* Sporcle expanded: per-theme rows */}
-            {hasSporcle && sporcleExpanded && playedThemeIndices.map(index => {
+            {/* Sporcle expanded: per-theme rows (latest question first) */}
+            {hasSporcle && sporcleExpanded && [...playedThemeIndices].reverse().map(index => {
               const themeId = selectedThemes[index]
               const theme = getThemeById(themeId)
               const { minPercent, maxPercent } = getThemeRange(themeId)
@@ -326,23 +278,71 @@ export default function Leaderboard({
               )
             })}
 
-            {/* Grand Total row */}
-            <tr className="border-t-2 border-[#1A1A1A]">
-              <td className="py-3 px-3 font-display text-[#C23B22] text-sm">
-                {hasYouTube && hasSporcle ? 'Grand Total' : 'Total'}
-              </td>
-              {sortedPlayers.map(player => {
-                const grandTotal = calculateGrandTotal(player)
-                const isLeader = grandTotal === lowestScore
-                return (
-                  <td key={player} className="py-3 px-2 text-center">
-                    <span className={`text-xl font-display ${isLeader ? 'text-[#C23B22]' : 'text-[#1A1A1A]'}`}>
-                      {grandTotal}
-                    </span>
+            {/* YouTube round (Round 1 — earlier, shown second) */}
+            {hasYouTube && (
+              <tr
+                className="border-b border-[#D4CFC7] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
+                onClick={() => toggleRound('youtube')}
+              >
+                <td className="py-3 px-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{youtubeExpanded ? '▾' : '▸'} 📺</span>
+                    <span className="font-display text-sm text-[#1A1A1A]">YouTube</span>
+                  </div>
+                </td>
+                {sortedPlayers.map(player => {
+                  const ytTotal = calculateYouTubeTotal(player)
+                  const avgScore = getYouTubeAvgScore(player)
+                  const colors = getYouTubeScoreColor(avgScore)
+                  return (
+                    <td key={player} className="py-3 px-2 text-center">
+                      <span style={badgeStyle(colors)}>{ytTotal}</span>
+                    </td>
+                  )
+                })}
+              </tr>
+            )}
+
+            {/* YouTube expanded: per-video rows (latest video first) */}
+            {hasYouTube && youtubeExpanded && [...playedVideoIndices].reverse().map(vidIdx => {
+              const video = youtubeVideos[vidIdx]
+              return (
+                <tr
+                  key={`yt-${vidIdx}`}
+                  className={`border-b border-[#D4CFC7] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED]' : ''} transition-colors`}
+                  onClick={() => onEditQuestion?.('youtube', vidIdx)}
+                >
+                  <td className="py-3 pl-9 pr-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">📺</span>
+                      <span className="text-sm text-[#6B6560] truncate">
+                        {videoMetadata?.[vidIdx]?.title || `Video ${vidIdx + 1}`}
+                      </span>
+                      {onEditQuestion && <span className="text-[10px] text-[#B8924A] shrink-0">edit</span>}
+                    </div>
                   </td>
-                )
-              })}
-            </tr>
+                  {sortedPlayers.map(player => {
+                    const guess = youtubeGuesses[player]?.[vidIdx]
+                    return (
+                      <td key={player} className="py-3 px-2 text-center">
+                        {guess !== undefined ? (
+                          <div className="flex flex-col items-center gap-1">
+                            {(() => {
+                              const score = calculateYouTubeScore(guess, video.views)
+                              const colors = getYouTubeScoreColor(score)
+                              return <span style={badgeStyle(colors)}>{score}</span>
+                            })()}
+                            <span className="text-xs text-[#6B6560]">{abbreviateViews(guess)}</span>
+                          </div>
+                        ) : (
+                          <span className="text-[#D4CFC7]">&mdash;</span>
+                        )}
+                      </td>
+                    )
+                  })}
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
