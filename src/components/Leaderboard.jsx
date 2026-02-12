@@ -232,7 +232,7 @@ export default function Leaderboard({
                   const colors = getSporcleRelativeColor(sporcleTotal)
                   return (
                     <td key={player} className="py-3 px-2 text-center">
-                      <span style={badgeStyle(colors)}>{sporcleTotal}</span>
+                      <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{sporcleTotal}</span>
                     </td>
                   )
                 })}
@@ -250,12 +250,12 @@ export default function Leaderboard({
                   className={`border-b border-[#D4CFC7] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED]' : ''} transition-colors`}
                   onClick={() => onEditQuestion?.('sporcle', index)}
                 >
-                  <td className="py-3 pl-9 pr-3">
-                    <div className="flex items-center gap-2">
+                  <td className="py-2 px-3">
+                    <div className="flex items-center gap-1.5">
                       <span className="text-sm shrink-0">{getThemeIcon(theme?.name)}</span>
-                      <TruncatedText text={theme?.name || ''} className="text-sm text-[#6B6560]" maxWidth="clamp(40px, 15vw, 200px)" />
-                      {onEditQuestion && <span className="text-[10px] text-[#B8924A] shrink-0">edit</span>}
+                      <TruncatedText text={theme?.name || ''} className="text-xs text-[#6B6560]" maxWidth="clamp(40px, 15vw, 200px)" />
                     </div>
+                    {onEditQuestion && <span className="text-[10px] text-[#B8924A] ml-5">edit</span>}
                   </td>
                   {sortedPlayers.map(player => {
                     const answer = answers[player]?.[index]
@@ -265,7 +265,7 @@ export default function Leaderboard({
                           <div className="flex flex-col items-center gap-1">
                             {(() => {
                               const colors = getPercentageColor(answer.percentage, minPercent, maxPercent)
-                              return <span style={badgeStyle(colors)}>{answer.percentage}%</span>
+                              return <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '2px 7px' }}>{answer.percentage}%</span>
                             })()}
                             <TruncatedText text={answer.option} className="text-xs text-[#6B6560]" maxWidth="70px" />
                           </div>
@@ -298,7 +298,7 @@ export default function Leaderboard({
                   const colors = getYouTubeScoreColor(avgScore)
                   return (
                     <td key={player} className="py-3 px-2 text-center">
-                      <span style={badgeStyle(colors)}>{ytTotal}</span>
+                      <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{ytTotal}</span>
                     </td>
                   )
                 })}
@@ -314,12 +314,12 @@ export default function Leaderboard({
                   className={`border-b border-[#D4CFC7] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED]' : ''} transition-colors`}
                   onClick={() => onEditQuestion?.('youtube', vidIdx)}
                 >
-                  <td className="py-3 pl-9 pr-3">
-                    <div className="flex items-center gap-2">
+                  <td className="py-2 px-3">
+                    <div className="flex items-center gap-1.5">
                       <span className="text-sm shrink-0">📺</span>
-                      <TruncatedText text={videoMetadata?.[vidIdx]?.title || `Video ${vidIdx + 1}`} className="text-sm text-[#6B6560]" maxWidth="clamp(40px, 15vw, 200px)" />
-                      {onEditQuestion && <span className="text-[10px] text-[#B8924A] shrink-0">edit</span>}
+                      <TruncatedText text={videoMetadata?.[vidIdx]?.title || `Video ${vidIdx + 1}`} className="text-xs text-[#6B6560]" maxWidth="clamp(40px, 15vw, 200px)" />
                     </div>
+                    {onEditQuestion && <span className="text-[10px] text-[#B8924A] ml-5">edit</span>}
                   </td>
                   {sortedPlayers.map(player => {
                     const guess = youtubeGuesses[player]?.[vidIdx]
@@ -330,7 +330,7 @@ export default function Leaderboard({
                             {(() => {
                               const score = calculateYouTubeScore(guess, video.views)
                               const colors = getYouTubeScoreColor(score)
-                              return <span style={badgeStyle(colors)}>{score}</span>
+                              return <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '2px 7px' }}>{score}</span>
                             })()}
                             <span className="text-xs text-[#6B6560]">{abbreviateViews(guess)}</span>
                           </div>
