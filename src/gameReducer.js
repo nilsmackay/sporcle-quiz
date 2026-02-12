@@ -3,6 +3,37 @@ import YOUTUBE_VIDEOS from './data/youtube-videos.js'
 import { getHighestScorer } from './utils/scoring'
 
 const allThemeIds = themes.map(t => t.id)
+const STORAGE_KEY = 'sporcle-quiz-state'
+
+export function loadSavedState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      // Merge with initialState to handle any new fields added after save
+      return { ...initialState, ...parsed }
+    }
+  } catch (e) {
+    // Corrupted data — fall back to default
+  }
+  return initialState
+}
+
+export function saveState(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  } catch (e) {
+    // Storage full or unavailable
+  }
+}
+
+export function clearSavedState() {
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch (e) {
+    // Silently fail
+  }
+}
 
 export const initialState = {
   phase: 'setup',
@@ -190,6 +221,7 @@ export function gameReducer(state, action) {
     }
 
     case 'NEW_GAME':
+      clearSavedState()
       return { ...initialState }
 
     case 'SET_VIDEO_METADATA':

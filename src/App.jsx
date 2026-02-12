@@ -10,11 +10,16 @@ import YouTubeResults from './components/YouTubeResults'
 import themes from './data/themes.json'
 import YOUTUBE_VIDEOS from './data/youtube-videos.js'
 import { fetchVideoMetadata } from './utils/youtube'
-import { gameReducer, initialState } from './gameReducer'
+import { gameReducer, initialState, loadSavedState, saveState } from './gameReducer'
 import { getThemeById } from './utils/themes'
 
 export default function App() {
-  const [state, dispatch] = useReducer(gameReducer, initialState)
+  const [state, dispatch] = useReducer(gameReducer, null, loadSavedState)
+
+  // Persist state to localStorage on every change
+  useEffect(() => {
+    saveState(state)
+  }, [state])
 
   const {
     phase, players, selectedThemes, currentQuestionIndex, answers,
