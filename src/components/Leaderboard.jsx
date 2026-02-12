@@ -176,7 +176,7 @@ export default function Leaderboard({
         <table className="w-full min-w-[320px]">
           <thead>
             <tr className="border-b-2 border-[#1A1A1A]">
-              <th className="text-left py-3 px-3 font-display text-[#1A1A1A] text-sm min-w-[120px]">
+              <th className="text-left py-3 px-3 font-display text-[#1A1A1A] text-sm" style={{ width: 'clamp(100px, 25vw, 200px)' }}>
               </th>
               {sortedPlayers.map((player, idx) => {
                 const isLeader = calculateGrandTotal(player) === lowestScore
@@ -251,8 +251,8 @@ export default function Leaderboard({
                 >
                   <td className="py-3 pl-9 pr-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm">{getThemeIcon(theme?.name)}</span>
-                      <span className="text-sm text-[#6B6560] truncate">{theme?.name}</span>
+                      <span className="text-sm shrink-0">{getThemeIcon(theme?.name)}</span>
+                      <TruncatedText text={theme?.name || ''} className="text-sm text-[#6B6560]" maxWidth="clamp(40px, 15vw, 200px)" />
                       {onEditQuestion && <span className="text-[10px] text-[#B8924A] shrink-0">edit</span>}
                     </div>
                   </td>
@@ -314,10 +314,8 @@ export default function Leaderboard({
                 >
                   <td className="py-3 pl-9 pr-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm">📺</span>
-                      <span className="text-sm text-[#6B6560] truncate">
-                        {videoMetadata?.[vidIdx]?.title || `Video ${vidIdx + 1}`}
-                      </span>
+                      <span className="text-sm shrink-0">📺</span>
+                      <TruncatedText text={videoMetadata?.[vidIdx]?.title || `Video ${vidIdx + 1}`} className="text-sm text-[#6B6560]" maxWidth="clamp(40px, 15vw, 200px)" />
                       {onEditQuestion && <span className="text-[10px] text-[#B8924A] shrink-0">edit</span>}
                     </div>
                   </td>
