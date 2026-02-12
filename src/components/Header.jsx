@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 export default function Header({
   phase,
@@ -11,11 +11,27 @@ export default function Header({
   youtubeVideoIndex,
   totalYouTubeVideos
 }) {
+  const [showConfirm, setShowConfirm] = useState(false)
+
+  const isInGame = phase !== 'setup'
   const showScoresButton = (
     phase === 'playing' || phase === 'picking' || phase === 'round-results' ||
     phase === 'standings' || phase === 'finished' ||
     phase === 'youtube-playing' || phase === 'youtube-results' || phase === 'youtube-standings'
   )
+
+  const handleNewGameClick = () => {
+    if (phase === 'finished') {
+      onNewGame()
+    } else {
+      setShowConfirm(true)
+    }
+  }
+
+  const handleConfirm = () => {
+    setShowConfirm(false)
+    onNewGame()
+  }
 
   return (
     <header className="show-header">
@@ -48,9 +64,9 @@ export default function Header({
                 <span className="sm:hidden">Scores</span>
               </button>
             )}
-            {phase === 'finished' && (
+            {isInGame && (
               <button
-                onClick={onNewGame}
+                onClick={handleNewGameClick}
                 className="flex items-center gap-2 bg-[#C23B22] text-white px-3 sm:px-4 py-2 font-semibold text-sm hover:bg-[#A33020] transition-all"
               >
                 <span className="hidden sm:inline">New Game</span>
@@ -59,6 +75,38 @@ export default function Header({
             )}
           </div>
         </div>
+
+        {/* New Game confirmation modal */}
+        {showConfirm && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowConfirm(false)}
+          >
+            <div
+              className="bg-white border border-[#D4CFC7] mx-4 p-6 max-w-sm w-full animate-bounce-in"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-display text-[#1A1A1A] mb-2">Start New Game?</h3>
+              <p className="text-[#6B6560] text-sm mb-6">
+                Your current game progress will be lost. This cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  className="flex-1 btn-teal py-2 font-semibold text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirm}
+                  className="flex-1 btn-gold py-2 font-semibold text-sm"
+                >
+                  New Game
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Progress bar - YouTube round */}
         {phase === 'youtube-playing' && (
