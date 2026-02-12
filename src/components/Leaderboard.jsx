@@ -220,9 +220,10 @@ export default function Leaderboard({
                 className="border-b border-[#D4CFC7] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
                 onClick={() => toggleRound('sporcle')}
               >
-                <td className="py-3 px-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{sporcleExpanded ? '▾' : '▸'} 📚</span>
+                <td className="py-3 px-3 whitespace-nowrap">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm shrink-0">{sporcleExpanded ? '▾' : '▸'}</span>
+                    <span className="shrink-0">📚</span>
                     <span className="font-display text-sm text-[#1A1A1A]">Sporcle</span>
                   </div>
                 </td>
@@ -284,9 +285,10 @@ export default function Leaderboard({
                 className="border-b border-[#D4CFC7] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
                 onClick={() => toggleRound('youtube')}
               >
-                <td className="py-3 px-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{youtubeExpanded ? '▾' : '▸'} 📺</span>
+                <td className="py-3 px-3 whitespace-nowrap">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm shrink-0">{youtubeExpanded ? '▾' : '▸'}</span>
+                    <span className="shrink-0">📺</span>
                     <span className="font-display text-sm text-[#1A1A1A]">YouTube</span>
                   </div>
                 </td>
