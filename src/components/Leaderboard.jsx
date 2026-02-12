@@ -7,7 +7,7 @@ import { calculateSporcleTotal as calcSporcle, calculateYouTubeTotal as calcYouT
 
 // Tooltip for truncated text: hover on desktop, tap on mobile.
 // Renders via portal to avoid clipping by overflow-x-auto on the table.
-function TruncatedText({ text, className = '' }) {
+function TruncatedText({ text, className = '', maxWidth = '70px' }) {
   const [show, setShow] = useState(false)
   const ref = useRef(null)
   const [style, setStyle] = useState({})
@@ -37,7 +37,8 @@ function TruncatedText({ text, className = '' }) {
   return (
     <span
       ref={ref}
-      className={`truncate block max-w-[70px] cursor-pointer ${className}`}
+      className={`truncate block cursor-pointer ${className}`}
+      style={{ maxWidth }}
       onMouseEnter={() => { updatePos(); setShow(true) }}
       onMouseLeave={() => setShow(false)}
       onClick={(e) => { e.stopPropagation(); updatePos(); setShow(true) }}
@@ -99,7 +100,6 @@ export default function Leaderboard({
 
   const lowestScore = sortedPlayers.length > 0 ? calculateGrandTotal(sortedPlayers[0]) : null
 
-
   // Compute YouTube average score for color grading
   const getYouTubeAvgScore = (player) => {
     if (!hasYouTube) return 0
@@ -128,7 +128,7 @@ export default function Leaderboard({
     return { bg, text: 'white' }
   }
 
-  // Only show columns for questions that have actually been played
+  // Only show rows for questions that have actually been played
   const playedVideoIndices = hasYouTube
     ? youtubeVideos.map((_, i) => i).filter(i =>
         players.some(p => youtubeGuesses[p]?.[i] !== undefined)
@@ -171,144 +171,160 @@ export default function Leaderboard({
         </div>
       </div>
 
-      {/* Table */}
+      {/* Transposed Table: questions as rows, contestants as columns */}
       <div className="p-4 overflow-x-auto">
         <table className="w-full min-w-[320px]">
           <thead>
             <tr className="border-b-2 border-[#1A1A1A]">
-              <th className="text-left py-3 px-3 font-display text-[#1A1A1A] text-sm">
-                Rank
+              <th className="text-left py-3 px-3 font-display text-[#1A1A1A] text-sm min-w-[120px]">
               </th>
-              <th className="text-left py-3 px-3 font-display text-[#1A1A1A] text-sm">
-                Contestant
-              </th>
-
-              {/* YouTube columns */}
-              {hasYouTube && !youtubeExpanded && (
-                <th
-                  className="text-center py-3 px-2 min-w-[80px] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
-                  onClick={() => toggleRound('youtube')}
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-lg">▸ 📺</span>
-                    <span className="text-xs text-[#6B6560]">YouTube</span>
-                  </div>
-                </th>
-              )}
-              {hasYouTube && youtubeExpanded && playedVideoIndices.map((vidIdx, i) => (
-                <th
-                  key={`yt-${vidIdx}`}
-                  className={`text-center py-3 px-2 min-w-[80px] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED]' : ''} transition-colors select-none`}
-                  onClick={() => onEditQuestion?.('youtube', vidIdx)}
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-lg">
-                      {i === 0 && (
-                        <span
-                          className="cursor-pointer"
-                          onClick={(e) => { e.stopPropagation(); toggleRound('youtube') }}
-                        >▾ </span>
-                      )}
-                      📺
-                    </span>
-                    <span className="text-xs text-[#6B6560]">
-                      {videoMetadata?.[vidIdx]?.title
-                        ? <TruncatedText text={videoMetadata[vidIdx].title} className="text-xs text-[#6B6560]" />
-                        : `Video ${vidIdx + 1}`
-                      }
-                    </span>
-                    {onEditQuestion && <span className="text-[10px] text-[#B8924A]">edit</span>}
-                  </div>
-                </th>
-              ))}
-
-              {/* Sporcle columns */}
-              {hasSporcle && !sporcleExpanded && (
-                <th
-                  className="text-center py-3 px-2 min-w-[80px] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
-                  onClick={() => toggleRound('sporcle')}
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-lg">▸ 📚</span>
-                    <span className="text-xs text-[#6B6560]">Sporcle</span>
-                  </div>
-                </th>
-              )}
-              {hasSporcle && sporcleExpanded && playedThemeIndices.map((index, i) => {
-                const themeId = selectedThemes[index]
-                const theme = getThemeById(themeId)
+              {sortedPlayers.map((player, idx) => {
+                const isLeader = calculateGrandTotal(player) === lowestScore
                 return (
-                  <th
-                    key={themeId}
-                    className={`text-center py-3 px-2 min-w-[80px] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED]' : ''} transition-colors select-none`}
-                    onClick={() => onEditQuestion?.('sporcle', index)}
-                  >
+                  <th key={player} className="text-center py-3 px-2 min-w-[72px]">
                     <div className="flex flex-col items-center gap-1">
-                      <span className="text-lg">
-                        {i === 0 && (
-                          <span
-                            className="cursor-pointer"
-                            onClick={(e) => { e.stopPropagation(); toggleRound('sporcle') }}
-                          >▾ </span>
-                        )}
-                        {getThemeIcon(theme?.name)}
+                      <div className="editorial-stamp w-7 h-7 text-xs">
+                        {idx + 1}
+                      </div>
+                      <span className={`font-bold text-sm ${isLeader ? 'text-[#C23B22]' : 'text-[#1A1A1A]'}`}>
+                        {player}
                       </span>
-                      <TruncatedText text={theme?.name} className="text-xs text-[#6B6560]" />
-                      {onEditQuestion && <span className="text-[10px] text-[#B8924A]">edit</span>}
                     </div>
                   </th>
                 )
               })}
-
-              <th className="text-center py-3 px-4 font-display text-[#C23B22] text-sm border-l border-[#D4CFC7]">
-                {hasYouTube && hasSporcle ? 'Grand Total' : 'Total'}
-              </th>
             </tr>
           </thead>
           <tbody>
-            {sortedPlayers.map((player, playerIndex) => {
-              const grandTotal = calculateGrandTotal(player)
-              const isLeader = grandTotal === lowestScore
-
-              return (
-                <tr
-                  key={player}
-                  className={`border-b border-[#D4CFC7] transition-colors ${
-                    isLeader ? 'bg-[#F7F3ED]' : 'hover:bg-[#F7F3ED]'
-                  }`}
-                >
-                  {/* Rank */}
-                  <td className="py-3 px-3">
-                    <div className="editorial-stamp w-7 h-7 text-xs">
-                      {playerIndex + 1}
-                    </div>
-                  </td>
-
-                  {/* Player name */}
-                  <td className="py-3 px-3">
-                    <span className={`font-bold ${isLeader ? 'text-[#C23B22]' : 'text-[#1A1A1A]'}`}>
-                      {player}
+            {/* Grand Total row — immediately below player names */}
+            <tr className="border-b-2 border-[#1A1A1A]">
+              <td className="py-3 px-3 font-display text-[#C23B22] text-sm">
+                {hasYouTube && hasSporcle ? 'Grand Total' : 'Total'}
+              </td>
+              {sortedPlayers.map(player => {
+                const grandTotal = calculateGrandTotal(player)
+                const isLeader = grandTotal === lowestScore
+                return (
+                  <td key={player} className="py-3 px-2 text-center">
+                    <span className={`text-xl font-display ${isLeader ? 'text-[#C23B22]' : 'text-[#1A1A1A]'}`}>
+                      {grandTotal}
                     </span>
                   </td>
+                )
+              })}
+            </tr>
 
-                  {/* YouTube: collapsed = single total cell */}
-                  {hasYouTube && !youtubeExpanded && (
-                    <td className="py-3 px-2 text-center">
-                      {(() => {
-                        const ytTotal = calculateYouTubeTotal(player)
-                        const avgScore = getYouTubeAvgScore(player)
-                        const colors = getYouTubeScoreColor(avgScore)
-                        return <span style={badgeStyle(colors)}>{ytTotal}</span>
-                      })()}
+            {/* Sporcle round (Round 2 — most recent, shown first) */}
+            {hasSporcle && (
+              <tr
+                className="border-b border-[#D4CFC7] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
+                onClick={() => toggleRound('sporcle')}
+              >
+                <td className="py-3 px-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{sporcleExpanded ? '▾' : '▸'} 📚</span>
+                    <span className="font-display text-sm text-[#1A1A1A]">Sporcle</span>
+                  </div>
+                </td>
+                {sortedPlayers.map(player => {
+                  const sporcleTotal = calculateSporcleTotal(player)
+                  const colors = getSporcleRelativeColor(sporcleTotal)
+                  return (
+                    <td key={player} className="py-3 px-2 text-center">
+                      <span style={badgeStyle(colors)}>{sporcleTotal}</span>
                     </td>
-                  )}
+                  )
+                })}
+              </tr>
+            )}
 
-                  {/* YouTube: expanded = per-video cells */}
-                  {hasYouTube && youtubeExpanded && playedVideoIndices.map((vidIdx) => {
-                    const video = youtubeVideos[vidIdx]
+            {/* Sporcle expanded: per-theme rows (latest question first) */}
+            {hasSporcle && sporcleExpanded && [...playedThemeIndices].reverse().map(index => {
+              const themeId = selectedThemes[index]
+              const theme = getThemeById(themeId)
+              const { minPercent, maxPercent } = getThemeRange(themeId)
+              return (
+                <tr
+                  key={`sp-${index}`}
+                  className={`border-b border-[#D4CFC7] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED]' : ''} transition-colors`}
+                  onClick={() => onEditQuestion?.('sporcle', index)}
+                >
+                  <td className="py-3 pl-9 pr-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">{getThemeIcon(theme?.name)}</span>
+                      <span className="text-sm text-[#6B6560] truncate">{theme?.name}</span>
+                      {onEditQuestion && <span className="text-[10px] text-[#B8924A] shrink-0">edit</span>}
+                    </div>
+                  </td>
+                  {sortedPlayers.map(player => {
+                    const answer = answers[player]?.[index]
+                    return (
+                      <td key={player} className="py-3 px-2 text-center">
+                        {answer ? (
+                          <div className="flex flex-col items-center gap-1">
+                            {(() => {
+                              const colors = getPercentageColor(answer.percentage, minPercent, maxPercent)
+                              return <span style={badgeStyle(colors)}>{answer.percentage}%</span>
+                            })()}
+                            <TruncatedText text={answer.option} className="text-xs text-[#6B6560]" maxWidth="70px" />
+                          </div>
+                        ) : (
+                          <span className="text-[#D4CFC7]">&mdash;</span>
+                        )}
+                      </td>
+                    )
+                  })}
+                </tr>
+              )
+            })}
+
+            {/* YouTube round (Round 1 — earlier, shown second) */}
+            {hasYouTube && (
+              <tr
+                className="border-b border-[#D4CFC7] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
+                onClick={() => toggleRound('youtube')}
+              >
+                <td className="py-3 px-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{youtubeExpanded ? '▾' : '▸'} 📺</span>
+                    <span className="font-display text-sm text-[#1A1A1A]">YouTube</span>
+                  </div>
+                </td>
+                {sortedPlayers.map(player => {
+                  const ytTotal = calculateYouTubeTotal(player)
+                  const avgScore = getYouTubeAvgScore(player)
+                  const colors = getYouTubeScoreColor(avgScore)
+                  return (
+                    <td key={player} className="py-3 px-2 text-center">
+                      <span style={badgeStyle(colors)}>{ytTotal}</span>
+                    </td>
+                  )
+                })}
+              </tr>
+            )}
+
+            {/* YouTube expanded: per-video rows (latest video first) */}
+            {hasYouTube && youtubeExpanded && [...playedVideoIndices].reverse().map(vidIdx => {
+              const video = youtubeVideos[vidIdx]
+              return (
+                <tr
+                  key={`yt-${vidIdx}`}
+                  className={`border-b border-[#D4CFC7] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED]' : ''} transition-colors`}
+                  onClick={() => onEditQuestion?.('youtube', vidIdx)}
+                >
+                  <td className="py-3 pl-9 pr-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">📺</span>
+                      <span className="text-sm text-[#6B6560] truncate">
+                        {videoMetadata?.[vidIdx]?.title || `Video ${vidIdx + 1}`}
+                      </span>
+                      {onEditQuestion && <span className="text-[10px] text-[#B8924A] shrink-0">edit</span>}
+                    </div>
+                  </td>
+                  {sortedPlayers.map(player => {
                     const guess = youtubeGuesses[player]?.[vidIdx]
                     return (
-                      <td key={`yt-${vidIdx}`} className="py-3 px-2 text-center">
+                      <td key={player} className="py-3 px-2 text-center">
                         {guess !== undefined ? (
                           <div className="flex flex-col items-center gap-1">
                             {(() => {
@@ -316,7 +332,7 @@ export default function Leaderboard({
                               const colors = getYouTubeScoreColor(score)
                               return <span style={badgeStyle(colors)}>{score}</span>
                             })()}
-                            <TruncatedText text={abbreviateViews(guess)} className="text-xs text-[#6B6560]" />
+                            <span className="text-xs text-[#6B6560]">{abbreviateViews(guess)}</span>
                           </div>
                         ) : (
                           <span className="text-[#D4CFC7]">&mdash;</span>
@@ -324,46 +340,6 @@ export default function Leaderboard({
                       </td>
                     )
                   })}
-
-                  {/* Sporcle: collapsed = single total cell */}
-                  {hasSporcle && !sporcleExpanded && (
-                    <td className="py-3 px-2 text-center">
-                      {(() => {
-                        const sporcleTotal = calculateSporcleTotal(player)
-                        const colors = getSporcleRelativeColor(sporcleTotal)
-                        return <span style={badgeStyle(colors)}>{sporcleTotal}</span>
-                      })()}
-                    </td>
-                  )}
-
-                  {/* Sporcle: expanded = per-theme cells */}
-                  {hasSporcle && sporcleExpanded && playedThemeIndices.map((index) => {
-                    const themeId = selectedThemes[index]
-                    const answer = answers[player]?.[index]
-                    const { minPercent, maxPercent } = getThemeRange(themeId)
-                    return (
-                      <td key={index} className="py-3 px-2 text-center">
-                        {answer ? (
-                          <div className="flex flex-col items-center gap-1">
-                            {(() => {
-                              const colors = getPercentageColor(answer.percentage, minPercent, maxPercent)
-                              return <span style={badgeStyle(colors)}>{answer.percentage}%</span>
-                            })()}
-                            <TruncatedText text={answer.option} className="text-xs text-[#6B6560]" />
-                          </div>
-                        ) : (
-                          <span className="text-[#D4CFC7]">&mdash;</span>
-                        )}
-                      </td>
-                    )
-                  })}
-
-                  {/* Grand Total */}
-                  <td className="py-3 px-4 text-center border-l border-[#D4CFC7]">
-                    <span className={`text-xl font-display ${isLeader ? 'text-[#C23B22]' : 'text-[#1A1A1A]'}`}>
-                      {grandTotal}
-                    </span>
-                  </td>
                 </tr>
               )
             })}
