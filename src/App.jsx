@@ -7,9 +7,12 @@ import RoundResults from './components/RoundResults'
 import Leaderboard from './components/Leaderboard'
 import YouTubeQuestion from './components/YouTubeQuestion'
 import YouTubeResults from './components/YouTubeResults'
+import SampleHitsterQuestion from './components/SampleHitsterQuestion'
+import SampleHitsterResults from './components/SampleHitsterResults'
 import PasswordGate from './components/PasswordGate'
 import themes from './data/themes.json'
 import YOUTUBE_VIDEOS from './data/youtube-videos.js'
+import SAMPLE_HITSTER_SONGS from './data/sample-hitster-songs.js'
 import { gameReducer, initialState, loadSavedState, saveState } from './gameReducer'
 import { getThemeById } from './utils/themes'
 
@@ -25,7 +28,8 @@ export default function App() {
     phase, players, selectedThemes, currentQuestionIndex, answers,
     showLeaderboard, isDynamicMode, dynamicQuestionCount, currentPicker,
     playedThemes, dynamicAvailableThemes, youtubeVideoIndex,
-    youtubeGuesses, editReturnState, enabledRounds,
+    youtubeGuesses, sampleHitsterIndex, sampleHitsterGuesses,
+    editReturnState, enabledRounds,
   } = state
 
   // Derived state
@@ -38,8 +42,11 @@ export default function App() {
     ? playedThemes.length >= dynamicQuestionCount
     : currentQuestionIndex === selectedThemes.length - 1
   const isLastYouTubeVideo = youtubeVideoIndex === YOUTUBE_VIDEOS.length - 1
+  const isLastSampleHitsterSong = sampleHitsterIndex === SAMPLE_HITSTER_SONGS.length - 1
   const isEditing = editReturnState !== null
   const isYouTubePhase = phase === 'youtube-playing' || phase === 'youtube-results' || phase === 'youtube-standings'
+  const isSampleHitsterPhase = phase === 'sample-hitster-playing' || phase === 'sample-hitster-results' || phase === 'sample-hitster-standings'
+  const isPreSporclePhase = isYouTubePhase || isSampleHitsterPhase
 
   // Field setter helper — lets Setup use the same setX={setField('x')} interface
   const setField = (field) => (value) => dispatch({ type: 'SET_FIELD', field, value })
@@ -64,6 +71,8 @@ export default function App() {
         onNewGame={() => dispatch({ type: 'NEW_GAME' })}
         youtubeVideoIndex={youtubeVideoIndex}
         totalYouTubeVideos={YOUTUBE_VIDEOS.length}
+        sampleHitsterIndex={sampleHitsterIndex}
+        totalSampleHitsterSongs={SAMPLE_HITSTER_SONGS.length}
       />
 
       <main className="main-content py-4 sm:py-6">
@@ -84,6 +93,7 @@ export default function App() {
             dynamicAvailableThemes={dynamicAvailableThemes}
             setDynamicAvailableThemes={setField('dynamicAvailableThemes')}
             youtubeVideoCount={YOUTUBE_VIDEOS.length}
+            sampleHitsterSongCount={SAMPLE_HITSTER_SONGS.length}
             enabledRounds={enabledRounds}
             setEnabledRounds={setField('enabledRounds')}
           />
@@ -138,7 +148,67 @@ export default function App() {
               onClick={() => dispatch({ type: 'YOUTUBE_CONTINUE_FROM_STANDINGS' })}
               className="w-full mt-4 btn-gold py-3 sm:py-4 font-bold text-base sm:text-lg"
             >
-              {isLastYouTubeVideo ? 'Start Round 2: The Sporcle Round' : 'Next Video'}
+              {isLastYouTubeVideo
+                ? (enabledRounds.sampleHitster ? 'Start Round 2: Sample Hitster' : 'Start Round 2: The Sporcle Round')
+                : 'Next Video'}
+            </button>
+          </div>
+        )}
+
+        {phase === 'sample-hitster-playing' && (
+          <SampleHitsterQuestion
+            players={players}
+            song={SAMPLE_HITSTER_SONGS[sampleHitsterIndex]}
+            songIndex={sampleHitsterIndex}
+            totalSongs={SAMPLE_HITSTER_SONGS.length}
+            onSubmitGuesses={(songIndex, guesses) =>
+              dispatch({ type: 'SUBMIT_SAMPLE_HITSTER_GUESSES', songIndex, guesses })
+            }
+            isLastSong={isLastSampleHitsterSong}
+            isEditing={isEditing}
+            onSaveAndReturn={handleSaveAndReturn}
+            onCancelEdit={handleCancelEdit}
+            committedGuesses={sampleHitsterGuesses}
+          />
+        )}
+
+        {phase === 'sample-hitster-results' && (
+          <SampleHitsterResults
+            players={players}
+            song={SAMPLE_HITSTER_SONGS[sampleHitsterIndex]}
+            guesses={
+              Object.fromEntries(
+                players.map(p => [p, sampleHitsterGuesses[p]?.[sampleHitsterIndex] ?? 0])
+              )
+            }
+            songIndex={sampleHitsterIndex}
+            onContinue={() => dispatch({ type: 'SHOW_SAMPLE_HITSTER_STANDINGS' })}
+          />
+        )}
+
+        {phase === 'sample-hitster-standings' && (
+          <div className="w-fit max-w-full mx-auto px-3 sm:px-6 py-4 sm:py-6">
+            <Leaderboard
+              players={players}
+              answers={{}}
+              selectedThemes={[]}
+              themes={themes}
+              onClose={() => dispatch({ type: 'SAMPLE_HITSTER_CONTINUE_FROM_STANDINGS' })}
+              isOverlay={false}
+              youtubeGuesses={youtubeGuesses}
+              youtubeVideos={YOUTUBE_VIDEOS}
+              sampleHitsterGuesses={sampleHitsterGuesses}
+              sampleHitsterSongs={SAMPLE_HITSTER_SONGS}
+              onEditQuestion={handleEditQuestion}
+              defaultExpandedRound="sampleHitster"
+            />
+            <button
+              onClick={() => dispatch({ type: 'SAMPLE_HITSTER_CONTINUE_FROM_STANDINGS' })}
+              className="w-full mt-4 btn-gold py-3 sm:py-4 font-bold text-base sm:text-lg"
+            >
+              {isLastSampleHitsterSong
+                ? (enabledRounds.sporcle ? 'Start Round 3: The Sporcle Round' : 'Final Results')
+                : 'Next Song'}
             </button>
           </div>
         )}
@@ -193,6 +263,8 @@ export default function App() {
               isOverlay={false}
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
+              sampleHitsterGuesses={sampleHitsterGuesses}
+              sampleHitsterSongs={SAMPLE_HITSTER_SONGS}
               onEditQuestion={handleEditQuestion}
               defaultExpandedRound="sporcle"
             />
@@ -221,6 +293,8 @@ export default function App() {
               isOverlay={false}
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
+              sampleHitsterGuesses={sampleHitsterGuesses}
+              sampleHitsterSongs={SAMPLE_HITSTER_SONGS}
               onEditQuestion={handleEditQuestion}
               defaultExpandedRound={null}
             />
@@ -237,14 +311,16 @@ export default function App() {
       {showLeaderboard && (
         <Leaderboard
           players={players}
-          answers={isYouTubePhase ? {} : answers}
-          selectedThemes={isYouTubePhase ? [] : activeThemes}
+          answers={isPreSporclePhase ? {} : answers}
+          selectedThemes={isPreSporclePhase ? [] : activeThemes}
           themes={themes}
           onClose={() => dispatch({ type: 'SET_FIELD', field: 'showLeaderboard', value: false })}
           youtubeGuesses={youtubeGuesses}
           youtubeVideos={YOUTUBE_VIDEOS}
+          sampleHitsterGuesses={isSampleHitsterPhase || !isPreSporclePhase ? sampleHitsterGuesses : {}}
+          sampleHitsterSongs={isSampleHitsterPhase || !isPreSporclePhase ? SAMPLE_HITSTER_SONGS : []}
           onEditQuestion={handleEditQuestion}
-          defaultExpandedRound={isYouTubePhase ? 'youtube' : 'sporcle'}
+          defaultExpandedRound={isYouTubePhase ? 'youtube' : isSampleHitsterPhase ? 'sampleHitster' : 'sporcle'}
         />
       )}
     </div>
