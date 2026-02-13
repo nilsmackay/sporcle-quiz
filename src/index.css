@@ -584,6 +584,25 @@ button:focus-visible {
 }
 
 /* ============================================
+   PASSWORD GATE
+   ============================================ */
+.password-gate {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.password-card {
+  width: 100%;
+  max-width: 360px;
+  padding: 2.5rem 2rem;
+}
+
+/* ============================================
    YOUTUBE EMBED
    ============================================ */
 .youtube-embed-container {
