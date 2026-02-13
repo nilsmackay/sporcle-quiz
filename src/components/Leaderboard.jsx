@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom'
 import { getPercentageColor, interpolateColor, badgeStyle } from '../utils/colors'
 import { calculateYouTubeScore, getYouTubeScoreColor, abbreviateViews } from '../utils/youtube'
 import { getThemeIcon, getThemeById } from '../utils/themes'
-import { calculateSporcleTotal as calcSporcle, calculateYouTubeTotal as calcYouTube, calculateGrandTotal as calcGrand } from '../utils/scoring'
+import { calculateSporcleTotal as calcSporcle, calculateYouTubeTotal as calcYouTube, calculateSampleHitsterTotal as calcSampleHitster, calculateGrandTotal as calcGrand } from '../utils/scoring'
+import { getSampleHitsterScoreColor } from '../utils/sampleHitster'
 
 // Tooltip for truncated text: hover on desktop, tap on mobile.
 // Renders via portal to avoid clipping by overflow-x-auto on the table.
@@ -67,6 +68,8 @@ export default function Leaderboard({
   isOverlay = true,
   youtubeGuesses,
   youtubeVideos,
+  sampleHitsterGuesses,
+  sampleHitsterSongs,
   onEditQuestion,
   defaultExpandedRound = null
 }) {
@@ -79,6 +82,7 @@ export default function Leaderboard({
   const toggleRound = (round) => setExpandedRound(prev => prev === round ? null : round)
 
   const hasYouTube = youtubeVideos && youtubeVideos.length > 0 && youtubeGuesses && Object.keys(youtubeGuesses).length > 0
+  const hasSampleHitster = sampleHitsterSongs && sampleHitsterSongs.length > 0 && sampleHitsterGuesses && Object.keys(sampleHitsterGuesses).length > 0
   const hasSporcle = selectedThemes && selectedThemes.length > 0
 
   // Helper to get min/max percentages for a theme
@@ -91,7 +95,8 @@ export default function Leaderboard({
 
   const calculateSporcleTotal = (player) => calcSporcle(player, answers, selectedThemes)
   const calculateYouTubeTotal = (player) => calcYouTube(player, youtubeGuesses, youtubeVideos)
-  const calculateGrandTotal = (player) => calcGrand(player, answers, selectedThemes, youtubeGuesses, youtubeVideos)
+  const calculateSampleHitsterTotal = (player) => calcSampleHitster(player, sampleHitsterGuesses, sampleHitsterSongs)
+  const calculateGrandTotal = (player) => calcGrand(player, answers, selectedThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs)
 
   const sortedPlayers = [...players].sort((a, b) => {
     return calculateGrandTotal(a) - calculateGrandTotal(b)
@@ -140,7 +145,14 @@ export default function Leaderboard({
       )
     : []
 
+  const playedSongIndices = hasSampleHitster
+    ? sampleHitsterSongs.map((_, i) => i).filter(i =>
+        players.some(p => sampleHitsterGuesses[p]?.[i] !== undefined)
+      )
+    : []
+
   const youtubeExpanded = expandedRound === 'youtube'
+  const sampleHitsterExpanded = expandedRound === 'sampleHitster'
   const sporcleExpanded = expandedRound === 'sporcle'
 
   const content = (
@@ -155,7 +167,7 @@ export default function Leaderboard({
             <div>
               <h2 className="text-2xl font-display text-[#1A1A1A]">Leaderboard</h2>
               <p className="text-[#6B6560] text-sm">
-                {hasYouTube && hasSporcle ? 'Combined Standings' : hasYouTube ? 'YouTube Round' : 'Final Standings'}
+                {[hasYouTube, hasSampleHitster, hasSporcle].filter(Boolean).length > 1 ? 'Combined Standings' : hasYouTube ? 'YouTube Round' : hasSampleHitster ? 'Sample Hitster Round' : 'Final Standings'}
               </p>
             </div>
           </div>
@@ -198,7 +210,7 @@ export default function Leaderboard({
             {/* Grand Total row — immediately below player names */}
             <tr className="border-b-2 border-[#1A1A1A]">
               <td className="py-3 px-3 font-display text-[#C23B22] text-sm">
-                {hasYouTube && hasSporcle ? 'Grand Total' : 'Total'}
+                {[hasYouTube, hasSampleHitster, hasSporcle].filter(Boolean).length > 1 ? 'Grand Total' : 'Total'}
               </td>
               {sortedPlayers.map(player => {
                 const grandTotal = calculateGrandTotal(player)
@@ -278,7 +290,72 @@ export default function Leaderboard({
               )
             })}
 
-            {/* YouTube round (Round 1 — earlier, shown second) */}
+            {/* Sample Hitster round (Round 2) */}
+            {hasSampleHitster && (
+              <tr
+                className="border-b border-[#D4CFC7] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
+                onClick={() => toggleRound('sampleHitster')}
+              >
+                <td className="py-3 px-3 whitespace-nowrap">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm shrink-0">{sampleHitsterExpanded ? '▾' : '▸'}</span>
+                    <span className="shrink-0">🎵</span>
+                    <span className="font-display text-sm text-[#1A1A1A]">Sample Hitster</span>
+                  </div>
+                </td>
+                {sortedPlayers.map(player => {
+                  const shTotal = calculateSampleHitsterTotal(player)
+                  const avgScore = playedSongIndices.length > 0 ? shTotal / playedSongIndices.length : 0
+                  const colors = getSampleHitsterScoreColor(avgScore)
+                  return (
+                    <td key={player} className="py-3 px-2 text-center">
+                      <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{shTotal}</span>
+                    </td>
+                  )
+                })}
+              </tr>
+            )}
+
+            {/* Sample Hitster expanded: per-song rows (latest song first) */}
+            {hasSampleHitster && sampleHitsterExpanded && [...playedSongIndices].reverse().map(songIdx => {
+              const song = sampleHitsterSongs[songIdx]
+              return (
+                <tr
+                  key={`sh-${songIdx}`}
+                  className={`border-b border-[#D4CFC7] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED]' : ''} transition-colors`}
+                  onClick={() => onEditQuestion?.('sampleHitster', songIdx)}
+                >
+                  <td className="py-2 px-3">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm shrink-0">🎵</span>
+                      <TruncatedText text={song.songTitle} className="text-xs text-[#6B6560]" maxWidth="clamp(40px, 15vw, 200px)" />
+                    </div>
+                    {onEditQuestion && <span className="text-[10px] text-[#B8924A] ml-5">edit</span>}
+                  </td>
+                  {sortedPlayers.map(player => {
+                    const guess = sampleHitsterGuesses[player]?.[songIdx]
+                    return (
+                      <td key={player} className="py-3 px-2 text-center">
+                        {guess !== undefined ? (
+                          <div className="flex flex-col items-center gap-1">
+                            {(() => {
+                              const score = Math.abs(guess - song.sampleYear)
+                              const colors = getSampleHitsterScoreColor(score)
+                              return <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '2px 7px' }}>{score}</span>
+                            })()}
+                            <span className="text-xs text-[#6B6560]">{guess}</span>
+                          </div>
+                        ) : (
+                          <span className="text-[#D4CFC7]">&mdash;</span>
+                        )}
+                      </td>
+                    )
+                  })}
+                </tr>
+              )
+            })}
+
+            {/* YouTube round (Round 1 — earlier, shown last) */}
             {hasYouTube && (
               <tr
                 className="border-b border-[#D4CFC7] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
@@ -349,10 +426,12 @@ export default function Leaderboard({
       {/* Footer */}
       <div className="p-4 border-t border-[#D4CFC7]">
         <p className="text-sm text-[#6B6560] text-center italic">
-          {hasYouTube && hasSporcle
-            ? 'Lower scores win. YouTube points + Sporcle percentages combined.'
+          {[hasYouTube, hasSampleHitster, hasSporcle].filter(Boolean).length > 1
+            ? 'Lower scores win. All round scores combined.'
             : hasYouTube
             ? 'Lower scores win. 0 = perfect guess.'
+            : hasSampleHitster
+            ? 'Lower scores win. 0 = exact year.'
             : 'Lower scores win. Invalid answers count as 100%.'}
         </p>
       </div>
