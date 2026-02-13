@@ -7,7 +7,7 @@ const SALT = 'sporcle'
 //   1. Open browser console on the app
 //   2. Run: crypto.subtle.digest('SHA-256', new TextEncoder().encode('sporcle' + 'YOUR_NEW_PASSWORD')).then(b => console.log([...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('')))
 //   3. Replace the hash below with the output
-const PASSWORD_HASH = '4de5c03758ee9f20da3154d446a49ee23d6e7ba1068767b9eb6e332470229858'
+const PASSWORD_HASH = 'fec1625e68a345a87f934ae8353a15fb06e1bdabd994b7e55719ed4d7628a156'
 
 const SESSION_KEY = 'sporcle-quiz-auth'
 
