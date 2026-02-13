@@ -133,7 +133,7 @@ export default function App() {
         )}
 
         {phase === 'youtube-standings' && (
-          <div className="max-w-2xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+          <div className="w-fit max-w-full mx-auto px-3 sm:px-6 py-4 sm:py-6">
             <Leaderboard
               players={players}
               answers={{}}
@@ -196,7 +196,7 @@ export default function App() {
         )}
 
         {phase === 'standings' && (
-          <div className="max-w-2xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+          <div className="w-fit max-w-full mx-auto px-3 sm:px-6 py-4 sm:py-6">
             <Leaderboard
               players={players}
               answers={answers}
@@ -220,7 +220,7 @@ export default function App() {
         )}
 
         {phase === 'finished' && (
-          <div className="max-w-2xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+          <div className="w-fit max-w-full mx-auto px-3 sm:px-6 py-4 sm:py-6">
             <div className="text-center mb-6">
               <div className="editorial-stamp w-16 h-16 text-[#C23B22] text-2xl mx-auto mb-3">
                 TS
