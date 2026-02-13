@@ -1,5 +1,6 @@
 import themes from './data/themes.json'
 import YOUTUBE_VIDEOS from './data/youtube-videos.js'
+import SAMPLE_HITSTER_SONGS from './data/sample-hitster-songs.js'
 import { getHighestScorer } from './utils/scoring'
 
 const allThemeIds = themes.map(t => t.id)
@@ -51,10 +52,13 @@ export const initialState = {
   // YouTube round
   youtubeVideoIndex: 0,
   youtubeGuesses: {},
+  // Sample Hitster round
+  sampleHitsterIndex: 0,
+  sampleHitsterGuesses: {},
   // Edit mode
   editReturnState: null,
   // Round toggles
-  enabledRounds: { youtube: true, sporcle: true },
+  enabledRounds: { youtube: true, sampleHitster: true, sporcle: true },
 }
 
 function getActiveThemes(state) {
@@ -64,7 +68,8 @@ function getActiveThemes(state) {
 function findWorstPlayer(state) {
   return getHighestScorer(
     state.players, state.answers, getActiveThemes(state),
-    state.youtubeGuesses, YOUTUBE_VIDEOS
+    state.youtubeGuesses, YOUTUBE_VIDEOS,
+    state.sampleHitsterGuesses, SAMPLE_HITSTER_SONGS
   )
 }
 
@@ -78,6 +83,8 @@ export function gameReducer(state, action) {
       const updates = {
         youtubeVideoIndex: 0,
         youtubeGuesses: {},
+        sampleHitsterIndex: 0,
+        sampleHitsterGuesses: {},
         currentQuestionIndex: 0,
         answers: {},
       }
@@ -86,6 +93,8 @@ export function gameReducer(state, action) {
       }
       if (state.enabledRounds.youtube) {
         updates.phase = 'youtube-playing'
+      } else if (state.enabledRounds.sampleHitster) {
+        updates.phase = 'sample-hitster-playing'
       } else if (state.enabledRounds.sporcle) {
         if (state.isDynamicMode) {
           updates.currentPicker = findWorstPlayer({ ...state, ...updates })
@@ -120,6 +129,7 @@ export function gameReducer(state, action) {
         phase: state.phase,
         questionIndex: state.currentQuestionIndex,
         youtubeVideoIndex: state.youtubeVideoIndex,
+        sampleHitsterIndex: state.sampleHitsterIndex,
       }
       if (questionType === 'youtube') {
         return {
@@ -128,6 +138,15 @@ export function gameReducer(state, action) {
           showLeaderboard: false,
           youtubeVideoIndex: index,
           phase: 'youtube-playing',
+        }
+      }
+      if (questionType === 'sampleHitster') {
+        return {
+          ...state,
+          editReturnState: editReturn,
+          showLeaderboard: false,
+          sampleHitsterIndex: index,
+          phase: 'sample-hitster-playing',
         }
       }
       return {
@@ -147,6 +166,7 @@ export function gameReducer(state, action) {
         editReturnState: null,
         currentQuestionIndex: returnTo.questionIndex,
         youtubeVideoIndex: returnTo.youtubeVideoIndex,
+        sampleHitsterIndex: returnTo.sampleHitsterIndex,
         phase: returnTo.phase,
       }
     }
@@ -154,6 +174,9 @@ export function gameReducer(state, action) {
     case 'YOUTUBE_CONTINUE_FROM_STANDINGS': {
       const isLastVideo = state.youtubeVideoIndex === YOUTUBE_VIDEOS.length - 1
       if (isLastVideo) {
+        if (state.enabledRounds.sampleHitster) {
+          return { ...state, phase: 'sample-hitster-playing' }
+        }
         if (state.enabledRounds.sporcle) {
           if (state.isDynamicMode) {
             return {
@@ -170,6 +193,44 @@ export function gameReducer(state, action) {
         ...state,
         youtubeVideoIndex: state.youtubeVideoIndex + 1,
         phase: 'youtube-playing',
+      }
+    }
+
+    case 'SUBMIT_SAMPLE_HITSTER_GUESSES': {
+      const { songIndex, guesses: shGuesses } = action
+      const nextSH = { ...state.sampleHitsterGuesses }
+      for (const [player, guess] of Object.entries(shGuesses)) {
+        nextSH[player] = { ...nextSH[player], [songIndex]: guess }
+      }
+      return {
+        ...state,
+        sampleHitsterGuesses: nextSH,
+        ...(state.editReturnState === null ? { phase: 'sample-hitster-results' } : {}),
+      }
+    }
+
+    case 'SHOW_SAMPLE_HITSTER_STANDINGS':
+      return { ...state, phase: 'sample-hitster-standings' }
+
+    case 'SAMPLE_HITSTER_CONTINUE_FROM_STANDINGS': {
+      const isLastSong = state.sampleHitsterIndex === SAMPLE_HITSTER_SONGS.length - 1
+      if (isLastSong) {
+        if (state.enabledRounds.sporcle) {
+          if (state.isDynamicMode) {
+            return {
+              ...state,
+              currentPicker: findWorstPlayer(state),
+              phase: 'picking',
+            }
+          }
+          return { ...state, phase: 'playing' }
+        }
+        return { ...state, phase: 'finished' }
+      }
+      return {
+        ...state,
+        sampleHitsterIndex: state.sampleHitsterIndex + 1,
+        phase: 'sample-hitster-playing',
       }
     }
 
