@@ -54,9 +54,21 @@ export function getYouTubeScoreColor(score) {
   return { bg: red, text: 'white' }
 }
 
-// Strip non-digits and parse to number
+// Parse view count input, supporting shorthand (1.5M, 200K, 1.456B)
 export function parseViewsInput(str) {
-  const digits = str.replace(/[^0-9]/g, '')
+  if (!str) return NaN
+  const cleaned = str.replace(/[\s,]/g, '')
+
+  // Shorthand notation: 1.5M, 200K, 1.456B
+  const shorthand = cleaned.match(/^(\d+\.?\d*)([KMBkmb])$/)
+  if (shorthand) {
+    const num = parseFloat(shorthand[1])
+    const multipliers = { K: 1_000, M: 1_000_000, B: 1_000_000_000 }
+    return Math.round(num * multipliers[shorthand[2].toUpperCase()])
+  }
+
+  // Plain number: strip non-digits and parse
+  const digits = cleaned.replace(/[^0-9]/g, '')
   if (digits === '') return NaN
   return parseInt(digits, 10)
 }

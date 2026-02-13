@@ -30,7 +30,28 @@ export default function YouTubeQuestion({
   }, [videoIndex])
 
   const handleGuessChange = (player, rawValue) => {
-    const digits = rawValue.replace(/[^0-9]/g, '')
+    const cleaned = rawValue.replace(/[\s,]/g, '')
+
+    if (cleaned === '') {
+      setGuesses(prev => ({ ...prev, [player]: '' }))
+      return
+    }
+
+    // Complete shorthand: "1.5M", "200K", "1B"
+    const completeShorthand = cleaned.match(/^(\d+\.?\d*)([KkMmBb])$/)
+    if (completeShorthand) {
+      setGuesses(prev => ({ ...prev, [player]: completeShorthand[1] + completeShorthand[2].toUpperCase() }))
+      return
+    }
+
+    // Partial decimal: user typing "1." or "1.5" before adding a suffix
+    if (/^\d+\.\d*$/.test(cleaned)) {
+      setGuesses(prev => ({ ...prev, [player]: cleaned }))
+      return
+    }
+
+    // Plain number: strip non-digits, format with commas
+    const digits = cleaned.replace(/[^0-9]/g, '')
     if (digits === '') {
       setGuesses(prev => ({ ...prev, [player]: '' }))
     } else {
@@ -119,10 +140,10 @@ export default function YouTubeQuestion({
               </div>
               <input
                 type="text"
-                inputMode="numeric"
+                inputMode="text"
                 value={guesses[player] || ''}
                 onChange={(e) => handleGuessChange(player, e.target.value)}
-                placeholder="Enter your guess..."
+                placeholder="e.g. 1.5M, 200K, 1B"
                 className="game-input w-full text-center text-lg font-display"
               />
             </div>
