@@ -9,7 +9,9 @@ export default function Header({
   setShowLeaderboard,
   onNewGame,
   youtubeVideoIndex,
-  totalYouTubeVideos
+  totalYouTubeVideos,
+  sampleHitsterIndex,
+  totalSampleHitsterSongs
 }) {
   const [showConfirm, setShowConfirm] = useState(false)
 
@@ -17,7 +19,8 @@ export default function Header({
   const showScoresButton = (
     phase === 'playing' || phase === 'picking' || phase === 'round-results' ||
     phase === 'standings' || phase === 'finished' ||
-    phase === 'youtube-playing' || phase === 'youtube-results' || phase === 'youtube-standings'
+    phase === 'youtube-playing' || phase === 'youtube-results' || phase === 'youtube-standings' ||
+    phase === 'sample-hitster-playing' || phase === 'sample-hitster-results' || phase === 'sample-hitster-standings'
   )
 
   const handleNewGameClick = () => {
@@ -128,6 +131,26 @@ export default function Header({
           </div>
         )}
 
+        {/* Progress bar - Sample Hitster round */}
+        {phase === 'sample-hitster-playing' && (
+          <div className="mt-4 flex items-center gap-4">
+            <div className="score-display text-lg">
+              S{sampleHitsterIndex + 1}/{totalSampleHitsterSongs}
+            </div>
+
+            <div className="flex-1 h-[2px] bg-[#D4CFC7] overflow-hidden">
+              <div
+                className="h-full bg-[#C23B22] transition-all duration-500"
+                style={{ width: `${((sampleHitsterIndex + 1) / totalSampleHitsterSongs) * 100}%` }}
+              />
+            </div>
+
+            <div className="hidden md:flex items-center gap-3 border-l border-[#D4CFC7] pl-4">
+              <span className="text-[#1A1A1A] font-display">Round 2: Sample Hitster</span>
+            </div>
+          </div>
+        )}
+
         {/* Progress bar - Sporcle round */}
         {phase === 'playing' && (
           <div className="mt-4 flex items-center gap-4">
@@ -153,10 +176,10 @@ export default function Header({
         )}
 
         {/* Mobile round label */}
-        {(phase === 'youtube-playing' || phase === 'playing') && (
+        {(phase === 'youtube-playing' || phase === 'sample-hitster-playing' || phase === 'playing') && (
           <div className="mt-2 md:hidden">
             <span className="text-xs text-[#6B6560] uppercase tracking-wider font-bold">
-              {phase === 'youtube-playing' ? 'Round 1: YouTube Views' : 'Round 2: The Sporcle Round'}
+              {phase === 'youtube-playing' ? 'Round 1: YouTube Views' : phase === 'sample-hitster-playing' ? 'Round 2: Sample Hitster' : 'The Sporcle Round'}
             </span>
           </div>
         )}

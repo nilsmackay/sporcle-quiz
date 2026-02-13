@@ -19,10 +19,11 @@ export default function Setup({
   dynamicAvailableThemes,
   setDynamicAvailableThemes,
   youtubeVideoCount,
+  sampleHitsterSongCount,
   enabledRounds,
   setEnabledRounds
 }) {
-  const hasEnabledRound = enabledRounds.youtube || enabledRounds.sporcle
+  const hasEnabledRound = enabledRounds.youtube || enabledRounds.sampleHitster || enabledRounds.sporcle
 
   const canStart = hasEnabledRound && (
     isDynamicMode
@@ -47,6 +48,7 @@ export default function Setup({
         enabledRounds={enabledRounds}
         setEnabledRounds={setEnabledRounds}
         youtubeVideoCount={youtubeVideoCount}
+        sampleHitsterSongCount={sampleHitsterSongCount}
       />
 
       <SetupPlayers
