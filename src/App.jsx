@@ -7,6 +7,7 @@ import RoundResults from './components/RoundResults'
 import Leaderboard from './components/Leaderboard'
 import YouTubeQuestion from './components/YouTubeQuestion'
 import YouTubeResults from './components/YouTubeResults'
+import PasswordGate from './components/PasswordGate'
 import themes from './data/themes.json'
 import YOUTUBE_VIDEOS from './data/youtube-videos.js'
 import { fetchVideoMetadata } from './utils/youtube'
@@ -63,6 +64,7 @@ export default function App() {
   const handleCancelEdit = () => dispatch({ type: 'CANCEL_EDIT' })
 
   return (
+    <PasswordGate>
     <div className="min-h-screen relative">
       <Header
         phase={phase}
@@ -264,5 +266,6 @@ export default function App() {
         />
       )}
     </div>
+    </PasswordGate>
   )
 }
