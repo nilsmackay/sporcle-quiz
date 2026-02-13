@@ -1,9 +1,23 @@
 import React, { useState } from 'react'
 
-// Change this to set the app password
-const PASSWORD = 'sporcle'
+// Salt used during hashing — not secret, just prevents rainbow table lookups
+const SALT = 'sporcle'
+
+// SHA-256 hash of (SALT + password). To update the password:
+//   1. Open browser console on the app
+//   2. Run: crypto.subtle.digest('SHA-256', new TextEncoder().encode('sporcle' + 'YOUR_NEW_PASSWORD')).then(b => console.log([...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('')))
+//   3. Replace the hash below with the output
+const PASSWORD_HASH = '4de5c03758ee9f20da3154d446a49ee23d6e7ba1068767b9eb6e332470229858'
 
 const SESSION_KEY = 'sporcle-quiz-auth'
+
+async function hashPassword(password) {
+  const data = new TextEncoder().encode(SALT + password)
+  const buffer = await crypto.subtle.digest('SHA-256', data)
+  return [...new Uint8Array(buffer)]
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+}
 
 export default function PasswordGate({ children }) {
   const [authenticated, setAuthenticated] = useState(
@@ -12,9 +26,10 @@ export default function PasswordGate({ children }) {
   const [input, setInput] = useState('')
   const [error, setError] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (input === PASSWORD) {
+    const hash = await hashPassword(input)
+    if (hash === PASSWORD_HASH) {
       sessionStorage.setItem(SESSION_KEY, 'true')
       setAuthenticated(true)
     } else {
