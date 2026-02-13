@@ -51,7 +51,6 @@ export const initialState = {
   // YouTube round
   youtubeVideoIndex: 0,
   youtubeGuesses: {},
-  videoMetadata: {},
   // Edit mode
   editReturnState: null,
   // Round toggles
@@ -79,7 +78,6 @@ export function gameReducer(state, action) {
       const updates = {
         youtubeVideoIndex: 0,
         youtubeGuesses: {},
-        videoMetadata: {},
         currentQuestionIndex: 0,
         answers: {},
       }
@@ -223,12 +221,6 @@ export function gameReducer(state, action) {
     case 'NEW_GAME':
       clearSavedState()
       return { ...initialState }
-
-    case 'SET_VIDEO_METADATA':
-      return {
-        ...state,
-        videoMetadata: { ...state.videoMetadata, [action.index]: action.meta },
-      }
 
     default:
       return state

@@ -67,7 +67,6 @@ export default function Leaderboard({
   isOverlay = true,
   youtubeGuesses,
   youtubeVideos,
-  videoMetadata,
   onEditQuestion,
   defaultExpandedRound = null
 }) {
@@ -317,7 +316,7 @@ export default function Leaderboard({
                   <td className="py-2 px-3">
                     <div className="flex items-center gap-1.5">
                       <span className="text-sm shrink-0">📺</span>
-                      <TruncatedText text={videoMetadata?.[vidIdx]?.title || `Video ${vidIdx + 1}`} className="text-xs text-[#6B6560]" maxWidth="clamp(40px, 15vw, 200px)" />
+                      <TruncatedText text={video.title} className="text-xs text-[#6B6560]" maxWidth="clamp(40px, 15vw, 200px)" />
                     </div>
                     {onEditQuestion && <span className="text-[10px] text-[#B8924A] ml-5">edit</span>}
                   </td>

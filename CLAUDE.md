@@ -5,7 +5,7 @@
 - **Two-round game**: Round 1 (YouTube Views) → Round 2 (The Sporcle Round)
 - Components: Header, Setup (SetupRounds, SetupPlayers, SetupSporcleConfig), QuizQuestion, QuestionPicker, PlayerDropdown, RoundResults, Leaderboard, YouTubeQuestion, YouTubeResults
 - **State management**: `useReducer` in App.jsx with reducer logic in `src/gameReducer.js`
-  - All 18 state fields live in a single state object, transitions are explicit action types
+  - All 17 state fields live in a single state object, transitions are explicit action types
   - Setup component receives `setField('fieldName')` wrappers that dispatch `SET_FIELD` actions
 - App.jsx is a state machine routing phases: setup → youtube-playing → youtube-results → youtube-standings → picking/playing → round-results → standings → finished
 - App.jsx also renders its own JSX for standings, youtube-standings, and finished states - don't forget these during restyling
@@ -22,19 +22,18 @@
 - **colors.js**: `interpolateColor(color1, color2, factor)`, `getPercentageColor(percentage, minPercent, maxPercent)`, `badgeStyle(colors)`
   - `getPercentageColor` returns `{ bg, text }` for inline styles — always pass actual min/max from theme.options, not fixed thresholds
   - `badgeStyle(colors)` returns the shared inline style object for score/percentage badges
-- **youtube.js**: `extractVideoId`, `formatViews`, `abbreviateViews`, `calculateYouTubeScore`, `fetchVideoMetadata`, `getYouTubeScoreColor`, `parseViewsInput`
+- **youtube.js**: `extractVideoId`, `formatViews`, `abbreviateViews`, `calculateYouTubeScore`, `getYouTubeScoreColor`, `parseViewsInput`
   - Score formula: `Math.max(guess/actual, actual/guess)` — symmetric ratio, 1.0x = perfect
-  - Metadata fetched from `noembed.com/embed?url=...` (CORS-friendly oEmbed proxy)
 - **themes.js**: `getThemeIcon(themeName)`, `getThemeById(themeId)` — theme lookup utilities
 - **scoring.js**: `calculateSporcleTotal`, `calculateYouTubeTotal`, `calculateGrandTotal`, `getHighestScorer`
   - Shared between App.jsx (via gameReducer) and Leaderboard.jsx — single source of truth for scoring
 
 ## YouTube Round (Round 1)
-- Data: `src/data/youtube-videos.js` — array of `{ url, views }` objects (hardcoded)
-- Video metadata (title, channel) fetched at runtime via oEmbed
+- Data: `src/data/youtube-videos.js` — array of `{ url, title, views }` objects (hardcoded)
+- Video titles come from the data file (no runtime metadata fetching)
 - Scores added directly to Sporcle percentages for grand total (lower wins)
-- State: `youtubeGuesses[player][videoIndex] = number`, `videoMetadata[videoIndex] = { title, author_name }`
-- Leaderboard accepts optional `youtubeGuesses`, `youtubeVideos`, `videoMetadata` props for combined display
+- State: `youtubeGuesses[player][videoIndex] = number`
+- Leaderboard accepts optional `youtubeGuesses`, `youtubeVideos` props for combined display
 
 ## Sporcle Round (Round 2) State Management
 - gameReducer.js is source of truth for committed answers: `answers[player][questionIndex] = { option, percentage }`
