@@ -10,7 +10,6 @@ import YouTubeResults from './components/YouTubeResults'
 import PasswordGate from './components/PasswordGate'
 import themes from './data/themes.json'
 import YOUTUBE_VIDEOS from './data/youtube-videos.js'
-import { fetchVideoMetadata } from './utils/youtube'
 import { gameReducer, initialState, loadSavedState, saveState } from './gameReducer'
 import { getThemeById } from './utils/themes'
 
@@ -26,19 +25,8 @@ export default function App() {
     phase, players, selectedThemes, currentQuestionIndex, answers,
     showLeaderboard, isDynamicMode, dynamicQuestionCount, currentPicker,
     playedThemes, dynamicAvailableThemes, youtubeVideoIndex,
-    youtubeGuesses, videoMetadata, editReturnState, enabledRounds,
+    youtubeGuesses, editReturnState, enabledRounds,
   } = state
-
-  // Prefetch YouTube video metadata when YouTube round starts
-  useEffect(() => {
-    if (phase === 'youtube-playing' && Object.keys(videoMetadata).length === 0) {
-      YOUTUBE_VIDEOS.forEach((video, index) => {
-        fetchVideoMetadata(video.url).then(meta => {
-          if (meta) dispatch({ type: 'SET_VIDEO_METADATA', index, meta })
-        })
-      })
-    }
-  }, [phase])
 
   // Derived state
   const activeThemes = isDynamicMode ? playedThemes : selectedThemes
@@ -107,7 +95,6 @@ export default function App() {
             video={YOUTUBE_VIDEOS[youtubeVideoIndex]}
             videoIndex={youtubeVideoIndex}
             totalVideos={YOUTUBE_VIDEOS.length}
-            metadata={videoMetadata[youtubeVideoIndex] || null}
             onSubmitGuesses={(videoIndex, guesses) =>
               dispatch({ type: 'SUBMIT_YOUTUBE_GUESSES', videoIndex, guesses })
             }
@@ -123,7 +110,6 @@ export default function App() {
           <YouTubeResults
             players={players}
             video={YOUTUBE_VIDEOS[youtubeVideoIndex]}
-            metadata={videoMetadata[youtubeVideoIndex] || null}
             guesses={
               Object.fromEntries(
                 players.map(p => [p, youtubeGuesses[p]?.[youtubeVideoIndex] ?? 0])
@@ -145,7 +131,6 @@ export default function App() {
               isOverlay={false}
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
-              videoMetadata={videoMetadata}
               onEditQuestion={handleEditQuestion}
               defaultExpandedRound="youtube"
             />
@@ -208,7 +193,6 @@ export default function App() {
               isOverlay={false}
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
-              videoMetadata={videoMetadata}
               onEditQuestion={handleEditQuestion}
               defaultExpandedRound="sporcle"
             />
@@ -237,7 +221,6 @@ export default function App() {
               isOverlay={false}
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
-              videoMetadata={videoMetadata}
               onEditQuestion={handleEditQuestion}
               defaultExpandedRound={null}
             />
@@ -260,7 +243,6 @@ export default function App() {
           onClose={() => dispatch({ type: 'SET_FIELD', field: 'showLeaderboard', value: false })}
           youtubeGuesses={youtubeGuesses}
           youtubeVideos={YOUTUBE_VIDEOS}
-          videoMetadata={videoMetadata}
           onEditQuestion={handleEditQuestion}
           defaultExpandedRound={isYouTubePhase ? 'youtube' : 'sporcle'}
         />

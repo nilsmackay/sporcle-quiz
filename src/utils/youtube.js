@@ -36,23 +36,6 @@ export function calculateYouTubeScore(guess, actual) {
   return Math.round(10 * Math.log10(ratio))
 }
 
-// Fetch video metadata from noembed.com (CORS-friendly oEmbed proxy)
-export async function fetchVideoMetadata(url) {
-  try {
-    const res = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`)
-    if (!res.ok) return null
-    const data = await res.json()
-    if (data.error) return null
-    return {
-      title: data.title || null,
-      author_name: data.author_name || null,
-      thumbnail_url: data.thumbnail_url || null,
-    }
-  } catch {
-    return null
-  }
-}
-
 // Color for a YouTube score (integer): green (0-3) -> gold (3-10) -> red (10+)
 export function getYouTubeScoreColor(score) {
   const green = '#2D6A4F'

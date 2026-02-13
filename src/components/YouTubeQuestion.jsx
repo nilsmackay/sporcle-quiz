@@ -6,7 +6,6 @@ export default function YouTubeQuestion({
   video,
   videoIndex,
   totalVideos,
-  metadata,
   onSubmitGuesses,
   isLastVideo,
   isEditing,
@@ -71,13 +70,8 @@ export default function YouTubeQuestion({
             </div>
             <div className="min-w-0">
               <h2 className="text-xl sm:text-2xl font-display text-[#1A1A1A] truncate">
-                {metadata?.title || 'Loading video...'}
+                {video.title}
               </h2>
-              {metadata?.author_name && (
-                <p className="text-[#6B6560] font-medium truncate">
-                  {metadata.author_name}
-                </p>
-              )}
             </div>
           </div>
 
@@ -99,7 +93,7 @@ export default function YouTubeQuestion({
             src={`https://www.youtube.com/embed/${videoId}`}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            title={metadata?.title || 'YouTube video'}
+            title={video.title}
           />
         </div>
       )}

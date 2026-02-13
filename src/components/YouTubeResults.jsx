@@ -5,7 +5,6 @@ import { badgeStyle } from '../utils/colors'
 export default function YouTubeResults({
   players,
   video,
-  metadata,
   guesses,
   videoIndex,
   onContinue
@@ -28,7 +27,7 @@ export default function YouTubeResults({
           Round Complete
         </h2>
         <p className="text-[#C23B22] font-display text-lg">
-          {metadata?.title || `Video ${videoIndex + 1}`}
+          {video.title}
         </p>
       </div>
 
