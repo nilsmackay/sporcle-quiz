@@ -2,12 +2,12 @@
 
 ## Architecture
 - React + Vite + Tailwind CSS
-- **Two-round game**: Round 1 (YouTube Views) → Round 2 (The Sporcle Round)
-- Components: Header, Setup (SetupRounds, SetupPlayers, SetupSporcleConfig), QuizQuestion, QuestionPicker, PlayerDropdown, RoundResults, Leaderboard, YouTubeQuestion, YouTubeResults
+- **Three-round game**: Round 1 (YouTube Views) → Round 2 (Sample Hitster) → Round 3 (The Sporcle Round)
+- Components: Header, Setup (SetupRounds, SetupPlayers, SetupSporcleConfig), QuizQuestion, QuestionPicker, PlayerDropdown, RoundResults, Leaderboard, YouTubeQuestion, YouTubeResults, SampleHitsterQuestion, SampleHitsterResults
 - **State management**: `useReducer` in App.jsx with reducer logic in `src/gameReducer.js`
   - All 17 state fields live in a single state object, transitions are explicit action types
   - Setup component receives `setField('fieldName')` wrappers that dispatch `SET_FIELD` actions
-- App.jsx is a state machine routing phases: setup → youtube-playing → youtube-results → youtube-standings → picking/playing → round-results → standings → finished
+- App.jsx is a state machine routing phases: setup → youtube-playing → youtube-results → youtube-standings → sample-hitster-playing → sample-hitster-results → sample-hitster-standings → picking/playing → round-results → standings → finished
 - App.jsx also renders its own JSX for standings, youtube-standings, and finished states - don't forget these during restyling
 - Uses react-select for dropdowns, react-switch for toggles
 
@@ -25,7 +25,9 @@
 - **youtube.js**: `extractVideoId`, `formatViews`, `abbreviateViews`, `calculateYouTubeScore`, `getYouTubeScoreColor`, `parseViewsInput`
   - Score formula: `Math.max(guess/actual, actual/guess)` — symmetric ratio, 1.0x = perfect
 - **themes.js**: `getThemeIcon(themeName)`, `getThemeById(themeId)` — theme lookup utilities
-- **scoring.js**: `calculateSporcleTotal`, `calculateYouTubeTotal`, `calculateGrandTotal`, `getHighestScorer`
+- **sampleHitster.js**: `calculateSampleHitsterScore(guess, actualYear)`, `getSampleHitsterScoreColor(score)`
+  - Score = absolute year difference, green (0-2), gold (3-5), red (6+)
+- **scoring.js**: `calculateSporcleTotal`, `calculateYouTubeTotal`, `calculateSampleHitsterTotal`, `calculateGrandTotal`, `getHighestScorer`
   - Shared between App.jsx (via gameReducer) and Leaderboard.jsx — single source of truth for scoring
 
 ## YouTube Round (Round 1)
@@ -35,7 +37,16 @@
 - State: `youtubeGuesses[player][videoIndex] = number`
 - Leaderboard accepts optional `youtubeGuesses`, `youtubeVideos` props for combined display
 
-## Sporcle Round (Round 2) State Management
+## Sample Hitster Round (Round 2)
+- Data: `src/data/sample-hitster-songs.js` — array of `{ songTitle, songUrl, sampleTitle, sampleUrl, sampleYear }` objects
+- Players guess the year the original sample was released
+- Scoring: absolute difference in years (|guess - actual|), lower is better
+- State: `sampleHitsterGuesses[player][songIndex] = year`, `sampleHitsterIndex`
+- Question page shows YouTube embed of the song
+- Results page shows sample info + YouTube embed of the original sample
+- Leaderboard accepts optional `sampleHitsterGuesses`, `sampleHitsterSongs` props
+
+## Sporcle Round (Round 3) State Management
 - gameReducer.js is source of truth for committed answers: `answers[player][questionIndex] = { option, percentage }`
 - QuizQuestion buffers answers locally in `pendingAnswers` until submit via `BATCH_ANSWERS` dispatch
 - `isLastQuestion` controls button labels and routing
