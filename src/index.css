@@ -400,14 +400,11 @@ body::after {
   border-radius: 2px;
   box-shadow: 0 8px 40px rgba(26, 26, 26, 0.2);
   max-width: 95vw;
-  max-height: 85vh;
-  overflow: hidden;
 }
 
-@media (min-width: 640px) {
-  .leaderboard-panel {
-    max-width: 800px;
-  }
+.modal-overlay .leaderboard-panel {
+  max-height: 85vh;
+  overflow-y: auto;
 }
 
 /* ============================================
