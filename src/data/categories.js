@@ -1,9 +1,11 @@
+const base = import.meta.env.BASE_URL
+
 const CATEGORIES = [
   {
     id: 'sport',
     name: 'Sport',
     icon: '🏆',
-    image: '/categories/sport.svg',
+    image: `${base}categories/sport.png`,
     themes: [
       'champions-league-winners',
       'f1-champions',
@@ -17,7 +19,7 @@ const CATEGORIES = [
     id: 'geography',
     name: 'Geography',
     icon: '🌍',
-    image: '/categories/geography.svg',
+    image: `${base}categories/geography.svg`,
     themes: [
       'african-countries',
       'european-capitals',
@@ -29,7 +31,7 @@ const CATEGORIES = [
     id: 'general',
     name: 'General',
     icon: '📰',
-    image: '/categories/general.svg',
+    image: `${base}categories/general.png`,
     themes: [
       'us-presidents',
       'oscar-best-picture',
@@ -46,7 +48,7 @@ const CATEGORIES = [
     id: 'nerd',
     name: 'Nerd',
     icon: '🧪',
-    image: '/categories/nerd.svg',
+    image: `${base}categories/nerd.svg`,
     themes: [
       'pokemon-gen1',
       'periodic-table',
