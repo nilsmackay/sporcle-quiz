@@ -83,11 +83,18 @@ export default function QuestionPicker({
               >
                 {/* Front face */}
                 <div className="category-flip-face category-flip-front">
-                  <span className="emoji text-4xl mb-3 block">{category.icon}</span>
-                  <span className="font-display text-xl text-[#1A1A1A] block mb-2">{category.name}</span>
-                  <span className="text-sm text-[#6B6560]">
-                    {isExhausted ? 'No themes left' : `${available.length} theme${available.length !== 1 ? 's' : ''} left`}
-                  </span>
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="category-card-image"
+                    draggable="false"
+                  />
+                  <div className="category-card-overlay">
+                    <span className="font-display text-xl text-white block mb-1">{category.name}</span>
+                    <span className="text-sm text-white/80">
+                      {isExhausted ? 'No themes left' : `${available.length} theme${available.length !== 1 ? 's' : ''} left`}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Back face - revealed theme */}

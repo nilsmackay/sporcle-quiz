@@ -532,14 +532,33 @@ button:focus-visible {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem 1rem;
   background: white;
   border: 1px solid var(--rule);
   border-radius: 2px;
   box-shadow: 0 1px 4px var(--shadow-soft);
+  overflow: hidden;
 }
 
 .category-flip-front {
+  padding: 0;
+}
+
+.category-card-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.category-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 0.75rem 0.75rem;
+  background: linear-gradient(to top, rgba(26, 26, 26, 0.75) 0%, rgba(26, 26, 26, 0.3) 70%, transparent 100%);
+  text-align: center;
 }
 
 .category-flip-front::before {
@@ -550,6 +569,7 @@ button:focus-visible {
   right: 0;
   height: 2px;
   background: var(--red);
+  z-index: 1;
 }
 
 .category-flip-card:not(.exhausted):not(.dimmed):not(.flipped) .category-flip-front:hover {
@@ -562,6 +582,7 @@ button:focus-visible {
   transform: rotateY(180deg);
   background: var(--paper);
   border: 2px solid var(--red);
+  padding: 1.5rem 1rem;
 }
 
 /* ============================================

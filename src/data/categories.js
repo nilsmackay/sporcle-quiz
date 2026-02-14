@@ -3,6 +3,7 @@ const CATEGORIES = [
     id: 'sport',
     name: 'Sport',
     icon: '🏆',
+    image: '/categories/sport.svg',
     themes: [
       'champions-league-winners',
       'f1-champions',
@@ -16,6 +17,7 @@ const CATEGORIES = [
     id: 'geography',
     name: 'Geography',
     icon: '🌍',
+    image: '/categories/geography.svg',
     themes: [
       'african-countries',
       'european-capitals',
@@ -27,6 +29,7 @@ const CATEGORIES = [
     id: 'general',
     name: 'General',
     icon: '📰',
+    image: '/categories/general.svg',
     themes: [
       'us-presidents',
       'oscar-best-picture',
@@ -43,6 +46,7 @@ const CATEGORIES = [
     id: 'nerd',
     name: 'Nerd',
     icon: '🧪',
+    image: '/categories/nerd.svg',
     themes: [
       'pokemon-gen1',
       'periodic-table',
