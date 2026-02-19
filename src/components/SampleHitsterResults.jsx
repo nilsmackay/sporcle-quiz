@@ -8,12 +8,17 @@ export default function SampleHitsterResults({
   song,
   guesses,
   songIndex,
+  bonuses,
+  onToggleBonus,
   onContinue
 }) {
   // Compute player results sorted by score (best/lowest first)
   const playerResults = players.map(player => {
     const guess = guesses[player] ?? 0
-    const score = Math.abs(guess - song.sampleYear)
+    let score = Math.abs(guess - song.sampleYear)
+    const playerBonuses = bonuses?.[player]?.[songIndex]
+    if (playerBonuses?.artist) score -= 2
+    if (playerBonuses?.title) score -= 2
     return { player, guess, score }
   }).sort((a, b) => a.score - b.score)
 
@@ -69,37 +74,84 @@ export default function SampleHitsterResults({
 
         <div className="stagger-in">
           {playerResults.map((result, index) => {
+            const playerBonuses = bonuses?.[result.player]?.[songIndex]
             const colors = getSampleHitsterScoreColor(result.score)
             return (
               <div
                 key={result.player}
-                className={`flex items-center gap-4 py-4 ${
+                className={`py-4 ${
                   index < playerResults.length - 1 ? 'border-b border-[#D4CFC7]' : ''
                 }`}
               >
-                {/* Rank + name */}
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="editorial-stamp w-7 h-7 text-xs flex-shrink-0">
-                    {index + 1}
+                <div className="flex items-center gap-4">
+                  {/* Rank + name */}
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="editorial-stamp w-7 h-7 text-xs flex-shrink-0">
+                      {index + 1}
+                    </div>
+                    <span className={`font-bold truncate ${index === 0 ? 'text-[#C23B22]' : 'text-[#1A1A1A]'}`}>
+                      {result.player}
+                    </span>
                   </div>
-                  <span className={`font-bold truncate ${index === 0 ? 'text-[#C23B22]' : 'text-[#1A1A1A]'}`}>
-                    {result.player}
-                  </span>
+
+                  {/* Guess + score */}
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="text-right">
+                      <span className="text-sm text-[#6B6560] block">
+                        {result.guess}
+                      </span>
+                      <span className="text-xs text-[#6B6560]">
+                        ({Math.abs(result.guess - song.sampleYear) === 0 ? 'exact!' : `${Math.abs(result.guess - song.sampleYear)} year${Math.abs(result.guess - song.sampleYear) !== 1 ? 's' : ''} off`})
+                      </span>
+                    </div>
+                    <span style={{ ...badgeStyle(colors), whiteSpace: 'nowrap' }}>
+                      {result.score} pts
+                    </span>
+                  </div>
                 </div>
 
-                {/* Guess + score */}
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <div className="text-right">
-                    <span className="text-sm text-[#6B6560] block">
-                      {result.guess}
-                    </span>
-                    <span className="text-xs text-[#6B6560]">
-                      ({result.score === 0 ? 'exact!' : `${result.score} year${result.score !== 1 ? 's' : ''} off`})
-                    </span>
-                  </div>
-                  <span style={{ ...badgeStyle(colors), whiteSpace: 'nowrap' }}>
-                    {result.score} pts
-                  </span>
+                {/* Bonus checkboxes */}
+                <div className="flex gap-4 mt-2 ml-10">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <div className={`w-5 h-5 border flex items-center justify-center transition-all ${
+                      playerBonuses?.artist
+                        ? 'bg-[#2D6A4F] border-[#2D6A4F]'
+                        : 'border-[#D4CFC7] bg-white'
+                    }`}>
+                      {playerBonuses?.artist && (
+                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={!!playerBonuses?.artist}
+                      onChange={(e) => onToggleBonus(result.player, songIndex, 'artist', e.target.checked)}
+                      className="sr-only"
+                    />
+                    <span className="text-xs text-[#6B6560]">Artist correct <span className="text-[#2D6A4F] font-bold">(-2)</span></span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <div className={`w-5 h-5 border flex items-center justify-center transition-all ${
+                      playerBonuses?.title
+                        ? 'bg-[#2D6A4F] border-[#2D6A4F]'
+                        : 'border-[#D4CFC7] bg-white'
+                    }`}>
+                      {playerBonuses?.title && (
+                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={!!playerBonuses?.title}
+                      onChange={(e) => onToggleBonus(result.player, songIndex, 'title', e.target.checked)}
+                      className="sr-only"
+                    />
+                    <span className="text-xs text-[#6B6560]">Title correct <span className="text-[#2D6A4F] font-bold">(-2)</span></span>
+                  </label>
                 </div>
               </div>
             )

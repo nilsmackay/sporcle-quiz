@@ -55,6 +55,7 @@ export const initialState = {
   // Sample Hitster round
   sampleHitsterIndex: 0,
   sampleHitsterGuesses: {},
+  sampleHitsterBonuses: {},
   // Edit mode
   editReturnState: null,
   // Round toggles
@@ -69,7 +70,7 @@ function findWorstPlayer(state) {
   return getHighestScorer(
     state.players, state.answers, getActiveThemes(state),
     state.youtubeGuesses, YOUTUBE_VIDEOS,
-    state.sampleHitsterGuesses, SAMPLE_HITSTER_SONGS
+    state.sampleHitsterGuesses, SAMPLE_HITSTER_SONGS, state.sampleHitsterBonuses
   )
 }
 
@@ -85,6 +86,7 @@ export function gameReducer(state, action) {
         youtubeGuesses: {},
         sampleHitsterIndex: 0,
         sampleHitsterGuesses: {},
+        sampleHitsterBonuses: {},
         currentQuestionIndex: 0,
         answers: {},
       }
@@ -211,6 +213,14 @@ export function gameReducer(state, action) {
 
     case 'SHOW_SAMPLE_HITSTER_STANDINGS':
       return { ...state, phase: 'sample-hitster-standings' }
+
+    case 'SET_SAMPLE_HITSTER_BONUS': {
+      const { player, songIndex: bSongIdx, bonusType, value } = action
+      const nextBonuses = { ...state.sampleHitsterBonuses }
+      nextBonuses[player] = { ...nextBonuses[player] }
+      nextBonuses[player][bSongIdx] = { ...nextBonuses[player]?.[bSongIdx], [bonusType]: value }
+      return { ...state, sampleHitsterBonuses: nextBonuses }
+    }
 
     case 'SAMPLE_HITSTER_CONTINUE_FROM_STANDINGS': {
       const isLastSong = state.sampleHitsterIndex === SAMPLE_HITSTER_SONGS.length - 1

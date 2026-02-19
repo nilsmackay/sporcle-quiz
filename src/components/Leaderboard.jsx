@@ -70,6 +70,7 @@ export default function Leaderboard({
   youtubeVideos,
   sampleHitsterGuesses,
   sampleHitsterSongs,
+  sampleHitsterBonuses,
   onEditQuestion,
   defaultExpandedRound = null
 }) {
@@ -95,8 +96,8 @@ export default function Leaderboard({
 
   const calculateSporcleTotal = (player) => calcSporcle(player, answers, selectedThemes)
   const calculateYouTubeTotal = (player) => calcYouTube(player, youtubeGuesses, youtubeVideos)
-  const calculateSampleHitsterTotal = (player) => calcSampleHitster(player, sampleHitsterGuesses, sampleHitsterSongs)
-  const calculateGrandTotal = (player) => calcGrand(player, answers, selectedThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs)
+  const calculateSampleHitsterTotal = (player) => calcSampleHitster(player, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses)
+  const calculateGrandTotal = (player) => calcGrand(player, answers, selectedThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses)
 
   const sortedPlayers = [...players].sort((a, b) => {
     return calculateGrandTotal(a) - calculateGrandTotal(b)
@@ -339,7 +340,10 @@ export default function Leaderboard({
                         {guess !== undefined ? (
                           <div className="flex flex-col items-center gap-1">
                             {(() => {
-                              const score = Math.abs(guess - song.sampleYear)
+                              let score = Math.abs(guess - song.sampleYear)
+                              const bonuses = sampleHitsterBonuses?.[player]?.[songIdx]
+                              if (bonuses?.artist) score -= 2
+                              if (bonuses?.title) score -= 2
                               const colors = getSampleHitsterScoreColor(score)
                               return <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '2px 7px' }}>{score}</span>
                             })()}

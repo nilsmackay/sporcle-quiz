@@ -29,7 +29,7 @@ export default function App() {
     showLeaderboard, isDynamicMode, dynamicQuestionCount, currentPicker,
     playedThemes, dynamicAvailableThemes, youtubeVideoIndex,
     youtubeGuesses, sampleHitsterIndex, sampleHitsterGuesses,
-    editReturnState, enabledRounds,
+    sampleHitsterBonuses, editReturnState, enabledRounds,
   } = state
 
   // Derived state
@@ -182,6 +182,10 @@ export default function App() {
               )
             }
             songIndex={sampleHitsterIndex}
+            bonuses={sampleHitsterBonuses}
+            onToggleBonus={(player, songIndex, bonusType, value) =>
+              dispatch({ type: 'SET_SAMPLE_HITSTER_BONUS', player, songIndex, bonusType, value })
+            }
             onContinue={() => dispatch({ type: 'SHOW_SAMPLE_HITSTER_STANDINGS' })}
           />
         )}
@@ -199,6 +203,7 @@ export default function App() {
               youtubeVideos={YOUTUBE_VIDEOS}
               sampleHitsterGuesses={sampleHitsterGuesses}
               sampleHitsterSongs={SAMPLE_HITSTER_SONGS}
+              sampleHitsterBonuses={sampleHitsterBonuses}
               onEditQuestion={handleEditQuestion}
               defaultExpandedRound="sampleHitster"
             />
@@ -265,6 +270,7 @@ export default function App() {
               youtubeVideos={YOUTUBE_VIDEOS}
               sampleHitsterGuesses={sampleHitsterGuesses}
               sampleHitsterSongs={SAMPLE_HITSTER_SONGS}
+              sampleHitsterBonuses={sampleHitsterBonuses}
               onEditQuestion={handleEditQuestion}
               defaultExpandedRound="sporcle"
             />
@@ -295,6 +301,7 @@ export default function App() {
               youtubeVideos={YOUTUBE_VIDEOS}
               sampleHitsterGuesses={sampleHitsterGuesses}
               sampleHitsterSongs={SAMPLE_HITSTER_SONGS}
+              sampleHitsterBonuses={sampleHitsterBonuses}
               onEditQuestion={handleEditQuestion}
               defaultExpandedRound={null}
             />
@@ -319,6 +326,7 @@ export default function App() {
           youtubeVideos={YOUTUBE_VIDEOS}
           sampleHitsterGuesses={isSampleHitsterPhase || !isPreSporclePhase ? sampleHitsterGuesses : {}}
           sampleHitsterSongs={isSampleHitsterPhase || !isPreSporclePhase ? SAMPLE_HITSTER_SONGS : []}
+          sampleHitsterBonuses={isSampleHitsterPhase || !isPreSporclePhase ? sampleHitsterBonuses : {}}
           onEditQuestion={handleEditQuestion}
           defaultExpandedRound={isYouTubePhase ? 'youtube' : isSampleHitsterPhase ? 'sampleHitster' : 'sporcle'}
         />
