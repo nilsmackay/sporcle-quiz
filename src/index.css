@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ============================================
-   PAPER & INK EDITORIAL - Trivia Showdown
+   PAPER & INK EDITORIAL - How Low Can You Go
    Sophisticated magazine / broadsheet aesthetic
    ============================================ */
 
@@ -495,12 +495,13 @@ button:focus-visible {
    ============================================ */
 .category-flip-container {
   perspective: 800px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
 }
 
 .category-flip-card {
   position: relative;
   width: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 3 / 2;
   cursor: pointer;
   transform-style: preserve-3d;
   transition: transform 0.6s ease;
@@ -554,23 +555,11 @@ button:focus-visible {
 .category-card-overlay {
   position: absolute;
   bottom: 0;
-  left: 0;
   right: 0;
-  padding: 1rem 0.75rem 0.75rem;
-  background: linear-gradient(to top, rgba(26, 26, 26, 0.75) 0%, rgba(26, 26, 26, 0.3) 70%, transparent 100%);
-  text-align: center;
+  padding: 0.5rem 0.75rem;
+  text-align: right;
 }
 
-.category-flip-front::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--red);
-  z-index: 1;
-}
 
 .category-flip-card:not(.exhausted):not(.dimmed):not(.flipped) .category-flip-front:hover {
   border-color: var(--ink);

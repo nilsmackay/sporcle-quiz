@@ -19,12 +19,25 @@ const CATEGORIES = [
     id: 'geography',
     name: 'Geography',
     icon: '🌍',
-    image: `${base}categories/geography.svg`,
+    image: `${base}categories/geography.png`,
     themes: [
       'african-countries',
       'european-capitals',
       'asian-countries',
       'us-states'
+    ]
+  },
+  {
+    id: 'nerd',
+    name: 'Nerd',
+    icon: '🧪',
+    image: `${base}categories/nerd.png`,
+    themes: [
+      'pokemon-gen1',
+      'periodic-table',
+      'harry-potter-characters',
+      'monopoly-streets-dutch',
+      'greek-alphabet'
     ]
   },
   {
@@ -42,19 +55,6 @@ const CATEGORIES = [
       'disney-animated-movies',
       'james-bond-movies',
       'iba-official-cocktails'
-    ]
-  },
-  {
-    id: 'nerd',
-    name: 'Nerd',
-    icon: '🧪',
-    image: `${base}categories/nerd.svg`,
-    themes: [
-      'pokemon-gen1',
-      'periodic-table',
-      'harry-potter-characters',
-      'monopoly-streets-dutch',
-      'greek-alphabet'
     ]
   }
 ]

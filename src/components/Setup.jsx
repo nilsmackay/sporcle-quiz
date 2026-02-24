@@ -36,7 +36,7 @@ export default function Setup({
       {/* Welcome Banner */}
       <div className="text-center mb-8">
         <div className="editorial-stamp w-20 h-20 text-[#C23B22] text-3xl mb-4 mx-auto">
-          TS
+          HL
         </div>
         <h1 className="text-3xl sm:text-4xl font-display text-[#1A1A1A] mb-2">
           Welcome, Contestants!

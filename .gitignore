@@ -1,6 +1,10 @@
 # Dependencies
 node_modules/
 
+nul
+
+.claude/
+
 # Build output
 dist/
 

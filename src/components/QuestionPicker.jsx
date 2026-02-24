@@ -90,9 +90,8 @@ export default function QuestionPicker({
                     draggable="false"
                   />
                   <div className="category-card-overlay">
-                    <span className="font-display text-xl text-white block mb-1">{category.name}</span>
-                    <span className="text-sm text-white/80">
-                      {isExhausted ? 'No themes left' : `${available.length} theme${available.length !== 1 ? 's' : ''} left`}
+                    <span className="text-base font-bold text-[#4A4A4A]" style={{ WebkitTextStroke: '2px white', paintOrder: 'stroke fill' }}>
+                      {available.length}
                     </span>
                   </div>
                 </div>
