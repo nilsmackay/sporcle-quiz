@@ -70,6 +70,7 @@ export default function Leaderboard({
   youtubeVideos,
   sampleHitsterGuesses,
   sampleHitsterSongs,
+  sampleHitsterBonuses,
   onEditQuestion,
   defaultExpandedRound = null
 }) {
@@ -95,8 +96,8 @@ export default function Leaderboard({
 
   const calculateSporcleTotal = (player) => calcSporcle(player, answers, selectedThemes)
   const calculateYouTubeTotal = (player) => calcYouTube(player, youtubeGuesses, youtubeVideos)
-  const calculateSampleHitsterTotal = (player) => calcSampleHitster(player, sampleHitsterGuesses, sampleHitsterSongs)
-  const calculateGrandTotal = (player) => calcGrand(players, player, answers, selectedThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs)
+  const calculateSampleHitsterTotal = (player) => calcSampleHitster(player, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses)
+  const calculateGrandTotal = (player) => calcGrand(players, player, answers, selectedThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses)
   const getQuestionBonus = (player, index) => calcQuestionBonus(player, players, answers, index)
   const getSporcleBonusTotal = (player) => calcSporcleBonusTotal(player, players, answers, selectedThemes)
 
@@ -347,7 +348,9 @@ export default function Leaderboard({
                         {guess !== undefined ? (
                           <div className="flex flex-col items-center gap-1">
                             {(() => {
-                              const score = Math.abs(guess - song.sampleYear)
+                              const rawScore = Math.abs(guess - song.sampleYear)
+                              const bonus = sampleHitsterBonuses?.[player]?.[songIdx]
+                              const score = rawScore - (bonus?.artist ? 3 : 0) - (bonus?.song ? 3 : 0)
                               const colors = getSampleHitsterScoreColor(score)
                               return <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '6px 7px' }}>{score}</span>
                             })()}

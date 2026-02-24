@@ -28,13 +28,18 @@ export function calculateYouTubeTotal(player, youtubeGuesses, youtubeVideos) {
 }
 
 // Sum Sample Hitster scores for a player across all songs
-export function calculateSampleHitsterTotal(player, sampleHitsterGuesses, sampleHitsterSongs) {
+// sampleHitsterBonuses[player][songIndex] = { artist: bool, song: bool } — each true deducts 3 pts
+export function calculateSampleHitsterTotal(player, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses) {
   if (!sampleHitsterSongs || !sampleHitsterGuesses) return 0
   let total = 0
   sampleHitsterSongs.forEach((song, index) => {
     const guess = sampleHitsterGuesses[player]?.[index]
     if (guess !== undefined) {
-      total += calculateSampleHitsterScore(guess, song.sampleYear)
+      let score = calculateSampleHitsterScore(guess, song.sampleYear)
+      const bonus = sampleHitsterBonuses?.[player]?.[index]
+      if (bonus?.artist) score -= 3
+      if (bonus?.song) score -= 3
+      total += score
     }
   })
   return total
@@ -66,20 +71,20 @@ export function calculateSporcleBonusTotal(player, players, answers, activeTheme
 }
 
 // Combined grand total across all rounds
-export function calculateGrandTotal(players, player, answers, activeThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs) {
+export function calculateGrandTotal(players, player, answers, activeThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses) {
   return calculateYouTubeTotal(player, youtubeGuesses, youtubeVideos) +
-    calculateSampleHitsterTotal(player, sampleHitsterGuesses, sampleHitsterSongs) +
+    calculateSampleHitsterTotal(player, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses) +
     calculateSporcleTotal(player, answers, activeThemes) +
     calculateSporcleBonusTotal(player, players, answers, activeThemes)
 }
 
 // Get the player with the highest total score (worst performer, picks next in dynamic mode)
-export function getHighestScorer(players, answers, activeThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs) {
+export function getHighestScorer(players, answers, activeThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses) {
   if (players.length === 0) return ''
   let highestPlayer = players[0]
-  let highestScore = calculateGrandTotal(players, players[0], answers, activeThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs)
+  let highestScore = calculateGrandTotal(players, players[0], answers, activeThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses)
   players.forEach(player => {
-    const totalScore = calculateGrandTotal(players, player, answers, activeThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs)
+    const totalScore = calculateGrandTotal(players, player, answers, activeThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses)
     if (totalScore > highestScore) {
       highestScore = totalScore
       highestPlayer = player
