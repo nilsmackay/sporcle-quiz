@@ -1,7 +1,7 @@
 [
   {
     "id": "african-countries",
-    "name": "Countries of Africa",
+    "name": "African Countries",
     "options": [
       { "name": "Egypt", "percentage": 95 },
       { "name": "South Africa", "percentage": 95 },
@@ -114,7 +114,7 @@
   },
   {
     "id": "asian-countries",
-    "name": "Countries of Asia",
+    "name": "Asian Countries",
     "options": [
       { "name": "China", "percentage": 97 },
       { "name": "Russia", "percentage": 97 },
@@ -225,7 +225,7 @@
   },
   {
     "id": "pokemon-gen1",
-    "name": "Pokémon (Gen 1)",
+    "name": "First 150 Pokémon",
     "options": [
       { "name": "Charmander", "percentage": 95 },
       { "name": "Bulbasaur", "percentage": 95 },
@@ -1327,7 +1327,7 @@
   },
   {
     "id": "monopoly-streets-dutch",
-    "name": "Monopoly Streets (Dutch Edition)",
+    "name": "Monopoly Streets",
     "options": [
       { "name": "Kalverstraat (Amsterdam)", "percentage": 92 },
       { "name": "Dorpsstraat (Ons Dorp)", "percentage": 80 },
@@ -1355,7 +1355,7 @@
   },
   {
     "id": "winter-olympics-2026-sports",
-    "name": "Sports at the 2026 Winter Olympics",
+    "name": "2026 Winter Olympics Sports",
     "options": [
       { "name": "Ice Hockey / IJshockey", "percentage": 83 },
       { "name": "Figure Skating / Kunstschaatsen", "percentage": 81 },
@@ -1377,7 +1377,7 @@
   },
   {
     "id": "summer-olympics-2024-sports",
-    "name": "Sports at the 2024 Summer Olympics",
+    "name": "2024 Summer Olympics Sports",
     "options": [
       { "name": "Swimming / Zwemmen", "percentage": 88 },
       { "name": "Football / Voetbal", "percentage": 82 },

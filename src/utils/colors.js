@@ -40,7 +40,7 @@ export function badgeStyle(colors) {
   return {
     backgroundColor: colors.bg,
     color: colors.text,
-    padding: '3px 10px',
+    padding: '6px 10px',
     fontSize: '12px',
     fontFamily: "'Fraunces', serif",
     fontWeight: 'bold',

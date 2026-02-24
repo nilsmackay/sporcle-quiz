@@ -1,6 +1,7 @@
 import React from 'react'
 import { getPercentageColor, badgeStyle } from '../utils/colors'
 import { getThemeIcon } from '../utils/themes'
+import { calculateQuestionBonus } from '../utils/scoring'
 
 export default function RoundResults({
   players,
@@ -103,9 +104,13 @@ export default function RoundResults({
                 </div>
                 {(() => {
                   const colors = getPercentageColor(result.percentage, minPercent, maxPercent)
+                  const bonus = calculateQuestionBonus(result.player, players, answers, currentQuestionIndex)
                   return (
                     <span style={badgeStyle(colors)}>
                       {result.percentage}%
+                      {bonus < 0 && (
+                        <sup style={{ color: 'white', marginLeft: '2px', fontSize: '0.7em', verticalAlign: 'super' }}>{bonus}</sup>
+                      )}
                     </span>
                   )
                 })()}

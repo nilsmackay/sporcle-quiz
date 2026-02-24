@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { getPercentageColor, interpolateColor, badgeStyle } from '../utils/colors'
 import { calculateYouTubeScore, getYouTubeScoreColor, abbreviateViews } from '../utils/youtube'
 import { getThemeIcon, getThemeById } from '../utils/themes'
-import { calculateSporcleTotal as calcSporcle, calculateYouTubeTotal as calcYouTube, calculateSampleHitsterTotal as calcSampleHitster, calculateGrandTotal as calcGrand } from '../utils/scoring'
+import { calculateSporcleTotal as calcSporcle, calculateYouTubeTotal as calcYouTube, calculateSampleHitsterTotal as calcSampleHitster, calculateGrandTotal as calcGrand, calculateQuestionBonus as calcQuestionBonus, calculateSporcleBonusTotal as calcSporcleBonusTotal } from '../utils/scoring'
 import { getSampleHitsterScoreColor } from '../utils/sampleHitster'
 
 // Tooltip for truncated text: hover on desktop, tap on mobile.
@@ -96,7 +96,9 @@ export default function Leaderboard({
   const calculateSporcleTotal = (player) => calcSporcle(player, answers, selectedThemes)
   const calculateYouTubeTotal = (player) => calcYouTube(player, youtubeGuesses, youtubeVideos)
   const calculateSampleHitsterTotal = (player) => calcSampleHitster(player, sampleHitsterGuesses, sampleHitsterSongs)
-  const calculateGrandTotal = (player) => calcGrand(player, answers, selectedThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs)
+  const calculateGrandTotal = (player) => calcGrand(players, player, answers, selectedThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs)
+  const getQuestionBonus = (player, index) => calcQuestionBonus(player, players, answers, index)
+  const getSporcleBonusTotal = (player) => calcSporcleBonusTotal(player, players, answers, selectedThemes)
 
   const sortedPlayers = [...players].sort((a, b) => {
     return calculateGrandTotal(a) - calculateGrandTotal(b)
@@ -112,10 +114,10 @@ export default function Leaderboard({
     return count > 0 ? total / count : 0
   }
 
-  // Compute Sporcle total color based on player-relative range
+  // Compute Sporcle total color based on player-relative range (including bonuses)
   const getSporcleRelativeColor = (playerTotal) => {
     if (!hasSporcle || sortedPlayers.length <= 1) return { bg: '#B8924A', text: 'white' }
-    const totals = sortedPlayers.map(p => calculateSporcleTotal(p))
+    const totals = sortedPlayers.map(p => calculateSporcleTotal(p) + getSporcleBonusTotal(p))
     const min = Math.min(...totals)
     const max = Math.max(...totals)
     if (min === max) return { bg: '#2D6A4F', text: 'white' }
@@ -239,11 +241,13 @@ export default function Leaderboard({
                   </div>
                 </td>
                 {sortedPlayers.map(player => {
-                  const sporcleTotal = calculateSporcleTotal(player)
-                  const colors = getSporcleRelativeColor(sporcleTotal)
+                  const rawTotal = calculateSporcleTotal(player)
+                  const bonusTotal = getSporcleBonusTotal(player)
+                  const effectiveTotal = rawTotal + bonusTotal
+                  const colors = getSporcleRelativeColor(effectiveTotal)
                   return (
                     <td key={player} className="py-3 px-2 text-center">
-                      <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{sporcleTotal}</span>
+                      <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{effectiveTotal}</span>
                     </td>
                   )
                 })}
@@ -262,21 +266,26 @@ export default function Leaderboard({
                   onClick={() => onEditQuestion?.('sporcle', index)}
                 >
                   <td className="py-2 px-3">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-sm shrink-0">{getThemeIcon(theme?.name)}</span>
-                      <TruncatedText text={theme?.name || ''} className="text-xs text-[#6B6560]" maxWidth="clamp(40px, 15vw, 200px)" />
+                    <div className="flex items-center gap-1.5 ml-4">
+                      {onEditQuestion && <span className="text-xs text-[#B8924A] shrink-0 leading-none">&#9998;</span>}
+                      <TruncatedText text={theme?.name || ''} className="text-sm text-[#1A1A1A]" maxWidth="clamp(40px, 15vw, 200px)" />
                     </div>
-                    {onEditQuestion && <span className="text-[10px] text-[#B8924A] ml-5">edit</span>}
                   </td>
                   {sortedPlayers.map(player => {
                     const answer = answers[player]?.[index]
+                    const bonus = getQuestionBonus(player, index)
                     return (
                       <td key={player} className="py-3 px-2 text-center">
                         {answer ? (
                           <div className="flex flex-col items-center gap-1">
                             {(() => {
                               const colors = getPercentageColor(answer.percentage, minPercent, maxPercent)
-                              return <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '2px 7px' }}>{answer.percentage}%</span>
+                              return (
+                                <span style={{ position: 'relative', display: 'inline-block' }}>
+                                  <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '6px 7px' }}>{answer.percentage}%</span>
+                                  {bonus < 0 && <sup style={{ position: 'absolute', left: '100%', top: 0, color: '#2D6A4F', fontSize: '8px', fontWeight: 700, lineHeight: 1, whiteSpace: 'nowrap' }}>{bonus}</sup>}
+                                </span>
+                              )
                             })()}
                             <TruncatedText text={answer.option} className="text-xs text-[#6B6560]" maxWidth="70px" />
                           </div>
@@ -326,11 +335,10 @@ export default function Leaderboard({
                   onClick={() => onEditQuestion?.('sampleHitster', songIdx)}
                 >
                   <td className="py-2 px-3">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-sm shrink-0">🎵</span>
-                      <TruncatedText text={song.songTitle} className="text-xs text-[#6B6560]" maxWidth="clamp(40px, 15vw, 200px)" />
+                    <div className="flex items-center gap-1.5 ml-4">
+                      {onEditQuestion && <span className="text-xs text-[#B8924A] shrink-0 leading-none">&#9998;</span>}
+                      <TruncatedText text={song.songTitle} className="text-sm text-[#1A1A1A]" maxWidth="clamp(40px, 15vw, 200px)" />
                     </div>
-                    {onEditQuestion && <span className="text-[10px] text-[#B8924A] ml-5">edit</span>}
                   </td>
                   {sortedPlayers.map(player => {
                     const guess = sampleHitsterGuesses[player]?.[songIdx]
@@ -341,7 +349,7 @@ export default function Leaderboard({
                             {(() => {
                               const score = Math.abs(guess - song.sampleYear)
                               const colors = getSampleHitsterScoreColor(score)
-                              return <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '2px 7px' }}>{score}</span>
+                              return <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '6px 7px' }}>{score}</span>
                             })()}
                             <span className="text-xs text-[#6B6560]">{guess}</span>
                           </div>
@@ -391,11 +399,10 @@ export default function Leaderboard({
                   onClick={() => onEditQuestion?.('youtube', vidIdx)}
                 >
                   <td className="py-2 px-3">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-sm shrink-0">📺</span>
-                      <TruncatedText text={video.title} className="text-xs text-[#6B6560]" maxWidth="clamp(40px, 15vw, 200px)" />
+                    <div className="flex items-center gap-1.5 ml-4">
+                      {onEditQuestion && <span className="text-xs text-[#B8924A] shrink-0 leading-none">&#9998;</span>}
+                      <TruncatedText text={video.title} className="text-sm text-[#1A1A1A]" maxWidth="clamp(40px, 15vw, 200px)" />
                     </div>
-                    {onEditQuestion && <span className="text-[10px] text-[#B8924A] ml-5">edit</span>}
                   </td>
                   {sortedPlayers.map(player => {
                     const guess = youtubeGuesses[player]?.[vidIdx]
@@ -406,7 +413,7 @@ export default function Leaderboard({
                             {(() => {
                               const score = calculateYouTubeScore(guess, video.views)
                               const colors = getYouTubeScoreColor(score)
-                              return <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '2px 7px' }}>{score}</span>
+                              return <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '6px 7px' }}>{score}</span>
                             })()}
                             <span className="text-xs text-[#6B6560]">{abbreviateViews(guess)}</span>
                           </div>

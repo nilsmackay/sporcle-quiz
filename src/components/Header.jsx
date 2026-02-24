@@ -44,11 +44,11 @@ export default function Header({
           {/* Logo - editorial stamp */}
           <div className="flex items-center gap-3">
             <div className="editorial-stamp w-12 h-12 text-[#C23B22] text-2xl">
-              T
+              H
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-display text-[#1A1A1A] tracking-wide">
-                Trivia Showdown
+                How Low Can You Go
               </h1>
               {phase === 'setup' && (
                 <p className="text-[#6B6560] text-xs sm:text-sm">Get ready to play!</p>

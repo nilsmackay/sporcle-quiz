@@ -47,10 +47,10 @@ export default function PasswordGate({ children }) {
       <div className="password-card game-card">
         <div className="text-center mb-6">
           <div className="editorial-stamp w-16 h-16 text-[#C23B22] text-2xl mx-auto mb-4">
-            TS
+            HL
           </div>
           <h1 className="text-2xl sm:text-3xl font-display text-[#1A1A1A] mb-1">
-            Trivia Showdown
+            How Low Can You Go
           </h1>
           <p className="text-sm text-[#6B6560]">Enter the password to continue</p>
         </div>
