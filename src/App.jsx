@@ -28,7 +28,7 @@ export default function App() {
     phase, players, selectedThemes, currentQuestionIndex, answers,
     showLeaderboard, isDynamicMode, dynamicQuestionCount, currentPicker,
     playedThemes, dynamicAvailableThemes, youtubeVideoIndex,
-    youtubeGuesses, sampleHitsterIndex, sampleHitsterGuesses,
+    youtubeGuesses, sampleHitsterIndex, sampleHitsterGuesses, sampleHitsterBonuses,
     editReturnState, enabledRounds,
   } = state
 
@@ -182,6 +182,17 @@ export default function App() {
               )
             }
             songIndex={sampleHitsterIndex}
+            bonuses={sampleHitsterBonuses}
+            onToggleBonus={(player, songIndex, field, value) => {
+              const current = sampleHitsterBonuses?.[player]?.[songIndex] ?? { artist: false, song: false }
+              dispatch({
+                type: 'SET_SAMPLE_HITSTER_BONUS',
+                player,
+                songIndex,
+                artist: field === 'artist' ? value : current.artist,
+                song: field === 'song' ? value : current.song,
+              })
+            }}
             onContinue={() => dispatch({ type: 'SHOW_SAMPLE_HITSTER_STANDINGS' })}
           />
         )}
@@ -199,6 +210,7 @@ export default function App() {
               youtubeVideos={YOUTUBE_VIDEOS}
               sampleHitsterGuesses={sampleHitsterGuesses}
               sampleHitsterSongs={SAMPLE_HITSTER_SONGS}
+              sampleHitsterBonuses={sampleHitsterBonuses}
               onEditQuestion={handleEditQuestion}
               defaultExpandedRound="sampleHitster"
             />
@@ -265,6 +277,7 @@ export default function App() {
               youtubeVideos={YOUTUBE_VIDEOS}
               sampleHitsterGuesses={sampleHitsterGuesses}
               sampleHitsterSongs={SAMPLE_HITSTER_SONGS}
+              sampleHitsterBonuses={sampleHitsterBonuses}
               onEditQuestion={handleEditQuestion}
               defaultExpandedRound="sporcle"
             />
@@ -295,6 +308,7 @@ export default function App() {
               youtubeVideos={YOUTUBE_VIDEOS}
               sampleHitsterGuesses={sampleHitsterGuesses}
               sampleHitsterSongs={SAMPLE_HITSTER_SONGS}
+              sampleHitsterBonuses={sampleHitsterBonuses}
               onEditQuestion={handleEditQuestion}
               defaultExpandedRound={null}
             />
@@ -319,6 +333,7 @@ export default function App() {
           youtubeVideos={YOUTUBE_VIDEOS}
           sampleHitsterGuesses={isSampleHitsterPhase || !isPreSporclePhase ? sampleHitsterGuesses : {}}
           sampleHitsterSongs={isSampleHitsterPhase || !isPreSporclePhase ? SAMPLE_HITSTER_SONGS : []}
+          sampleHitsterBonuses={sampleHitsterBonuses}
           onEditQuestion={handleEditQuestion}
           defaultExpandedRound={isYouTubePhase ? 'youtube' : isSampleHitsterPhase ? 'sampleHitster' : 'sporcle'}
         />
