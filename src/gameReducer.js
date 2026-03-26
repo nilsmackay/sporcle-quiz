@@ -1,6 +1,7 @@
 import themes from './data/themes.json'
 import YOUTUBE_VIDEOS from './data/youtube-videos.js'
 import SAMPLE_HITSTER_SONGS from './data/sample-hitster-songs.js'
+import PICTURE_ROUND_IMAGES from './data/picture-round-images.js'
 import { getHighestScorer } from './utils/scoring'
 
 const allThemeIds = themes.map(t => t.id)
@@ -52,6 +53,9 @@ export const initialState = {
   // YouTube round
   youtubeVideoIndex: 0,
   youtubeGuesses: {},
+  // Picture round
+  pictureRoundIndex: 0,
+  pictureRoundGuesses: {},
   // Sample Hitster round
   sampleHitsterIndex: 0,
   sampleHitsterGuesses: {},
@@ -59,7 +63,7 @@ export const initialState = {
   // Edit mode
   editReturnState: null,
   // Round toggles
-  enabledRounds: { youtube: true, sampleHitster: true, sporcle: true },
+  enabledRounds: { youtube: true, pictureRound: true, sampleHitster: true, sporcle: true },
 }
 
 function getActiveThemes(state) {
@@ -70,6 +74,7 @@ function findWorstPlayer(state) {
   return getHighestScorer(
     state.players, state.answers, getActiveThemes(state),
     state.youtubeGuesses, YOUTUBE_VIDEOS,
+    state.pictureRoundGuesses, PICTURE_ROUND_IMAGES,
     state.sampleHitsterGuesses, SAMPLE_HITSTER_SONGS,
     state.sampleHitsterBonuses
   )
@@ -85,6 +90,8 @@ export function gameReducer(state, action) {
       const updates = {
         youtubeVideoIndex: 0,
         youtubeGuesses: {},
+        pictureRoundIndex: 0,
+        pictureRoundGuesses: {},
         sampleHitsterIndex: 0,
         sampleHitsterGuesses: {},
         sampleHitsterBonuses: {},
@@ -96,6 +103,8 @@ export function gameReducer(state, action) {
       }
       if (state.enabledRounds.youtube) {
         updates.phase = 'youtube-playing'
+      } else if (state.enabledRounds.pictureRound) {
+        updates.phase = 'picture-round-playing'
       } else if (state.enabledRounds.sampleHitster) {
         updates.phase = 'sample-hitster-playing'
       } else if (state.enabledRounds.sporcle) {
@@ -126,12 +135,54 @@ export function gameReducer(state, action) {
     case 'SHOW_YOUTUBE_STANDINGS':
       return { ...state, phase: 'youtube-standings' }
 
+    case 'SUBMIT_PICTURE_ROUND_GUESSES': {
+      const { pictureIndex, guesses: prGuesses } = action
+      const nextPR = { ...state.pictureRoundGuesses }
+      for (const [player, guess] of Object.entries(prGuesses)) {
+        nextPR[player] = { ...nextPR[player], [pictureIndex]: guess }
+      }
+      return {
+        ...state,
+        pictureRoundGuesses: nextPR,
+        ...(state.editReturnState === null ? { phase: 'picture-round-results' } : {}),
+      }
+    }
+
+    case 'SHOW_PICTURE_ROUND_STANDINGS':
+      return { ...state, phase: 'picture-round-standings' }
+
+    case 'PICTURE_ROUND_CONTINUE_FROM_STANDINGS': {
+      const isLastPicture = state.pictureRoundIndex === PICTURE_ROUND_IMAGES.length - 1
+      if (isLastPicture) {
+        if (state.enabledRounds.sampleHitster) {
+          return { ...state, phase: 'sample-hitster-playing' }
+        }
+        if (state.enabledRounds.sporcle) {
+          if (state.isDynamicMode) {
+            return {
+              ...state,
+              currentPicker: findWorstPlayer(state),
+              phase: 'picking',
+            }
+          }
+          return { ...state, phase: 'playing' }
+        }
+        return { ...state, phase: 'finished' }
+      }
+      return {
+        ...state,
+        pictureRoundIndex: state.pictureRoundIndex + 1,
+        phase: 'picture-round-playing',
+      }
+    }
+
     case 'EDIT_QUESTION': {
       const { questionType, index } = action
       const editReturn = {
         phase: state.phase,
         questionIndex: state.currentQuestionIndex,
         youtubeVideoIndex: state.youtubeVideoIndex,
+        pictureRoundIndex: state.pictureRoundIndex,
         sampleHitsterIndex: state.sampleHitsterIndex,
       }
       if (questionType === 'youtube') {
@@ -141,6 +192,15 @@ export function gameReducer(state, action) {
           showLeaderboard: false,
           youtubeVideoIndex: index,
           phase: 'youtube-playing',
+        }
+      }
+      if (questionType === 'pictureRound') {
+        return {
+          ...state,
+          editReturnState: editReturn,
+          showLeaderboard: false,
+          pictureRoundIndex: index,
+          phase: 'picture-round-playing',
         }
       }
       if (questionType === 'sampleHitster') {
@@ -169,6 +229,7 @@ export function gameReducer(state, action) {
         editReturnState: null,
         currentQuestionIndex: returnTo.questionIndex,
         youtubeVideoIndex: returnTo.youtubeVideoIndex,
+        pictureRoundIndex: returnTo.pictureRoundIndex,
         sampleHitsterIndex: returnTo.sampleHitsterIndex,
         phase: returnTo.phase,
       }
@@ -177,6 +238,9 @@ export function gameReducer(state, action) {
     case 'YOUTUBE_CONTINUE_FROM_STANDINGS': {
       const isLastVideo = state.youtubeVideoIndex === YOUTUBE_VIDEOS.length - 1
       if (isLastVideo) {
+        if (state.enabledRounds.pictureRound) {
+          return { ...state, phase: 'picture-round-playing' }
+        }
         if (state.enabledRounds.sampleHitster) {
           return { ...state, phase: 'sample-hitster-playing' }
         }
