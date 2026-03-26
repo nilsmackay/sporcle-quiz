@@ -24,6 +24,11 @@ export default function App() {
     saveState(state)
   }, [state])
 
+  // Scroll to top on phase/question change
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [phase, currentQuestionIndex, youtubeVideoIndex, sampleHitsterIndex])
+
   const {
     phase, players, selectedThemes, currentQuestionIndex, answers,
     showLeaderboard, isDynamicMode, dynamicQuestionCount, currentPicker,
