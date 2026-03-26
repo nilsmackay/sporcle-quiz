@@ -46,7 +46,7 @@ const SAMPLE_HITSTER_SONGS = [
     songUrl: 'https://youtu.be/TWjlB8SxueM',
     sampleTitle: 'Smashing Pumpkins - 1979',
     sampleUrl: 'https://youtu.be/4aeETEoNfOg',
-    sampleYear: 2011,
+    sampleYear: 1995,
   },
   {
     songTitle: 'Kid Cudi - Make Her Say',
