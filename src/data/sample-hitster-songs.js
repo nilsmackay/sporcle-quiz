@@ -61,6 +61,7 @@ const SAMPLE_HITSTER_SONGS = [
     sampleTitle: 'Manu Chao - Mr Bobby',
     sampleUrl: 'https://youtu.be/CiuBJI9pZxg',
     sampleYear: 2001,
+    sampleStart: 50,
   },
   {
     songTitle: 'XV - Party Lights',
