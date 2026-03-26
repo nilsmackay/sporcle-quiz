@@ -57,7 +57,7 @@ export default function SampleHitsterResults({
       {sampleVideoId && (
         <div className="youtube-embed-container mb-6">
           <iframe
-            src={`https://www.youtube.com/embed/${sampleVideoId}`}
+            src={`https://www.youtube.com/embed/${sampleVideoId}?autoplay=1${song.sampleStart ? `&start=${song.sampleStart}` : ''}`}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             title={song.sampleTitle}

@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom'
 import { getPercentageColor, interpolateColor, badgeStyle } from '../utils/colors'
 import { calculateYouTubeScore, getYouTubeScoreColor, abbreviateViews } from '../utils/youtube'
 import { getThemeIcon, getThemeById } from '../utils/themes'
-import { calculateSporcleTotal as calcSporcle, calculateYouTubeTotal as calcYouTube, calculateSampleHitsterTotal as calcSampleHitster, calculateGrandTotal as calcGrand, calculateQuestionBonus as calcQuestionBonus, calculateSporcleBonusTotal as calcSporcleBonusTotal } from '../utils/scoring'
+import { calculateSporcleTotal as calcSporcle, calculateYouTubeTotal as calcYouTube, calculatePictureRoundTotal as calcPictureRound, calculateSampleHitsterTotal as calcSampleHitster, calculateGrandTotal as calcGrand, calculateQuestionBonus as calcQuestionBonus, calculateSporcleBonusTotal as calcSporcleBonusTotal } from '../utils/scoring'
+import { calculatePictureRoundScore, getPictureRoundScoreColor } from '../utils/pictureRound'
 import { getSampleHitsterScoreColor } from '../utils/sampleHitster'
 
 // Tooltip for truncated text: hover on desktop, tap on mobile.
@@ -68,6 +69,8 @@ export default function Leaderboard({
   isOverlay = true,
   youtubeGuesses,
   youtubeVideos,
+  pictureRoundGuesses,
+  pictureRoundImages,
   sampleHitsterGuesses,
   sampleHitsterSongs,
   sampleHitsterBonuses,
@@ -83,6 +86,7 @@ export default function Leaderboard({
   const toggleRound = (round) => setExpandedRound(prev => prev === round ? null : round)
 
   const hasYouTube = youtubeVideos && youtubeVideos.length > 0 && youtubeGuesses && Object.keys(youtubeGuesses).length > 0
+  const hasPictureRound = pictureRoundImages && pictureRoundImages.length > 0 && pictureRoundGuesses && Object.keys(pictureRoundGuesses).length > 0
   const hasSampleHitster = sampleHitsterSongs && sampleHitsterSongs.length > 0 && sampleHitsterGuesses && Object.keys(sampleHitsterGuesses).length > 0
   const hasSporcle = selectedThemes && selectedThemes.length > 0
 
@@ -96,8 +100,9 @@ export default function Leaderboard({
 
   const calculateSporcleTotal = (player) => calcSporcle(player, answers, selectedThemes)
   const calculateYouTubeTotal = (player) => calcYouTube(player, youtubeGuesses, youtubeVideos)
+  const calculatePictureRoundTotal = (player) => calcPictureRound(player, pictureRoundGuesses, pictureRoundImages)
   const calculateSampleHitsterTotal = (player) => calcSampleHitster(player, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses)
-  const calculateGrandTotal = (player) => calcGrand(players, player, answers, selectedThemes, youtubeGuesses, youtubeVideos, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses)
+  const calculateGrandTotal = (player) => calcGrand(players, player, answers, selectedThemes, youtubeGuesses, youtubeVideos, pictureRoundGuesses, pictureRoundImages, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses)
   const getQuestionBonus = (player, index) => calcQuestionBonus(player, players, answers, index)
   const getSporcleBonusTotal = (player) => calcSporcleBonusTotal(player, players, answers, selectedThemes)
 
@@ -148,6 +153,12 @@ export default function Leaderboard({
       )
     : []
 
+  const playedPictureIndices = hasPictureRound
+    ? pictureRoundImages.map((_, i) => i).filter(i =>
+        players.some(p => pictureRoundGuesses[p]?.[i] !== undefined)
+      )
+    : []
+
   const playedSongIndices = hasSampleHitster
     ? sampleHitsterSongs.map((_, i) => i).filter(i =>
         players.some(p => sampleHitsterGuesses[p]?.[i] !== undefined)
@@ -155,6 +166,7 @@ export default function Leaderboard({
     : []
 
   const youtubeExpanded = expandedRound === 'youtube'
+  const pictureRoundExpanded = expandedRound === 'pictureRound'
   const sampleHitsterExpanded = expandedRound === 'sampleHitster'
   const sporcleExpanded = expandedRound === 'sporcle'
 
@@ -170,7 +182,7 @@ export default function Leaderboard({
             <div>
               <h2 className="text-2xl font-display text-[#1A1A1A]">Leaderboard</h2>
               <p className="text-[#6B6560] text-sm">
-                {[hasYouTube, hasSampleHitster, hasSporcle].filter(Boolean).length > 1 ? 'Combined Standings' : hasYouTube ? 'YouTube Round' : hasSampleHitster ? 'Sample Hitster Round' : 'Final Standings'}
+                {[hasYouTube, hasPictureRound, hasSampleHitster, hasSporcle].filter(Boolean).length > 1 ? 'Combined Standings' : hasYouTube ? 'YouTube Round' : hasPictureRound ? 'Picture Round' : hasSampleHitster ? 'Sample Hitster Round' : 'Final Standings'}
               </p>
             </div>
           </div>
@@ -213,7 +225,7 @@ export default function Leaderboard({
             {/* Grand Total row — immediately below player names */}
             <tr className="border-b-2 border-[#1A1A1A]">
               <td className="py-3 px-3 font-display text-[#C23B22] text-sm">
-                {[hasYouTube, hasSampleHitster, hasSporcle].filter(Boolean).length > 1 ? 'Grand Total' : 'Total'}
+                {[hasYouTube, hasPictureRound, hasSampleHitster, hasSporcle].filter(Boolean).length > 1 ? 'Grand Total' : 'Total'}
               </td>
               {sortedPlayers.map(player => {
                 const grandTotal = calculateGrandTotal(player)
@@ -366,6 +378,70 @@ export default function Leaderboard({
               )
             })}
 
+            {/* Picture Round */}
+            {hasPictureRound && (
+              <tr
+                className="border-b border-[#D4CFC7] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
+                onClick={() => toggleRound('pictureRound')}
+              >
+                <td className="py-3 px-3 whitespace-nowrap">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm shrink-0">{pictureRoundExpanded ? '▾' : '▸'}</span>
+                    <span className="shrink-0">🖼️</span>
+                    <span className="font-display text-sm text-[#1A1A1A]">Picture Round</span>
+                  </div>
+                </td>
+                {sortedPlayers.map(player => {
+                  const prTotal = calculatePictureRoundTotal(player)
+                  const avgScore = playedPictureIndices.length > 0 ? prTotal / playedPictureIndices.length : 0
+                  const colors = getPictureRoundScoreColor(avgScore)
+                  return (
+                    <td key={player} className="py-3 px-2 text-center">
+                      <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{prTotal}</span>
+                    </td>
+                  )
+                })}
+              </tr>
+            )}
+
+            {/* Picture Round expanded: per-picture rows (latest first) */}
+            {hasPictureRound && pictureRoundExpanded && [...playedPictureIndices].reverse().map(picIdx => {
+              const picture = pictureRoundImages[picIdx]
+              return (
+                <tr
+                  key={`pr-${picIdx}`}
+                  className={`border-b border-[#D4CFC7] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED]' : ''} transition-colors`}
+                  onClick={() => onEditQuestion?.('pictureRound', picIdx)}
+                >
+                  <td className="py-2 px-3">
+                    <div className="flex items-center gap-1.5 ml-4">
+                      {onEditQuestion && <span className="text-xs text-[#B8924A] shrink-0 leading-none">&#9998;</span>}
+                      <TruncatedText text={picture.title} className="text-sm text-[#1A1A1A]" maxWidth="clamp(40px, 15vw, 200px)" />
+                    </div>
+                  </td>
+                  {sortedPlayers.map(player => {
+                    const guess = pictureRoundGuesses[player]?.[picIdx]
+                    return (
+                      <td key={player} className="py-3 px-2 text-center">
+                        {guess !== undefined ? (
+                          <div className="flex flex-col items-center gap-1">
+                            {(() => {
+                              const score = calculatePictureRoundScore(guess, picture.correctNumber)
+                              const colors = getPictureRoundScoreColor(score)
+                              return <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '6px 7px' }}>{score}</span>
+                            })()}
+                            <span className="text-xs text-[#6B6560]">{guess}</span>
+                          </div>
+                        ) : (
+                          <span className="text-[#D4CFC7]">&mdash;</span>
+                        )}
+                      </td>
+                    )
+                  })}
+                </tr>
+              )
+            })}
+
             {/* YouTube round (Round 1 — earlier, shown last) */}
             {hasYouTube && (
               <tr
@@ -436,10 +512,12 @@ export default function Leaderboard({
       {/* Footer */}
       <div className="p-4 border-t border-[#D4CFC7]">
         <p className="text-sm text-[#6B6560] text-center italic">
-          {[hasYouTube, hasSampleHitster, hasSporcle].filter(Boolean).length > 1
+          {[hasYouTube, hasPictureRound, hasSampleHitster, hasSporcle].filter(Boolean).length > 1
             ? 'Lower scores win. All round scores combined.'
             : hasYouTube
             ? 'Lower scores win. 0 = perfect guess.'
+            : hasPictureRound
+            ? 'Lower scores win. 0 = exact number.'
             : hasSampleHitster
             ? 'Lower scores win. 0 = exact year.'
             : 'Lower scores win. Invalid answers count as 100%.'}

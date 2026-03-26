@@ -10,6 +10,8 @@ export default function Header({
   onNewGame,
   youtubeVideoIndex,
   totalYouTubeVideos,
+  pictureRoundIndex,
+  totalPictureRoundImages,
   sampleHitsterIndex,
   totalSampleHitsterSongs
 }) {
@@ -20,6 +22,7 @@ export default function Header({
     phase === 'playing' || phase === 'picking' || phase === 'round-results' ||
     phase === 'standings' || phase === 'finished' ||
     phase === 'youtube-playing' || phase === 'youtube-results' || phase === 'youtube-standings' ||
+    phase === 'picture-round-playing' || phase === 'picture-round-results' || phase === 'picture-round-standings' ||
     phase === 'sample-hitster-playing' || phase === 'sample-hitster-results' || phase === 'sample-hitster-standings'
   )
 
@@ -131,6 +134,26 @@ export default function Header({
           </div>
         )}
 
+        {/* Progress bar - Picture Round */}
+        {phase === 'picture-round-playing' && (
+          <div className="mt-4 flex items-center gap-4">
+            <div className="score-display text-lg">
+              P{pictureRoundIndex + 1}/{totalPictureRoundImages}
+            </div>
+
+            <div className="flex-1 h-[2px] bg-[#D4CFC7] overflow-hidden">
+              <div
+                className="h-full bg-[#C23B22] transition-all duration-500"
+                style={{ width: `${((pictureRoundIndex + 1) / totalPictureRoundImages) * 100}%` }}
+              />
+            </div>
+
+            <div className="hidden md:flex items-center gap-3 border-l border-[#D4CFC7] pl-4">
+              <span className="text-[#1A1A1A] font-display">Round 2: Picture Round</span>
+            </div>
+          </div>
+        )}
+
         {/* Progress bar - Sample Hitster round */}
         {phase === 'sample-hitster-playing' && (
           <div className="mt-4 flex items-center gap-4">
@@ -146,7 +169,7 @@ export default function Header({
             </div>
 
             <div className="hidden md:flex items-center gap-3 border-l border-[#D4CFC7] pl-4">
-              <span className="text-[#1A1A1A] font-display">Round 2: Sample Hitster</span>
+              <span className="text-[#1A1A1A] font-display">Round 3: Sample Hitster</span>
             </div>
           </div>
         )}
@@ -168,7 +191,7 @@ export default function Header({
             {themeName && (
               <div className="hidden md:flex items-center gap-3 border-l border-[#D4CFC7] pl-4">
                 <span className="text-[#1A1A1A] font-display truncate max-w-[200px]">
-                  Round 2: {themeName}
+                  Round 4: {themeName}
                 </span>
               </div>
             )}
@@ -176,10 +199,10 @@ export default function Header({
         )}
 
         {/* Mobile round label */}
-        {(phase === 'youtube-playing' || phase === 'sample-hitster-playing' || phase === 'playing') && (
+        {(phase === 'youtube-playing' || phase === 'picture-round-playing' || phase === 'sample-hitster-playing' || phase === 'playing') && (
           <div className="mt-2 md:hidden">
             <span className="text-xs text-[#6B6560] uppercase tracking-wider font-bold">
-              {phase === 'youtube-playing' ? 'Round 1: YouTube Views' : phase === 'sample-hitster-playing' ? 'Round 2: Sample Hitster' : 'The Sporcle Round'}
+              {phase === 'youtube-playing' ? 'Round 1: YouTube Views' : phase === 'picture-round-playing' ? 'Round 2: Picture Round' : phase === 'sample-hitster-playing' ? 'Round 3: Sample Hitster' : 'The Sporcle Round'}
             </span>
           </div>
         )}
