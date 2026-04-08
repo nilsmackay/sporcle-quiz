@@ -29,14 +29,14 @@ export default function PictureRoundQuestion({
   }, [pictureIndex])
 
   const handleGuessChange = (player, rawValue) => {
-    const cleaned = rawValue.replace(/[^0-9-]/g, '')
+    const cleaned = rawValue.replace(/[^0-9.\-]/g, '')
     setGuesses(prev => ({ ...prev, [player]: cleaned }))
   }
 
   const handleSubmit = () => {
     const parsed = {}
     for (const player of players) {
-      parsed[player] = parseInt(guesses[player] || '0', 10)
+      parsed[player] = parseFloat(guesses[player] || '0')
       if (isNaN(parsed[player])) parsed[player] = 0
     }
     onSubmitGuesses(pictureIndex, parsed)
@@ -62,10 +62,10 @@ export default function PictureRoundQuestion({
             </div>
             <div className="min-w-0">
               <h2 className="text-xl sm:text-2xl font-display text-[#1A1A1A] truncate">
-                {picture.title}
+                Picture Round
               </h2>
               <p className="text-sm text-[#6B6560] italic">
-                {picture.description}
+                What number is missing?
               </p>
             </div>
           </div>

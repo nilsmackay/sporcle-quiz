@@ -33,7 +33,7 @@ export default function App() {
     playedThemes, dynamicAvailableThemes, youtubeVideoIndex,
     youtubeGuesses, pictureRoundIndex, pictureRoundGuesses,
     sampleHitsterIndex, sampleHitsterGuesses, sampleHitsterBonuses,
-    editReturnState, enabledRounds,
+    multipliers, editReturnState, enabledRounds,
   } = state
 
   // Scroll to top on phase/question change
@@ -312,7 +312,7 @@ export default function App() {
             currentPicker={currentPicker}
             currentQuestionIndex={currentQuestionIndex}
             totalQuestions={dynamicQuestionCount}
-            onSelectQuestion={(themeId) => dispatch({ type: 'SELECT_QUESTION', themeId })}
+            onSelectQuestion={(themeId, multiplier) => dispatch({ type: 'SELECT_QUESTION', themeId, multiplier })}
           />
         )}
 
@@ -340,6 +340,7 @@ export default function App() {
             currentQuestionIndex={currentQuestionIndex}
             currentTheme={currentTheme}
             onContinue={() => dispatch({ type: 'SHOW_STANDINGS' })}
+            multiplier={multipliers?.[currentQuestionIndex] ?? 1}
           />
         )}
 
@@ -359,6 +360,7 @@ export default function App() {
               sampleHitsterGuesses={sampleHitsterGuesses}
               sampleHitsterSongs={SAMPLE_HITSTER_SONGS}
               sampleHitsterBonuses={sampleHitsterBonuses}
+              multipliers={multipliers}
               onEditQuestion={handleEditQuestion}
               defaultExpandedRound="sporcle"
             />
@@ -392,6 +394,7 @@ export default function App() {
               sampleHitsterGuesses={sampleHitsterGuesses}
               sampleHitsterSongs={SAMPLE_HITSTER_SONGS}
               sampleHitsterBonuses={sampleHitsterBonuses}
+              multipliers={multipliers}
               onEditQuestion={handleEditQuestion}
               defaultExpandedRound={null}
             />
@@ -419,6 +422,7 @@ export default function App() {
           sampleHitsterGuesses={isSampleHitsterPhase || !isPreSporclePhase ? sampleHitsterGuesses : {}}
           sampleHitsterSongs={isSampleHitsterPhase || !isPreSporclePhase ? SAMPLE_HITSTER_SONGS : []}
           sampleHitsterBonuses={sampleHitsterBonuses}
+          multipliers={isPreSporclePhase ? {} : multipliers}
           onEditQuestion={handleEditQuestion}
           defaultExpandedRound={isYouTubePhase ? 'youtube' : isPictureRoundPhase ? 'pictureRound' : isSampleHitsterPhase ? 'sampleHitster' : 'sporcle'}
         />
