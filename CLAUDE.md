@@ -60,6 +60,8 @@
 - **ALWAYS create a feature branch** for changes - never commit directly to main
 - All changes must go through a feature branch → PR → main
 - Use descriptive branch names (e.g., `feature/`, `fix/`, `design/`)
+- Use single line commit messages, that only explain the change. Don't mention it's co-authored by Claude.
+- Don't use compound commands with &&, as they will always require approval from the user.
 
 ## Build & Test
 - `npx vite build` to validate changes

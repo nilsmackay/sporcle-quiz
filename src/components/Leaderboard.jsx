@@ -74,6 +74,7 @@ export default function Leaderboard({
   sampleHitsterGuesses,
   sampleHitsterSongs,
   sampleHitsterBonuses,
+  multipliers = {},
   onEditQuestion,
   defaultExpandedRound = null
 }) {
@@ -98,11 +99,11 @@ export default function Leaderboard({
     return { minPercent: Math.min(...percentages), maxPercent: Math.max(...percentages) }
   }
 
-  const calculateSporcleTotal = (player) => calcSporcle(player, answers, selectedThemes)
+  const calculateSporcleTotal = (player) => calcSporcle(player, answers, selectedThemes, multipliers)
   const calculateYouTubeTotal = (player) => calcYouTube(player, youtubeGuesses, youtubeVideos)
   const calculatePictureRoundTotal = (player) => calcPictureRound(player, pictureRoundGuesses, pictureRoundImages)
   const calculateSampleHitsterTotal = (player) => calcSampleHitster(player, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses)
-  const calculateGrandTotal = (player) => calcGrand(players, player, answers, selectedThemes, youtubeGuesses, youtubeVideos, pictureRoundGuesses, pictureRoundImages, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses)
+  const calculateGrandTotal = (player) => calcGrand(players, player, answers, selectedThemes, youtubeGuesses, youtubeVideos, pictureRoundGuesses, pictureRoundImages, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses, multipliers)
   const getQuestionBonus = (player, index) => calcQuestionBonus(player, players, answers, index)
   const getSporcleBonusTotal = (player) => calcSporcleBonusTotal(player, players, answers, selectedThemes)
 
@@ -282,6 +283,9 @@ export default function Leaderboard({
                     <div className="flex items-center gap-1.5 ml-4">
                       {onEditQuestion && <span className="text-xs text-[#B8924A] shrink-0 leading-none">&#9998;</span>}
                       <TruncatedText text={theme?.name || ''} className="text-sm text-[#1A1A1A]" maxWidth="clamp(40px, 15vw, 200px)" />
+                      {multipliers[index] && multipliers[index] !== 1 && (
+                        <span className="text-xs font-display text-[#6B6560] shrink-0">{multipliers[index]}x</span>
+                      )}
                     </div>
                   </td>
                   {sortedPlayers.map(player => {
@@ -292,11 +296,14 @@ export default function Leaderboard({
                         {answer ? (
                           <div className="flex flex-col items-center gap-1">
                             {(() => {
+                              const m = multipliers[index] ?? 1
                               const colors = getPercentageColor(answer.percentage, minPercent, maxPercent)
+                              const displayValue = m !== 1 ? Math.round(answer.percentage * m) : answer.percentage
                               return (
-                                <span style={{ position: 'relative', display: 'inline-block' }}>
-                                  <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '6px 7px' }}>{answer.percentage}%</span>
-                                  {bonus < 0 && <sup style={{ position: 'absolute', left: '100%', top: 0, color: '#2D6A4F', fontSize: '8px', fontWeight: 700, lineHeight: 1, whiteSpace: 'nowrap' }}>{bonus}</sup>}
+                                <span className="inline-flex items-center gap-1">
+                                  <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '6px 7px' }}>{displayValue}%</span>
+                                  {m !== 1 && <span className="font-display px-1 py-0.5 border border-[#D4CFC7] text-[#6B6560]" style={{ borderRadius: '2px', fontSize: '8px' }}>{m}x</span>}
+                                  {bonus < 0 && <span className="font-display px-1 py-0.5 border border-[#2D6A4F] text-[#2D6A4F]" style={{ borderRadius: '2px', fontSize: '8px' }}>{bonus}</span>}
                                 </span>
                               )
                             })()}

@@ -13,6 +13,7 @@ export default function QuestionPicker({
 }) {
   const [flippedCategory, setFlippedCategory] = useState(null)
   const [selectedThemeId, setSelectedThemeId] = useState(null)
+  const [selectedMultiplier, setSelectedMultiplier] = useState(1)
 
   // For each category, get the themes that haven't been played yet
   const getAvailableThemes = useCallback((category) => {
@@ -35,7 +36,7 @@ export default function QuestionPicker({
 
   const handleContinue = () => {
     if (selectedThemeId) {
-      onSelectQuestion(selectedThemeId)
+      onSelectQuestion(selectedThemeId, selectedMultiplier)
     }
   }
 
@@ -109,9 +110,30 @@ export default function QuestionPicker({
         })}
       </div>
 
-      {/* Continue button - shown after flip */}
+      {/* Multiplier + Continue - shown after flip */}
       {flippedCategory && (
         <div className="bounce-in">
+          <div className="game-card p-4 mb-4 text-center">
+            <p className="text-sm text-[#6B6560] font-medium mb-3 uppercase tracking-wider">
+              Score Multiplier
+            </p>
+            <div className="flex gap-3 justify-center">
+              {[0.5, 1, 2].map(m => (
+                <button
+                  key={m}
+                  onClick={() => setSelectedMultiplier(m)}
+                  className={`px-5 py-3 font-display text-lg border-2 transition-all
+                    ${selectedMultiplier === m
+                      ? 'border-[#C23B22] bg-[rgba(194,59,34,0.03)] text-[#C23B22]'
+                      : 'border-[#D4CFC7] text-[#1A1A1A] hover:border-[#1A1A1A]'
+                    }`}
+                  style={{ borderRadius: '2px', minWidth: '72px' }}
+                >
+                  {m}x
+                </button>
+              ))}
+            </div>
+          </div>
           <button
             onClick={handleContinue}
             className="w-full btn-gold py-4 text-lg font-bold"

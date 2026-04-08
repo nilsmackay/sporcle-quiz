@@ -60,6 +60,8 @@ export const initialState = {
   sampleHitsterIndex: 0,
   sampleHitsterGuesses: {},
   sampleHitsterBonuses: {},
+  // Sporcle multipliers
+  multipliers: {},
   // Edit mode
   editReturnState: null,
   // Round toggles
@@ -76,7 +78,8 @@ function findWorstPlayer(state) {
     state.youtubeGuesses, YOUTUBE_VIDEOS,
     state.pictureRoundGuesses, PICTURE_ROUND_IMAGES,
     state.sampleHitsterGuesses, SAMPLE_HITSTER_SONGS,
-    state.sampleHitsterBonuses
+    state.sampleHitsterBonuses,
+    state.multipliers
   )
 }
 
@@ -97,6 +100,7 @@ export function gameReducer(state, action) {
         sampleHitsterBonuses: {},
         currentQuestionIndex: 0,
         answers: {},
+        multipliers: {},
       }
       if (state.isDynamicMode) {
         updates.playedThemes = []
@@ -312,6 +316,7 @@ export function gameReducer(state, action) {
       return {
         ...state,
         playedThemes: [...state.playedThemes, action.themeId],
+        multipliers: { ...state.multipliers, [state.currentQuestionIndex]: action.multiplier ?? 1 },
         phase: 'playing',
       }
 

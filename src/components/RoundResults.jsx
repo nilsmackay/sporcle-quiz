@@ -8,7 +8,8 @@ export default function RoundResults({
   answers,
   currentQuestionIndex,
   currentTheme,
-  onContinue
+  onContinue,
+  multiplier = 1
 }) {
   // Compute min/max from theme options for consistent color grading
   const percentages = currentTheme.options.map(opt => opt.percentage)
@@ -64,6 +65,11 @@ export default function RoundResults({
         <p className="text-[#C23B22] font-display text-lg">
           {currentTheme.name}
         </p>
+        {multiplier !== 1 && (
+          <span className="inline-block mt-2 px-3 py-1 border-2 border-[#1A1A1A] font-display text-sm">
+            {multiplier}x Multiplier
+          </span>
+        )}
       </div>
 
       {/* Player Results */}
@@ -106,10 +112,19 @@ export default function RoundResults({
                   const colors = getPercentageColor(result.percentage, minPercent, maxPercent)
                   const bonus = calculateQuestionBonus(result.player, players, answers, currentQuestionIndex)
                   return (
-                    <span style={badgeStyle(colors)}>
-                      {result.percentage}%
+                    <span className="flex items-center gap-1.5">
+                      <span style={badgeStyle(colors)}>
+                        {result.percentage}%
+                      </span>
+                      {multiplier !== 1 && (
+                        <span className="font-display text-xs px-1.5 py-0.5 border border-[#D4CFC7] text-[#6B6560]" style={{ borderRadius: '2px' }}>
+                          {multiplier}x
+                        </span>
+                      )}
                       {bonus < 0 && (
-                        <sup style={{ color: 'white', marginLeft: '2px', fontSize: '0.7em', verticalAlign: 'super' }}>{bonus}</sup>
+                        <span className="font-display text-xs px-1.5 py-0.5 border border-[#2D6A4F] text-[#2D6A4F]" style={{ borderRadius: '2px' }}>
+                          {bonus}
+                        </span>
                       )}
                     </span>
                   )

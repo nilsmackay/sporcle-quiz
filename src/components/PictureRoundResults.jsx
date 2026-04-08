@@ -24,24 +24,29 @@ export default function PictureRoundResults({
           <span>🖼️</span>
         </div>
         <h2 className="text-2xl font-display text-[#1A1A1A] mb-2">
-          Round Complete
+          Picture {pictureIndex + 1}
         </h2>
-        <p className="text-[#C23B22] font-display text-lg">
-          {picture.title}
-        </p>
-      </div>
-
-      {/* The Answer */}
-      <div className="game-card p-6 mb-6 text-center">
-        <p className="text-[#6B6560] text-sm uppercase tracking-wider font-bold mb-3">
-          The Missing Number
-        </p>
         <div className="bounce-in">
+          <p className="text-[#6B6560] text-sm uppercase tracking-wider font-bold mb-3">
+            The Missing Number
+          </p>
           <span className="text-3xl sm:text-4xl font-display text-[#C23B22]">
             {picture.correctNumber}
           </span>
         </div>
       </div>
+
+      {/* Answer Image */}
+      {picture.answerImage && (
+        <div className="game-card p-6 mb-6 flex justify-center">
+          <img
+            src={picture.answerImage}
+            alt="Answer"
+            className="max-w-full h-auto"
+            style={{ maxHeight: '400px' }}
+          />
+        </div>
+      )}
 
       {/* Player Guesses - Ranked */}
       <div className="game-card p-6 mb-6">
@@ -67,7 +72,7 @@ export default function PictureRoundResults({
                       {result.player}
                     </span>
                     <span className="text-xs text-[#6B6560]">
-                      guessed {result.guess} &mdash; {result.score === 0 ? 'exact!' : `${result.score} off`}
+                      guessed {result.guess} {result.score === 0 ? '— exact!' : ''}
                     </span>
                   </div>
                 </div>
