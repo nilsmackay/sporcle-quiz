@@ -8,6 +8,8 @@ export default function Header({
   showLeaderboard,
   setShowLeaderboard,
   onNewGame,
+  believeItIndex,
+  totalBelieveItStatements,
   youtubeVideoIndex,
   totalYouTubeVideos,
   pictureRoundIndex,
@@ -21,6 +23,7 @@ export default function Header({
   const showScoresButton = (
     phase === 'playing' || phase === 'picking' || phase === 'round-results' ||
     phase === 'standings' || phase === 'finished' ||
+    phase === 'believe-it-playing' || phase === 'believe-it-results' || phase === 'believe-it-standings' ||
     phase === 'youtube-playing' || phase === 'youtube-results' || phase === 'youtube-standings' ||
     phase === 'picture-round-playing' || phase === 'picture-round-results' || phase === 'picture-round-standings' ||
     phase === 'sample-hitster-playing' || phase === 'sample-hitster-results' || phase === 'sample-hitster-standings'
@@ -114,6 +117,26 @@ export default function Header({
           </div>
         )}
 
+        {/* Progress bar - Believe It round */}
+        {phase === 'believe-it-playing' && (
+          <div className="mt-4 flex items-center gap-4">
+            <div className="score-display text-lg">
+              B{believeItIndex === 0 ? '?' : `${believeItIndex}/${totalBelieveItStatements - 1}`}
+            </div>
+
+            <div className="flex-1 h-[2px] bg-[#D4CFC7] overflow-hidden">
+              <div
+                className="h-full bg-[#C23B22] transition-all duration-500"
+                style={{ width: `${(Math.max(believeItIndex, 1) / (totalBelieveItStatements - 1)) * 100}%` }}
+              />
+            </div>
+
+            <div className="hidden md:flex items-center gap-3 border-l border-[#D4CFC7] pl-4">
+              <span className="text-[#1A1A1A] font-display">Round 1: Can You Believe It?</span>
+            </div>
+          </div>
+        )}
+
         {/* Progress bar - YouTube round */}
         {phase === 'youtube-playing' && (
           <div className="mt-4 flex items-center gap-4">
@@ -129,7 +152,7 @@ export default function Header({
             </div>
 
             <div className="hidden md:flex items-center gap-3 border-l border-[#D4CFC7] pl-4">
-              <span className="text-[#1A1A1A] font-display">Round 1: YouTube Views</span>
+              <span className="text-[#1A1A1A] font-display">Round 2: YouTube Views</span>
             </div>
           </div>
         )}
@@ -149,7 +172,7 @@ export default function Header({
             </div>
 
             <div className="hidden md:flex items-center gap-3 border-l border-[#D4CFC7] pl-4">
-              <span className="text-[#1A1A1A] font-display">Round 2: Picture Round</span>
+              <span className="text-[#1A1A1A] font-display">Round 3: Picture Round</span>
             </div>
           </div>
         )}
@@ -169,7 +192,7 @@ export default function Header({
             </div>
 
             <div className="hidden md:flex items-center gap-3 border-l border-[#D4CFC7] pl-4">
-              <span className="text-[#1A1A1A] font-display">Round 3: Sample Hitster</span>
+              <span className="text-[#1A1A1A] font-display">Round 4: Sample Hitster</span>
             </div>
           </div>
         )}
@@ -191,7 +214,7 @@ export default function Header({
             {themeName && (
               <div className="hidden md:flex items-center gap-3 border-l border-[#D4CFC7] pl-4">
                 <span className="text-[#1A1A1A] font-display truncate max-w-[200px]">
-                  Round 4: {themeName}
+                  Round 5: {themeName}
                 </span>
               </div>
             )}
@@ -199,10 +222,10 @@ export default function Header({
         )}
 
         {/* Mobile round label */}
-        {(phase === 'youtube-playing' || phase === 'picture-round-playing' || phase === 'sample-hitster-playing' || phase === 'playing') && (
+        {(phase === 'believe-it-playing' || phase === 'youtube-playing' || phase === 'picture-round-playing' || phase === 'sample-hitster-playing' || phase === 'playing') && (
           <div className="mt-2 md:hidden">
             <span className="text-xs text-[#6B6560] uppercase tracking-wider font-bold">
-              {phase === 'youtube-playing' ? 'Round 1: YouTube Views' : phase === 'picture-round-playing' ? 'Round 2: Picture Round' : phase === 'sample-hitster-playing' ? 'Round 3: Sample Hitster' : 'The Sporcle Round'}
+              {phase === 'believe-it-playing' ? 'Round 1: Can You Believe It?' : phase === 'youtube-playing' ? 'Round 2: YouTube Views' : phase === 'picture-round-playing' ? 'Round 3: Picture Round' : phase === 'sample-hitster-playing' ? 'Round 4: Sample Hitster' : 'The Sporcle Round'}
             </span>
           </div>
         )}

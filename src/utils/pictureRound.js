@@ -1,20 +1,19 @@
 import { interpolateColor } from './colors'
 
-// Score = log-scaled ratio. 0 = perfect, 9 ≈ 2x off, 14 ≈ 3x off, 30 = 10x off
+// Score = percentOff^0.75. Exact = -5 (bonus).
 export function calculatePictureRoundScore(guess, correctNumber) {
-  const safeGuess = Math.max(1, Math.abs(guess))
-  const safeActual = Math.max(1, Math.abs(correctNumber))
-  const ratio = Math.max(safeGuess / safeActual, safeActual / safeGuess)
-  return Math.round(50 * Math.log10(ratio))
+  if (guess === correctNumber) return -5
+  const percentOff = Math.abs(guess - correctNumber) / Math.abs(correctNumber) * 100
+  return Math.round(Math.pow(percentOff, 0.75))
 }
 
-// Color grading: green (0-9), gold (9-30), red (30+)
+// Color grading: green (0-10), gold (10-30), red (30+)
 export function getPictureRoundScoreColor(score) {
   const green = '#2D6A4F'
   const gold = '#B8924A'
   const red = '#C23B22'
 
-  if (score <= 0) return { bg: green, text: 'white' }
+  if (score <= 0) return { bg: '#2563EB', text: 'white' }
   if (score <= 15) {
     const factor = score / 15
     return { bg: interpolateColor(green, gold, factor), text: 'white' }

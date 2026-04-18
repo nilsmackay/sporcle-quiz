@@ -1,12 +1,22 @@
 import { calculateYouTubeScore } from './youtube'
 import { calculatePictureRoundScore } from './pictureRound'
 import { calculateSampleHitsterScore } from './sampleHitster'
+import { calculateBelieveItScore } from './believeIt'
 
-// Sum Sporcle percentages for a player across the given themes
+// Fixed multiplier applied to each round's raw total before summing into the grand total
+export const ROUND_WEIGHTS = {
+  believeIt: 5,
+  youtube: 2,
+  pictureRound: 3,
+  sampleHitster: 3,
+  sporcle: 1,
+}
+
+// Sum Sporcle scores for a player — each score is percentage * multiplier
 export function calculateSporcleTotal(player, answers, activeThemes, multipliers = {}) {
   let total = 0
   if (!activeThemes) return total
-  activeThemes.forEach((_, index) => {
+  activeThemes.forEach((themeId, index) => {
     const answer = answers[player]?.[index]
     if (answer) {
       const multiplier = multipliers[index] ?? 1
@@ -85,22 +95,37 @@ export function calculateSporcleBonusTotal(player, players, answers, activeTheme
   return total
 }
 
-// Combined grand total across all rounds
-export function calculateGrandTotal(players, player, answers, activeThemes, youtubeGuesses, youtubeVideos, pictureRoundGuesses, pictureRoundImages, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses, multipliers = {}) {
-  return calculateYouTubeTotal(player, youtubeGuesses, youtubeVideos) +
-    calculatePictureRoundTotal(player, pictureRoundGuesses, pictureRoundImages) +
-    calculateSampleHitsterTotal(player, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses) +
-    calculateSporcleTotal(player, answers, activeThemes, multipliers) +
-    calculateSporcleBonusTotal(player, players, answers, activeThemes)
+// Sum Believe It scores for a player across all statements (skipping example)
+export function calculateBelieveItTotal(player, believeItGuesses, believeItStatements) {
+  if (!believeItStatements || !believeItGuesses) return 0
+  let total = 0
+  believeItStatements.forEach((statement, index) => {
+    if (statement.isExample) return
+    const guess = believeItGuesses[player]?.[index]
+    if (guess !== undefined) {
+      total += calculateBelieveItScore(guess, statement.isTrue)
+    }
+  })
+  return total
+}
+
+// Combined grand total across all rounds (each round total multiplied by its weight)
+export function calculateGrandTotal(players, player, answers, activeThemes, youtubeGuesses, youtubeVideos, pictureRoundGuesses, pictureRoundImages, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses, multipliers = {}, believeItGuesses, believeItStatements) {
+  return ROUND_WEIGHTS.believeIt * calculateBelieveItTotal(player, believeItGuesses, believeItStatements) +
+    ROUND_WEIGHTS.youtube * calculateYouTubeTotal(player, youtubeGuesses, youtubeVideos) +
+    ROUND_WEIGHTS.pictureRound * calculatePictureRoundTotal(player, pictureRoundGuesses, pictureRoundImages) +
+    ROUND_WEIGHTS.sampleHitster * calculateSampleHitsterTotal(player, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses) +
+    ROUND_WEIGHTS.sporcle * (calculateSporcleTotal(player, answers, activeThemes, multipliers) +
+      calculateSporcleBonusTotal(player, players, answers, activeThemes))
 }
 
 // Get the player with the highest total score (worst performer, picks next in dynamic mode)
-export function getHighestScorer(players, answers, activeThemes, youtubeGuesses, youtubeVideos, pictureRoundGuesses, pictureRoundImages, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses, multipliers = {}) {
+export function getHighestScorer(players, answers, activeThemes, youtubeGuesses, youtubeVideos, pictureRoundGuesses, pictureRoundImages, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses, multipliers = {}, believeItGuesses, believeItStatements) {
   if (players.length === 0) return ''
   let highestPlayer = players[0]
-  let highestScore = calculateGrandTotal(players, players[0], answers, activeThemes, youtubeGuesses, youtubeVideos, pictureRoundGuesses, pictureRoundImages, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses, multipliers)
+  let highestScore = calculateGrandTotal(players, players[0], answers, activeThemes, youtubeGuesses, youtubeVideos, pictureRoundGuesses, pictureRoundImages, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses, multipliers, believeItGuesses, believeItStatements)
   players.forEach(player => {
-    const totalScore = calculateGrandTotal(players, player, answers, activeThemes, youtubeGuesses, youtubeVideos, pictureRoundGuesses, pictureRoundImages, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses, multipliers)
+    const totalScore = calculateGrandTotal(players, player, answers, activeThemes, youtubeGuesses, youtubeVideos, pictureRoundGuesses, pictureRoundImages, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses, multipliers, believeItGuesses, believeItStatements)
     if (totalScore > highestScore) {
       highestScore = totalScore
       highestPlayer = player

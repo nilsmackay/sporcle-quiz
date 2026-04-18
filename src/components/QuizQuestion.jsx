@@ -81,7 +81,7 @@ export default function QuizQuestion({
         {/* Tip */}
         <div className="mt-5 pt-4 border-t border-[#D4CFC7]">
           <p className="text-[#6B6560] text-sm italic">
-            Pick the most obscure answer you think is correct. Type to search.
+            Pick the most obscure answer you think is correct. Lower percentage = better score!
           </p>
         </div>
       </div>

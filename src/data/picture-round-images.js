@@ -21,16 +21,16 @@ import a9 from './image-round/9/answer.jpg'
 import a10 from './image-round/10/answer.jpg'
 
 const PICTURE_ROUND_IMAGES = [
-  { image: q1, answerImage: a1, correctNumber: 958 },
-  { image: q2, answerImage: a2, correctNumber: 51 },
-  { image: q3, answerImage: a3, correctNumber: 1500 },
-  { image: q4, answerImage: a4, correctNumber: 23 },
-  { image: q5, answerImage: a5, correctNumber: 40 },
-  { image: q6, answerImage: a6, correctNumber: 5 },
-  { image: q7, answerImage: a7, correctNumber: 66 },
-  { image: q8, answerImage: a8, correctNumber: 10 },
-  { image: q9, answerImage: a9, correctNumber: 69 },
-  { image: q10, answerImage: a10, correctNumber: 9.75 },
+  { image: q1, answerImage: a1, correctNumber: 58, title: 'Usain Bolt' },
+  { image: q2, answerImage: a2, correctNumber: 51, title: 'Area 51' },
+  { image: q3, answerImage: a3, correctNumber: 1500, title: 'Titanic' },
+  { image: q4, answerImage: a4, correctNumber: 23, title: 'Air Jordan' },
+  { image: q5, answerImage: a5, correctNumber: 40, title: 'WD-40' },
+  { image: q6, answerImage: a6, correctNumber: 5, title: 'Chanel No5' },
+  { image: q7, answerImage: a7, correctNumber: 66, title: 'Route 66' },
+  { image: q8, answerImage: a8, correctNumber: 10, title: '10 Downing St' },
+  { image: q9, answerImage: a9, correctNumber: 69, title: 'Man On The Moon' },
+  { image: q10, answerImage: a10, correctNumber: 9.75, title: 'Harry Potter' },
 ]
 
 export default PICTURE_ROUND_IMAGES

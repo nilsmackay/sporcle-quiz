@@ -11,11 +11,14 @@ import SampleHitsterQuestion from './components/SampleHitsterQuestion'
 import SampleHitsterResults from './components/SampleHitsterResults'
 import PictureRoundQuestion from './components/PictureRoundQuestion'
 import PictureRoundResults from './components/PictureRoundResults'
+import BelieveItQuestion from './components/BelieveItQuestion'
+import BelieveItResults from './components/BelieveItResults'
 import PasswordGate from './components/PasswordGate'
 import themes from './data/themes.json'
 import YOUTUBE_VIDEOS from './data/youtube-videos.js'
 import PICTURE_ROUND_IMAGES from './data/picture-round-images.js'
 import SAMPLE_HITSTER_SONGS from './data/sample-hitster-songs.js'
+import BELIEVE_IT_STATEMENTS from './data/believe-it-statements.js'
 import { gameReducer, initialState, loadSavedState, saveState } from './gameReducer'
 import { getThemeById } from './utils/themes'
 
@@ -30,7 +33,8 @@ export default function App() {
   const {
     phase, players, selectedThemes, currentQuestionIndex, answers,
     showLeaderboard, isDynamicMode, dynamicQuestionCount, currentPicker,
-    playedThemes, dynamicAvailableThemes, youtubeVideoIndex,
+    playedThemes, dynamicAvailableThemes, believeItIndex,
+    believeItGuesses, youtubeVideoIndex,
     youtubeGuesses, pictureRoundIndex, pictureRoundGuesses,
     sampleHitsterIndex, sampleHitsterGuesses, sampleHitsterBonuses,
     multipliers, editReturnState, enabledRounds,
@@ -39,7 +43,7 @@ export default function App() {
   // Scroll to top on phase/question change
   useEffect(() => {
     window.scrollTo(0, 0)
-  }, [phase, currentQuestionIndex, youtubeVideoIndex, pictureRoundIndex, sampleHitsterIndex])
+  }, [phase, currentQuestionIndex, believeItIndex, youtubeVideoIndex, pictureRoundIndex, sampleHitsterIndex])
 
   // Derived state
   const activeThemes = isDynamicMode ? playedThemes : selectedThemes
@@ -50,14 +54,16 @@ export default function App() {
   const isLastQuestion = isDynamicMode
     ? playedThemes.length >= dynamicQuestionCount
     : currentQuestionIndex === selectedThemes.length - 1
+  const isLastBelieveItStatement = believeItIndex === BELIEVE_IT_STATEMENTS.length - 1
   const isLastYouTubeVideo = youtubeVideoIndex === YOUTUBE_VIDEOS.length - 1
   const isLastPicture = pictureRoundIndex === PICTURE_ROUND_IMAGES.length - 1
   const isLastSampleHitsterSong = sampleHitsterIndex === SAMPLE_HITSTER_SONGS.length - 1
   const isEditing = editReturnState !== null
+  const isBelieveItPhase = phase === 'believe-it-playing' || phase === 'believe-it-results' || phase === 'believe-it-standings'
   const isYouTubePhase = phase === 'youtube-playing' || phase === 'youtube-results' || phase === 'youtube-standings'
   const isPictureRoundPhase = phase === 'picture-round-playing' || phase === 'picture-round-results' || phase === 'picture-round-standings'
   const isSampleHitsterPhase = phase === 'sample-hitster-playing' || phase === 'sample-hitster-results' || phase === 'sample-hitster-standings'
-  const isPreSporclePhase = isYouTubePhase || isPictureRoundPhase || isSampleHitsterPhase
+  const isPreSporclePhase = isBelieveItPhase || isYouTubePhase || isPictureRoundPhase || isSampleHitsterPhase
 
   // Field setter helper — lets Setup use the same setX={setField('x')} interface
   const setField = (field) => (value) => dispatch({ type: 'SET_FIELD', field, value })
@@ -80,6 +86,8 @@ export default function App() {
         showLeaderboard={showLeaderboard}
         setShowLeaderboard={setField('showLeaderboard')}
         onNewGame={() => dispatch({ type: 'NEW_GAME' })}
+        believeItIndex={believeItIndex}
+        totalBelieveItStatements={BELIEVE_IT_STATEMENTS.length}
         youtubeVideoIndex={youtubeVideoIndex}
         totalYouTubeVideos={YOUTUBE_VIDEOS.length}
         pictureRoundIndex={pictureRoundIndex}
@@ -105,12 +113,75 @@ export default function App() {
             setCurrentPicker={setField('currentPicker')}
             dynamicAvailableThemes={dynamicAvailableThemes}
             setDynamicAvailableThemes={setField('dynamicAvailableThemes')}
+            believeItStatementCount={BELIEVE_IT_STATEMENTS.length - 1}
             youtubeVideoCount={YOUTUBE_VIDEOS.length}
             pictureRoundCount={PICTURE_ROUND_IMAGES.length}
             sampleHitsterSongCount={SAMPLE_HITSTER_SONGS.length}
             enabledRounds={enabledRounds}
             setEnabledRounds={setField('enabledRounds')}
           />
+        )}
+
+        {phase === 'believe-it-playing' && (
+          <BelieveItQuestion
+            players={players}
+            statement={BELIEVE_IT_STATEMENTS[believeItIndex]}
+            statementIndex={believeItIndex}
+            totalStatements={BELIEVE_IT_STATEMENTS.length}
+            onSubmitGuesses={(statementIndex, guesses) =>
+              dispatch({ type: 'SUBMIT_BELIEVE_IT_GUESSES', statementIndex, guesses })
+            }
+            isLastStatement={isLastBelieveItStatement}
+            isEditing={isEditing}
+            onSaveAndReturn={handleSaveAndReturn}
+            onCancelEdit={handleCancelEdit}
+            committedGuesses={believeItGuesses}
+          />
+        )}
+
+        {phase === 'believe-it-results' && (
+          <BelieveItResults
+            players={players}
+            statement={BELIEVE_IT_STATEMENTS[believeItIndex]}
+            guesses={
+              Object.fromEntries(
+                players.map(p => [p, believeItGuesses[p]?.[believeItIndex] ?? 0])
+              )
+            }
+            statementIndex={believeItIndex}
+            isExample={!!BELIEVE_IT_STATEMENTS[believeItIndex].isExample}
+            onContinue={() => dispatch({ type: 'SHOW_BELIEVE_IT_STANDINGS' })}
+            onSkipExample={() => dispatch({ type: 'BELIEVE_IT_SKIP_EXAMPLE' })}
+          />
+        )}
+
+        {phase === 'believe-it-standings' && (
+          <div className="w-fit max-w-full mx-auto px-3 sm:px-6 py-4 sm:py-6">
+            <Leaderboard
+              players={players}
+              answers={{}}
+              selectedThemes={[]}
+              themes={themes}
+              onClose={() => dispatch({ type: 'BELIEVE_IT_CONTINUE_FROM_STANDINGS' })}
+              isOverlay={false}
+              believeItGuesses={believeItGuesses}
+              believeItStatements={BELIEVE_IT_STATEMENTS}
+              onEditQuestion={handleEditQuestion}
+              defaultExpandedRound="believeIt"
+            />
+            <button
+              onClick={() => dispatch({ type: 'BELIEVE_IT_CONTINUE_FROM_STANDINGS' })}
+              className="w-full mt-4 btn-gold py-3 sm:py-4 font-bold text-base sm:text-lg"
+            >
+              {isLastBelieveItStatement
+                ? (enabledRounds.youtube ? 'Start Round 2: YouTube Views'
+                  : enabledRounds.pictureRound ? 'Start Round 2: Picture Round'
+                  : enabledRounds.sampleHitster ? 'Start Round 2: Sample Hitster'
+                  : enabledRounds.sporcle ? 'Start Round 2: The Sporcle Round'
+                  : 'Final Results')
+                : 'Next Statement'}
+            </button>
+          </div>
         )}
 
         {phase === 'youtube-playing' && (
@@ -153,6 +224,8 @@ export default function App() {
               themes={themes}
               onClose={() => dispatch({ type: 'YOUTUBE_CONTINUE_FROM_STANDINGS' })}
               isOverlay={false}
+              believeItGuesses={believeItGuesses}
+              believeItStatements={BELIEVE_IT_STATEMENTS}
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
               onEditQuestion={handleEditQuestion}
@@ -163,9 +236,9 @@ export default function App() {
               className="w-full mt-4 btn-gold py-3 sm:py-4 font-bold text-base sm:text-lg"
             >
               {isLastYouTubeVideo
-                ? (enabledRounds.pictureRound ? 'Start Round 2: Picture Round'
-                  : enabledRounds.sampleHitster ? 'Start Round 2: Sample Hitster'
-                  : enabledRounds.sporcle ? 'Start Round 2: The Sporcle Round'
+                ? (enabledRounds.pictureRound ? 'Start Round 3: Picture Round'
+                  : enabledRounds.sampleHitster ? 'Start Round 3: Sample Hitster'
+                  : enabledRounds.sporcle ? 'Start Round 3: The Sporcle Round'
                   : 'Final Results')
                 : 'Next Video'}
             </button>
@@ -212,6 +285,8 @@ export default function App() {
               themes={themes}
               onClose={() => dispatch({ type: 'PICTURE_ROUND_CONTINUE_FROM_STANDINGS' })}
               isOverlay={false}
+              believeItGuesses={believeItGuesses}
+              believeItStatements={BELIEVE_IT_STATEMENTS}
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
               pictureRoundGuesses={pictureRoundGuesses}
@@ -224,8 +299,8 @@ export default function App() {
               className="w-full mt-4 btn-gold py-3 sm:py-4 font-bold text-base sm:text-lg"
             >
               {isLastPicture
-                ? (enabledRounds.sampleHitster ? 'Start Round 3: Sample Hitster'
-                  : enabledRounds.sporcle ? 'Start Round 3: The Sporcle Round'
+                ? (enabledRounds.sampleHitster ? 'Start Round 4: Sample Hitster'
+                  : enabledRounds.sporcle ? 'Start Round 4: The Sporcle Round'
                   : 'Final Results')
                 : 'Next Picture'}
             </button>
@@ -283,6 +358,8 @@ export default function App() {
               themes={themes}
               onClose={() => dispatch({ type: 'SAMPLE_HITSTER_CONTINUE_FROM_STANDINGS' })}
               isOverlay={false}
+              believeItGuesses={believeItGuesses}
+              believeItStatements={BELIEVE_IT_STATEMENTS}
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
               pictureRoundGuesses={pictureRoundGuesses}
@@ -298,7 +375,7 @@ export default function App() {
               className="w-full mt-4 btn-gold py-3 sm:py-4 font-bold text-base sm:text-lg"
             >
               {isLastSampleHitsterSong
-                ? (enabledRounds.sporcle ? 'Start Round 4: The Sporcle Round' : 'Final Results')
+                ? (enabledRounds.sporcle ? 'Start Round 5: The Sporcle Round' : 'Final Results')
                 : 'Next Song'}
             </button>
           </div>
@@ -353,6 +430,8 @@ export default function App() {
               themes={themes}
               onClose={() => dispatch({ type: 'CONTINUE_FROM_STANDINGS' })}
               isOverlay={false}
+              believeItGuesses={believeItGuesses}
+              believeItStatements={BELIEVE_IT_STATEMENTS}
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
               pictureRoundGuesses={pictureRoundGuesses}
@@ -387,6 +466,8 @@ export default function App() {
               selectedThemes={activeThemes}
               themes={themes}
               isOverlay={false}
+              believeItGuesses={believeItGuesses}
+              believeItStatements={BELIEVE_IT_STATEMENTS}
               youtubeGuesses={youtubeGuesses}
               youtubeVideos={YOUTUBE_VIDEOS}
               pictureRoundGuesses={pictureRoundGuesses}
@@ -415,8 +496,10 @@ export default function App() {
           selectedThemes={isPreSporclePhase ? [] : activeThemes}
           themes={themes}
           onClose={() => dispatch({ type: 'SET_FIELD', field: 'showLeaderboard', value: false })}
-          youtubeGuesses={youtubeGuesses}
-          youtubeVideos={YOUTUBE_VIDEOS}
+          believeItGuesses={believeItGuesses}
+          believeItStatements={BELIEVE_IT_STATEMENTS}
+          youtubeGuesses={isBelieveItPhase ? {} : youtubeGuesses}
+          youtubeVideos={isBelieveItPhase ? [] : YOUTUBE_VIDEOS}
           pictureRoundGuesses={isPictureRoundPhase || isSampleHitsterPhase || !isPreSporclePhase ? pictureRoundGuesses : {}}
           pictureRoundImages={isPictureRoundPhase || isSampleHitsterPhase || !isPreSporclePhase ? PICTURE_ROUND_IMAGES : []}
           sampleHitsterGuesses={isSampleHitsterPhase || !isPreSporclePhase ? sampleHitsterGuesses : {}}
@@ -424,7 +507,7 @@ export default function App() {
           sampleHitsterBonuses={sampleHitsterBonuses}
           multipliers={isPreSporclePhase ? {} : multipliers}
           onEditQuestion={handleEditQuestion}
-          defaultExpandedRound={isYouTubePhase ? 'youtube' : isPictureRoundPhase ? 'pictureRound' : isSampleHitsterPhase ? 'sampleHitster' : 'sporcle'}
+          defaultExpandedRound={isBelieveItPhase ? 'believeIt' : isYouTubePhase ? 'youtube' : isPictureRoundPhase ? 'pictureRound' : isSampleHitsterPhase ? 'sampleHitster' : 'sporcle'}
         />
       )}
     </div>

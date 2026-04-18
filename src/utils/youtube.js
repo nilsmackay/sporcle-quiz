@@ -33,7 +33,7 @@ export function calculateYouTubeScore(guess, actual) {
   const safeGuess = Math.max(1, guess)
   const safeActual = Math.max(1, actual)
   const ratio = Math.max(safeGuess / safeActual, safeActual / safeGuess)
-  return Math.round(30 * Math.log10(ratio))
+  return Math.round(20 * Math.log10(ratio))
 }
 
 // Color for a YouTube score (integer): green (0-3) -> gold (3-10) -> red (10+)
@@ -42,7 +42,7 @@ export function getYouTubeScoreColor(score) {
   const gold = '#B8924A'
   const red = '#C23B22'
 
-  if (score <= 0) return { bg: green, text: 'white' }
+  if (score <= 0) return { bg: '#2563EB', text: 'white' }
   if (score <= 9) {
     const factor = score / 9
     return { bg: interpolateColor(green, gold, factor), text: 'white' }

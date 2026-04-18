@@ -16,40 +16,20 @@ export default function RoundResults({
   const minPercent = Math.min(...percentages)
   const maxPercent = Math.max(...percentages)
 
-  // Get all options sorted by percentage (lowest/best first)
-  const sortedOptions = [...currentTheme.options].sort((a, b) => a.percentage - b.percentage)
-
-  // Create a map of option name to rank
-  const optionRanks = {}
-  sortedOptions.forEach((opt, index) => {
-    optionRanks[opt.name] = index + 1
-  })
-
   // Get player results for this round, sorted by percentage (best first)
   const playerResults = players.map(player => {
     const answer = answers[player]?.[currentQuestionIndex]
     return {
       player,
       option: answer?.option || 'No answer',
-      percentage: answer?.percentage ?? 100,
-      rank: answer?.option === 'invalid' ? null : optionRanks[answer?.option] || null
+      percentage: answer?.percentage ?? 100
     }
   }).sort((a, b) => a.percentage - b.percentage)
 
   // Best 3 and worst 3 options
+  const sortedOptions = [...currentTheme.options].sort((a, b) => a.percentage - b.percentage)
   const best3 = sortedOptions.slice(0, 3)
   const worst3 = sortedOptions.slice(-3)
-
-  const getRankSuffix = (rank) => {
-    if (!rank) return ''
-    if (rank % 100 >= 11 && rank % 100 <= 13) return 'th'
-    switch (rank % 10) {
-      case 1: return 'st'
-      case 2: return 'nd'
-      case 3: return 'rd'
-      default: return 'th'
-    }
-  }
 
 
   return (
@@ -74,9 +54,7 @@ export default function RoundResults({
 
       {/* Player Results */}
       <div className="game-card p-6 mb-6">
-        <div className="flex items-center gap-3 mb-5">
-          <h3 className="text-xl font-display text-[#1A1A1A]">Player Picks</h3>
-        </div>
+        <h3 className="text-xl font-display text-[#1A1A1A] mb-5">Player Picks</h3>
 
         <div className="stagger-in">
           {playerResults.map((result, index) => (
@@ -98,16 +76,9 @@ export default function RoundResults({
 
               {/* Answer and score */}
               <div className="flex items-center gap-3 flex-shrink-0">
-                <div className="text-right">
-                  <span className="text-sm text-[#6B6560] block truncate max-w-[120px]">
-                    {result.option}
-                  </span>
-                  {result.rank && (
-                    <span className="text-xs text-[#6B6560] hidden sm:block">
-                      {result.rank}{getRankSuffix(result.rank)} most obscure
-                    </span>
-                  )}
-                </div>
+                <span className="text-sm text-[#6B6560] truncate max-w-[120px]">
+                  {result.option}
+                </span>
                 {(() => {
                   const colors = getPercentageColor(result.percentage, minPercent, maxPercent)
                   const bonus = calculateQuestionBonus(result.player, players, answers, currentQuestionIndex)
@@ -139,7 +110,7 @@ export default function RoundResults({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         {/* Best 3 */}
         <div className="game-card p-5">
-          <h4 className="font-display text-[#1A1A1A] mb-4">Most Obscure</h4>
+          <h4 className="font-display text-[#1A1A1A] mb-4">Best Answers</h4>
           <div className="space-y-2">
             {best3.map((opt, index) => (
               <div key={opt.name} className="flex items-center justify-between gap-2 text-sm">
@@ -155,7 +126,7 @@ export default function RoundResults({
 
         {/* Worst 3 */}
         <div className="game-card p-5">
-          <h4 className="font-display text-[#1A1A1A] mb-4">Most Common</h4>
+          <h4 className="font-display text-[#1A1A1A] mb-4">Worst Answers</h4>
           <div className="space-y-2">
             {worst3.map((opt, index) => (
               <div key={opt.name} className="flex items-center justify-between gap-2 text-sm">
@@ -167,6 +138,25 @@ export default function RoundResults({
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Full Answer List */}
+      <div className="game-card p-5 mb-6">
+        <h4 className="font-display text-[#1A1A1A] mb-4">All Answers</h4>
+        <div className="space-y-1">
+          {sortedOptions.map((opt, index) => {
+            const isPlayerPick = playerResults.some(r => r.option === opt.name)
+            return (
+              <div key={opt.name} className={`flex items-center justify-between gap-2 text-sm py-1 ${isPlayerPick ? 'font-bold' : ''}`}>
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-[#6B6560] w-5 text-right flex-shrink-0">{index + 1}.</span>
+                  <span className={`truncate ${isPlayerPick ? 'text-[#C23B22]' : 'text-[#1A1A1A]'}`}>{opt.name}</span>
+                </div>
+                <span className="text-[#6B6560] flex-shrink-0">{opt.percentage}%</span>
+              </div>
+            )
+          })}
         </div>
       </div>
 

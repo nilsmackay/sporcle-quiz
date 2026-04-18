@@ -3,9 +3,10 @@ import { createPortal } from 'react-dom'
 import { getPercentageColor, interpolateColor, badgeStyle } from '../utils/colors'
 import { calculateYouTubeScore, getYouTubeScoreColor, abbreviateViews } from '../utils/youtube'
 import { getThemeIcon, getThemeById } from '../utils/themes'
-import { calculateSporcleTotal as calcSporcle, calculateYouTubeTotal as calcYouTube, calculatePictureRoundTotal as calcPictureRound, calculateSampleHitsterTotal as calcSampleHitster, calculateGrandTotal as calcGrand, calculateQuestionBonus as calcQuestionBonus, calculateSporcleBonusTotal as calcSporcleBonusTotal } from '../utils/scoring'
+import { calculateSporcleTotal as calcSporcle, calculateYouTubeTotal as calcYouTube, calculatePictureRoundTotal as calcPictureRound, calculateSampleHitsterTotal as calcSampleHitster, calculateBelieveItTotal as calcBelieveIt, calculateGrandTotal as calcGrand, calculateQuestionBonus as calcQuestionBonus, calculateSporcleBonusTotal as calcSporcleBonusTotal, ROUND_WEIGHTS } from '../utils/scoring'
 import { calculatePictureRoundScore, getPictureRoundScoreColor } from '../utils/pictureRound'
 import { getSampleHitsterScoreColor } from '../utils/sampleHitster'
+import { calculateBelieveItScore, getBelieveItScoreColor } from '../utils/believeIt'
 
 // Tooltip for truncated text: hover on desktop, tap on mobile.
 // Renders via portal to avoid clipping by overflow-x-auto on the table.
@@ -67,6 +68,8 @@ export default function Leaderboard({
   themes,
   onClose,
   isOverlay = true,
+  believeItGuesses,
+  believeItStatements,
   youtubeGuesses,
   youtubeVideos,
   pictureRoundGuesses,
@@ -86,6 +89,7 @@ export default function Leaderboard({
 
   const toggleRound = (round) => setExpandedRound(prev => prev === round ? null : round)
 
+  const hasBelieveIt = believeItStatements && believeItStatements.length > 0 && believeItGuesses && Object.keys(believeItGuesses).length > 0
   const hasYouTube = youtubeVideos && youtubeVideos.length > 0 && youtubeGuesses && Object.keys(youtubeGuesses).length > 0
   const hasPictureRound = pictureRoundImages && pictureRoundImages.length > 0 && pictureRoundGuesses && Object.keys(pictureRoundGuesses).length > 0
   const hasSampleHitster = sampleHitsterSongs && sampleHitsterSongs.length > 0 && sampleHitsterGuesses && Object.keys(sampleHitsterGuesses).length > 0
@@ -99,11 +103,12 @@ export default function Leaderboard({
     return { minPercent: Math.min(...percentages), maxPercent: Math.max(...percentages) }
   }
 
+  const calculateBelieveItTotal = (player) => calcBelieveIt(player, believeItGuesses, believeItStatements)
   const calculateSporcleTotal = (player) => calcSporcle(player, answers, selectedThemes, multipliers)
   const calculateYouTubeTotal = (player) => calcYouTube(player, youtubeGuesses, youtubeVideos)
   const calculatePictureRoundTotal = (player) => calcPictureRound(player, pictureRoundGuesses, pictureRoundImages)
   const calculateSampleHitsterTotal = (player) => calcSampleHitster(player, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses)
-  const calculateGrandTotal = (player) => calcGrand(players, player, answers, selectedThemes, youtubeGuesses, youtubeVideos, pictureRoundGuesses, pictureRoundImages, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses, multipliers)
+  const calculateGrandTotal = (player) => calcGrand(players, player, answers, selectedThemes, youtubeGuesses, youtubeVideos, pictureRoundGuesses, pictureRoundImages, sampleHitsterGuesses, sampleHitsterSongs, sampleHitsterBonuses, multipliers, believeItGuesses, believeItStatements)
   const getQuestionBonus = (player, index) => calcQuestionBonus(player, players, answers, index)
   const getSporcleBonusTotal = (player) => calcSporcleBonusTotal(player, players, answers, selectedThemes)
 
@@ -166,6 +171,13 @@ export default function Leaderboard({
       )
     : []
 
+  const playedBelieveItIndices = hasBelieveIt
+    ? believeItStatements.map((_, i) => i).filter(i =>
+        !believeItStatements[i].isExample && players.some(p => believeItGuesses[p]?.[i] !== undefined)
+      )
+    : []
+
+  const believeItExpanded = expandedRound === 'believeIt'
   const youtubeExpanded = expandedRound === 'youtube'
   const pictureRoundExpanded = expandedRound === 'pictureRound'
   const sampleHitsterExpanded = expandedRound === 'sampleHitster'
@@ -183,7 +195,7 @@ export default function Leaderboard({
             <div>
               <h2 className="text-2xl font-display text-[#1A1A1A]">Leaderboard</h2>
               <p className="text-[#6B6560] text-sm">
-                {[hasYouTube, hasPictureRound, hasSampleHitster, hasSporcle].filter(Boolean).length > 1 ? 'Combined Standings' : hasYouTube ? 'YouTube Round' : hasPictureRound ? 'Picture Round' : hasSampleHitster ? 'Sample Hitster Round' : 'Final Standings'}
+                {[hasBelieveIt, hasYouTube, hasPictureRound, hasSampleHitster, hasSporcle].filter(Boolean).length > 1 ? 'Combined Standings' : hasBelieveIt ? 'Believe It Round' : hasYouTube ? 'YouTube Round' : hasPictureRound ? 'Picture Round' : hasSampleHitster ? 'Sample Hitster Round' : 'Final Standings'}
               </p>
             </div>
           </div>
@@ -205,6 +217,7 @@ export default function Leaderboard({
             <tr className="border-b-2 border-[#1A1A1A]">
               <th className="text-left py-3 px-3 font-display text-[#1A1A1A] text-sm" style={{ width: 'clamp(100px, 25vw, 200px)' }}>
               </th>
+              <th className="py-3 px-1 w-[40px]"></th>
               {sortedPlayers.map((player, idx) => {
                 const isLeader = calculateGrandTotal(player) === lowestScore
                 return (
@@ -226,8 +239,9 @@ export default function Leaderboard({
             {/* Grand Total row — immediately below player names */}
             <tr className="border-b-2 border-[#1A1A1A]">
               <td className="py-3 px-3 font-display text-[#C23B22] text-sm">
-                {[hasYouTube, hasPictureRound, hasSampleHitster, hasSporcle].filter(Boolean).length > 1 ? 'Grand Total' : 'Total'}
+                {[hasBelieveIt, hasYouTube, hasPictureRound, hasSampleHitster, hasSporcle].filter(Boolean).length > 1 ? 'Grand Total' : 'Total'}
               </td>
+              <td></td>
               {sortedPlayers.map(player => {
                 const grandTotal = calculateGrandTotal(player)
                 const isLeader = grandTotal === lowestScore
@@ -241,7 +255,7 @@ export default function Leaderboard({
               })}
             </tr>
 
-            {/* Sporcle round (Round 2 — most recent, shown first) */}
+            {/* Sporcle round (Round 5 — most recent, shown first) */}
             {hasSporcle && (
               <tr
                 className="border-b border-[#D4CFC7] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
@@ -254,14 +268,23 @@ export default function Leaderboard({
                     <span className="font-display text-sm text-[#1A1A1A]">Sporcle</span>
                   </div>
                 </td>
+                <td className="py-3 px-1 text-center">
+                  <span className="inline-flex items-center justify-center font-display text-xs border-2 border-[#1A1A1A] text-[#1A1A1A] rounded-full w-7 h-7 font-bold">
+                    ×{ROUND_WEIGHTS.sporcle}
+                  </span>
+                </td>
                 {sortedPlayers.map(player => {
                   const rawTotal = calculateSporcleTotal(player)
                   const bonusTotal = getSporcleBonusTotal(player)
                   const effectiveTotal = rawTotal + bonusTotal
+                  const weighted = ROUND_WEIGHTS.sporcle * effectiveTotal
                   const colors = getSporcleRelativeColor(effectiveTotal)
                   return (
                     <td key={player} className="py-3 px-2 text-center">
-                      <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{effectiveTotal}</span>
+                      <div className="flex flex-col items-center gap-0.5">
+                        <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{weighted}</span>
+                        <span className="text-xs text-[#6B6560]">{effectiveTotal} raw</span>
+                      </div>
                     </td>
                   )
                 })}
@@ -282,11 +305,18 @@ export default function Leaderboard({
                   <td className="py-2 px-3">
                     <div className="flex items-center gap-1.5 ml-4">
                       {onEditQuestion && <span className="text-xs text-[#B8924A] shrink-0 leading-none">&#9998;</span>}
-                      <TruncatedText text={theme?.name || ''} className="text-sm text-[#1A1A1A]" maxWidth="clamp(40px, 15vw, 200px)" />
-                      {multipliers[index] && multipliers[index] !== 1 && (
-                        <span className="text-xs font-display text-[#6B6560] shrink-0">{multipliers[index]}x</span>
-                      )}
+                      <div className="min-w-0">
+                        <TruncatedText text={theme?.name || ''} className="text-sm text-[#1A1A1A]" maxWidth="clamp(40px, 15vw, 200px)" />
+                        <span className="text-xs text-[#6B6560]">Best: {minPercent}%</span>
+                      </div>
                     </div>
+                  </td>
+                  <td className="py-2 px-1 text-center">
+                    {multipliers[index] && multipliers[index] !== 1 && (
+                      <span className="inline-flex items-center justify-center font-display text-[10px] border border-[#6B6560] text-[#6B6560] rounded-full w-6 h-6">
+                        {multipliers[index]}x
+                      </span>
+                    )}
                   </td>
                   {sortedPlayers.map(player => {
                     const answer = answers[player]?.[index]
@@ -302,7 +332,6 @@ export default function Leaderboard({
                               return (
                                 <span className="inline-flex items-center gap-1">
                                   <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '6px 7px' }}>{displayValue}%</span>
-                                  {m !== 1 && <span className="font-display px-1 py-0.5 border border-[#D4CFC7] text-[#6B6560]" style={{ borderRadius: '2px', fontSize: '8px' }}>{m}x</span>}
                                   {bonus < 0 && <span className="font-display px-1 py-0.5 border border-[#2D6A4F] text-[#2D6A4F]" style={{ borderRadius: '2px', fontSize: '8px' }}>{bonus}</span>}
                                 </span>
                               )
@@ -332,13 +361,22 @@ export default function Leaderboard({
                     <span className="font-display text-sm text-[#1A1A1A]">Sample Hitster</span>
                   </div>
                 </td>
+                <td className="py-3 px-1 text-center">
+                  <span className="inline-flex items-center justify-center font-display text-xs border-2 border-[#1A1A1A] text-[#1A1A1A] rounded-full w-7 h-7 font-bold">
+                    ×{ROUND_WEIGHTS.sampleHitster}
+                  </span>
+                </td>
                 {sortedPlayers.map(player => {
                   const shTotal = calculateSampleHitsterTotal(player)
+                  const weighted = ROUND_WEIGHTS.sampleHitster * shTotal
                   const avgScore = playedSongIndices.length > 0 ? shTotal / playedSongIndices.length : 0
                   const colors = getSampleHitsterScoreColor(avgScore)
                   return (
                     <td key={player} className="py-3 px-2 text-center">
-                      <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{shTotal}</span>
+                      <div className="flex flex-col items-center gap-0.5">
+                        <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{weighted}</span>
+                        <span className="text-xs text-[#6B6560]">{shTotal} raw</span>
+                      </div>
                     </td>
                   )
                 })}
@@ -357,9 +395,13 @@ export default function Leaderboard({
                   <td className="py-2 px-3">
                     <div className="flex items-center gap-1.5 ml-4">
                       {onEditQuestion && <span className="text-xs text-[#B8924A] shrink-0 leading-none">&#9998;</span>}
-                      <TruncatedText text={song.songTitle} className="text-sm text-[#1A1A1A]" maxWidth="clamp(40px, 15vw, 200px)" />
+                      <div className="min-w-0">
+                        <TruncatedText text={song.songTitle} className="text-sm text-[#1A1A1A]" maxWidth="clamp(40px, 15vw, 200px)" />
+                        <span className="text-xs text-[#6B6560]">{song.sampleYear}</span>
+                      </div>
                     </div>
                   </td>
+                  <td></td>
                   {sortedPlayers.map(player => {
                     const guess = sampleHitsterGuesses[player]?.[songIdx]
                     return (
@@ -398,13 +440,22 @@ export default function Leaderboard({
                     <span className="font-display text-sm text-[#1A1A1A]">Picture Round</span>
                   </div>
                 </td>
+                <td className="py-3 px-1 text-center">
+                  <span className="inline-flex items-center justify-center font-display text-xs border-2 border-[#1A1A1A] text-[#1A1A1A] rounded-full w-7 h-7 font-bold">
+                    ×{ROUND_WEIGHTS.pictureRound}
+                  </span>
+                </td>
                 {sortedPlayers.map(player => {
                   const prTotal = calculatePictureRoundTotal(player)
+                  const weighted = ROUND_WEIGHTS.pictureRound * prTotal
                   const avgScore = playedPictureIndices.length > 0 ? prTotal / playedPictureIndices.length : 0
                   const colors = getPictureRoundScoreColor(avgScore)
                   return (
                     <td key={player} className="py-3 px-2 text-center">
-                      <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{prTotal}</span>
+                      <div className="flex flex-col items-center gap-0.5">
+                        <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{weighted}</span>
+                        <span className="text-xs text-[#6B6560]">{prTotal} raw</span>
+                      </div>
                     </td>
                   )
                 })}
@@ -423,9 +474,13 @@ export default function Leaderboard({
                   <td className="py-2 px-3">
                     <div className="flex items-center gap-1.5 ml-4">
                       {onEditQuestion && <span className="text-xs text-[#B8924A] shrink-0 leading-none">&#9998;</span>}
-                      <TruncatedText text={picture.title} className="text-sm text-[#1A1A1A]" maxWidth="clamp(40px, 15vw, 200px)" />
+                      <div className="min-w-0">
+                        <TruncatedText text={picture.title} className="text-sm text-[#1A1A1A]" maxWidth="clamp(40px, 15vw, 200px)" />
+                        <span className="text-xs text-[#6B6560]">{picture.correctNumber}</span>
+                      </div>
                     </div>
                   </td>
+                  <td></td>
                   {sortedPlayers.map(player => {
                     const guess = pictureRoundGuesses[player]?.[picIdx]
                     return (
@@ -462,13 +517,22 @@ export default function Leaderboard({
                     <span className="font-display text-sm text-[#1A1A1A]">YouTube</span>
                   </div>
                 </td>
+                <td className="py-3 px-1 text-center">
+                  <span className="inline-flex items-center justify-center font-display text-xs border-2 border-[#1A1A1A] text-[#1A1A1A] rounded-full w-7 h-7 font-bold">
+                    ×{ROUND_WEIGHTS.youtube}
+                  </span>
+                </td>
                 {sortedPlayers.map(player => {
                   const ytTotal = calculateYouTubeTotal(player)
+                  const weighted = ROUND_WEIGHTS.youtube * ytTotal
                   const avgScore = getYouTubeAvgScore(player)
                   const colors = getYouTubeScoreColor(avgScore)
                   return (
                     <td key={player} className="py-3 px-2 text-center">
-                      <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{ytTotal}</span>
+                      <div className="flex flex-col items-center gap-0.5">
+                        <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{weighted}</span>
+                        <span className="text-xs text-[#6B6560]">{ytTotal} raw</span>
+                      </div>
                     </td>
                   )
                 })}
@@ -487,9 +551,13 @@ export default function Leaderboard({
                   <td className="py-2 px-3">
                     <div className="flex items-center gap-1.5 ml-4">
                       {onEditQuestion && <span className="text-xs text-[#B8924A] shrink-0 leading-none">&#9998;</span>}
-                      <TruncatedText text={video.title} className="text-sm text-[#1A1A1A]" maxWidth="clamp(40px, 15vw, 200px)" />
+                      <div className="min-w-0">
+                        <TruncatedText text={video.title} className="text-sm text-[#1A1A1A]" maxWidth="clamp(40px, 15vw, 200px)" />
+                        <span className="text-xs text-[#6B6560]">{abbreviateViews(video.views)}</span>
+                      </div>
                     </div>
                   </td>
+                  <td></td>
                   {sortedPlayers.map(player => {
                     const guess = youtubeGuesses[player]?.[vidIdx]
                     return (
@@ -512,6 +580,80 @@ export default function Leaderboard({
                 </tr>
               )
             })}
+
+            {/* Believe It round (Round 1 — earliest, shown last) */}
+            {hasBelieveIt && (
+              <tr
+                className="border-b border-[#D4CFC7] cursor-pointer hover:bg-[#F7F3ED] transition-colors select-none"
+                onClick={() => toggleRound('believeIt')}
+              >
+                <td className="py-3 px-3 whitespace-nowrap">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm shrink-0">{believeItExpanded ? '▾' : '▸'}</span>
+                    <span className="shrink-0">🤔</span>
+                    <span className="font-display text-sm text-[#1A1A1A]">Believe It</span>
+                  </div>
+                </td>
+                <td className="py-3 px-1 text-center">
+                  <span className="inline-flex items-center justify-center font-display text-xs border-2 border-[#1A1A1A] text-[#1A1A1A] rounded-full w-7 h-7 font-bold">
+                    ×{ROUND_WEIGHTS.believeIt}
+                  </span>
+                </td>
+                {sortedPlayers.map(player => {
+                  const biTotal = calculateBelieveItTotal(player)
+                  const weighted = ROUND_WEIGHTS.believeIt * biTotal
+                  const avgScore = playedBelieveItIndices.length > 0 ? biTotal / playedBelieveItIndices.length : 0
+                  const colors = getBelieveItScoreColor(avgScore)
+                  return (
+                    <td key={player} className="py-3 px-2 text-center">
+                      <div className="flex flex-col items-center gap-0.5">
+                        <span style={{ ...badgeStyle(colors), fontSize: '14px', padding: '4px 12px' }}>{weighted}</span>
+                        <span className="text-xs text-[#6B6560]">{biTotal} raw</span>
+                      </div>
+                    </td>
+                  )
+                })}
+              </tr>
+            )}
+
+            {/* Believe It expanded: per-statement rows (latest first, excluding example) */}
+            {hasBelieveIt && believeItExpanded && [...playedBelieveItIndices].reverse().map(stmtIdx => {
+              const stmt = believeItStatements[stmtIdx]
+              return (
+                <tr
+                  key={`bi-${stmtIdx}`}
+                  className={`border-b border-[#D4CFC7] ${onEditQuestion ? 'cursor-pointer hover:bg-[#F7F3ED]' : ''} transition-colors`}
+                  onClick={() => onEditQuestion?.('believeIt', stmtIdx)}
+                >
+                  <td className="py-2 px-3">
+                    <div className="flex items-center gap-1.5 ml-4">
+                      {onEditQuestion && <span className="text-xs text-[#B8924A] shrink-0 leading-none">&#9998;</span>}
+                      <TruncatedText text={`${stmt.shortName} (${stmt.isTrue ? 'T' : 'F'})`} className="text-sm text-[#1A1A1A]" maxWidth="clamp(40px, 15vw, 200px)" />
+                    </div>
+                  </td>
+                  <td></td>
+                  {sortedPlayers.map(player => {
+                    const guess = believeItGuesses[player]?.[stmtIdx]
+                    return (
+                      <td key={player} className="py-3 px-2 text-center">
+                        {guess !== undefined ? (
+                          <div className="flex flex-col items-center gap-1">
+                            {(() => {
+                              const score = calculateBelieveItScore(guess, stmt.isTrue)
+                              const colors = getBelieveItScoreColor(score)
+                              return <span style={{ ...badgeStyle(colors), fontSize: '10px', padding: '6px 7px' }}>{score}</span>
+                            })()}
+                            <span className="text-xs text-[#6B6560]">{guess}/10</span>
+                          </div>
+                        ) : (
+                          <span className="text-[#D4CFC7]">&mdash;</span>
+                        )}
+                      </td>
+                    )
+                  })}
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
@@ -519,15 +661,17 @@ export default function Leaderboard({
       {/* Footer */}
       <div className="p-4 border-t border-[#D4CFC7]">
         <p className="text-sm text-[#6B6560] text-center italic">
-          {[hasYouTube, hasPictureRound, hasSampleHitster, hasSporcle].filter(Boolean).length > 1
+          {[hasBelieveIt, hasYouTube, hasPictureRound, hasSampleHitster, hasSporcle].filter(Boolean).length > 1
             ? 'Lower scores win. All round scores combined.'
+            : hasBelieveIt
+            ? 'Lower scores win. 0 = perfect confidence.'
             : hasYouTube
             ? 'Lower scores win. 0 = perfect guess.'
             : hasPictureRound
             ? 'Lower scores win. 0 = exact number.'
             : hasSampleHitster
             ? 'Lower scores win. 0 = exact year.'
-            : 'Lower scores win. Invalid answers count as 100%.'}
+            : 'Lower scores win. 0% = most obscure answer.'}
         </p>
       </div>
     </div>

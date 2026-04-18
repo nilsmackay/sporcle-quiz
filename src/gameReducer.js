@@ -2,6 +2,7 @@ import themes from './data/themes.json'
 import YOUTUBE_VIDEOS from './data/youtube-videos.js'
 import SAMPLE_HITSTER_SONGS from './data/sample-hitster-songs.js'
 import PICTURE_ROUND_IMAGES from './data/picture-round-images.js'
+import BELIEVE_IT_STATEMENTS from './data/believe-it-statements.js'
 import { getHighestScorer } from './utils/scoring'
 
 const allThemeIds = themes.map(t => t.id)
@@ -12,6 +13,8 @@ export function loadSavedState() {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
       const parsed = JSON.parse(saved)
+      // Merge enabledRounds so new round toggles get their defaults
+      parsed.enabledRounds = { ...initialState.enabledRounds, ...parsed.enabledRounds }
       // Merge with initialState to handle any new fields added after save
       return { ...initialState, ...parsed }
     }
@@ -50,6 +53,9 @@ export const initialState = {
   currentPicker: '',
   playedThemes: [],
   dynamicAvailableThemes: allThemeIds,
+  // Believe It round
+  believeItIndex: 0,
+  believeItGuesses: {},
   // YouTube round
   youtubeVideoIndex: 0,
   youtubeGuesses: {},
@@ -65,7 +71,7 @@ export const initialState = {
   // Edit mode
   editReturnState: null,
   // Round toggles
-  enabledRounds: { youtube: true, pictureRound: true, sampleHitster: true, sporcle: true },
+  enabledRounds: { believeIt: true, youtube: true, pictureRound: true, sampleHitster: true, sporcle: true },
 }
 
 function getActiveThemes(state) {
@@ -79,7 +85,8 @@ function findWorstPlayer(state) {
     state.pictureRoundGuesses, PICTURE_ROUND_IMAGES,
     state.sampleHitsterGuesses, SAMPLE_HITSTER_SONGS,
     state.sampleHitsterBonuses,
-    state.multipliers
+    state.multipliers,
+    state.believeItGuesses, BELIEVE_IT_STATEMENTS
   )
 }
 
@@ -91,6 +98,8 @@ export function gameReducer(state, action) {
 
     case 'START_GAME': {
       const updates = {
+        believeItIndex: 0,
+        believeItGuesses: {},
         youtubeVideoIndex: 0,
         youtubeGuesses: {},
         pictureRoundIndex: 0,
@@ -105,7 +114,9 @@ export function gameReducer(state, action) {
       if (state.isDynamicMode) {
         updates.playedThemes = []
       }
-      if (state.enabledRounds.youtube) {
+      if (state.enabledRounds.believeIt) {
+        updates.phase = 'believe-it-playing'
+      } else if (state.enabledRounds.youtube) {
         updates.phase = 'youtube-playing'
       } else if (state.enabledRounds.pictureRound) {
         updates.phase = 'picture-round-playing'
@@ -120,6 +131,60 @@ export function gameReducer(state, action) {
         }
       }
       return { ...state, ...updates }
+    }
+
+    case 'SUBMIT_BELIEVE_IT_GUESSES': {
+      const { statementIndex, guesses: biGuesses } = action
+      const nextBI = { ...state.believeItGuesses }
+      for (const [player, guess] of Object.entries(biGuesses)) {
+        nextBI[player] = { ...nextBI[player], [statementIndex]: guess }
+      }
+      return {
+        ...state,
+        believeItGuesses: nextBI,
+        ...(state.editReturnState === null ? { phase: 'believe-it-results' } : {}),
+      }
+    }
+
+    case 'SHOW_BELIEVE_IT_STANDINGS':
+      return { ...state, phase: 'believe-it-standings' }
+
+    case 'BELIEVE_IT_SKIP_EXAMPLE':
+      return {
+        ...state,
+        believeItIndex: 1,
+        phase: 'believe-it-playing',
+      }
+
+    case 'BELIEVE_IT_CONTINUE_FROM_STANDINGS': {
+      const isLastStatement = state.believeItIndex === BELIEVE_IT_STATEMENTS.length - 1
+      if (isLastStatement) {
+        if (state.enabledRounds.youtube) {
+          return { ...state, phase: 'youtube-playing' }
+        }
+        if (state.enabledRounds.pictureRound) {
+          return { ...state, phase: 'picture-round-playing' }
+        }
+        if (state.enabledRounds.sampleHitster) {
+          return { ...state, phase: 'sample-hitster-playing' }
+        }
+        if (state.enabledRounds.sporcle) {
+          if (state.isDynamicMode) {
+            return {
+              ...state,
+              currentPicker: findWorstPlayer(state),
+              phase: 'picking',
+            }
+          }
+          return { ...state, phase: 'playing' }
+        }
+        return { ...state, phase: 'finished' }
+      }
+      return {
+        ...state,
+        believeItIndex: state.believeItIndex + 1,
+        phase: 'believe-it-playing',
+      }
     }
 
     case 'SUBMIT_YOUTUBE_GUESSES': {
@@ -185,9 +250,19 @@ export function gameReducer(state, action) {
       const editReturn = {
         phase: state.phase,
         questionIndex: state.currentQuestionIndex,
+        believeItIndex: state.believeItIndex,
         youtubeVideoIndex: state.youtubeVideoIndex,
         pictureRoundIndex: state.pictureRoundIndex,
         sampleHitsterIndex: state.sampleHitsterIndex,
+      }
+      if (questionType === 'believeIt') {
+        return {
+          ...state,
+          editReturnState: editReturn,
+          showLeaderboard: false,
+          believeItIndex: index,
+          phase: 'believe-it-playing',
+        }
       }
       if (questionType === 'youtube') {
         return {
@@ -232,6 +307,7 @@ export function gameReducer(state, action) {
         ...state,
         editReturnState: null,
         currentQuestionIndex: returnTo.questionIndex,
+        believeItIndex: returnTo.believeItIndex,
         youtubeVideoIndex: returnTo.youtubeVideoIndex,
         pictureRoundIndex: returnTo.pictureRoundIndex,
         sampleHitsterIndex: returnTo.sampleHitsterIndex,

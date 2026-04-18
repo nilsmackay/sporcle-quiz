@@ -18,13 +18,14 @@ export default function Setup({
   setCurrentPicker,
   dynamicAvailableThemes,
   setDynamicAvailableThemes,
+  believeItStatementCount,
   youtubeVideoCount,
   pictureRoundCount,
   sampleHitsterSongCount,
   enabledRounds,
   setEnabledRounds
 }) {
-  const hasEnabledRound = enabledRounds.youtube || enabledRounds.pictureRound || enabledRounds.sampleHitster || enabledRounds.sporcle
+  const hasEnabledRound = enabledRounds.believeIt || enabledRounds.youtube || enabledRounds.pictureRound || enabledRounds.sampleHitster || enabledRounds.sporcle
 
   const canStart = hasEnabledRound && (
     isDynamicMode
@@ -48,6 +49,7 @@ export default function Setup({
       <SetupRounds
         enabledRounds={enabledRounds}
         setEnabledRounds={setEnabledRounds}
+        believeItStatementCount={believeItStatementCount}
         youtubeVideoCount={youtubeVideoCount}
         pictureRoundCount={pictureRoundCount}
         sampleHitsterSongCount={sampleHitsterSongCount}
