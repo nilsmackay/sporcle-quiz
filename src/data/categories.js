@@ -12,7 +12,8 @@ const CATEGORIES = [
       'summer-olympics-gold',
       'winter-olympics-gold-medal-countries',
       'winter-olympics-2026-sports',
-      'summer-olympics-2024-sports'
+      'summer-olympics-2024-sports',
+      'premier-league-teams'
     ]
   },
   {
