@@ -7,7 +7,7 @@ import { calculateBelieveItScore } from './believeIt'
 export const ROUND_WEIGHTS = {
   believeIt: 5,
   youtube: 2,
-  pictureRound: 3,
+  pictureRound: 2,
   sampleHitster: 3,
   sporcle: 1,
 }
