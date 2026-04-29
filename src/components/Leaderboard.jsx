@@ -118,33 +118,21 @@ export default function Leaderboard({
 
   const lowestScore = sortedPlayers.length > 0 ? calculateGrandTotal(sortedPlayers[0]) : null
 
-  // Compute YouTube average score for color grading
-  const getYouTubeAvgScore = (player) => {
-    if (!hasYouTube) return 0
-    const total = calculateYouTubeTotal(player)
-    const count = youtubeVideos.filter((_, i) => youtubeGuesses[player]?.[i] !== undefined).length
-    return count > 0 ? total / count : 0
-  }
-
-  // Compute Sporcle total color based on player-relative range (including bonuses)
-  const getSporcleRelativeColor = (playerTotal) => {
-    if (!hasSporcle || sortedPlayers.length <= 1) return { bg: '#B8924A', text: 'white' }
-    const totals = sortedPlayers.map(p => calculateSporcleTotal(p) + getSporcleBonusTotal(p))
-    const min = Math.min(...totals)
-    const max = Math.max(...totals)
+  // Dynamic green→red color based on actual player scores for a round (lower = better = greener)
+  const getRoundRelativeColor = (playerTotal, allTotals) => {
+    if (allTotals.length <= 1) return { bg: '#2D6A4F', text: 'white' }
+    const min = Math.min(...allTotals)
+    const max = Math.max(...allTotals)
     if (min === max) return { bg: '#2D6A4F', text: 'white' }
     const factor = (playerTotal - min) / (max - min)
-    const green = '#2D6A4F'
-    const gold = '#B8924A'
-    const red = '#C23B22'
-    let bg
-    if (factor <= 0.5) {
-      bg = interpolateColor(green, gold, factor * 2)
-    } else {
-      bg = interpolateColor(gold, red, (factor - 0.5) * 2)
-    }
-    return { bg, text: 'white' }
+    return { bg: interpolateColor('#2D6A4F', '#C23B22', factor), text: 'white' }
   }
+
+  const ytAllTotals = hasYouTube ? sortedPlayers.map(p => calculateYouTubeTotal(p)) : []
+  const shAllTotals = hasSampleHitster ? sortedPlayers.map(p => calculateSampleHitsterTotal(p)) : []
+  const prAllTotals = hasPictureRound ? sortedPlayers.map(p => calculatePictureRoundTotal(p)) : []
+  const biAllTotals = hasBelieveIt ? sortedPlayers.map(p => calculateBelieveItTotal(p)) : []
+  const spAllTotals = hasSporcle ? sortedPlayers.map(p => calculateSporcleTotal(p) + getSporcleBonusTotal(p)) : []
 
   // Only show rows for questions that have actually been played
   const playedVideoIndices = hasYouTube
@@ -278,7 +266,7 @@ export default function Leaderboard({
                   const bonusTotal = getSporcleBonusTotal(player)
                   const effectiveTotal = rawTotal + bonusTotal
                   const weighted = ROUND_WEIGHTS.sporcle * effectiveTotal
-                  const colors = getSporcleRelativeColor(effectiveTotal)
+                  const colors = getRoundRelativeColor(effectiveTotal, spAllTotals)
                   return (
                     <td key={player} className="py-3 px-2 text-center">
                       <div className="flex flex-col items-center gap-0.5">
@@ -369,8 +357,7 @@ export default function Leaderboard({
                 {sortedPlayers.map(player => {
                   const shTotal = calculateSampleHitsterTotal(player)
                   const weighted = ROUND_WEIGHTS.sampleHitster * shTotal
-                  const avgScore = playedSongIndices.length > 0 ? shTotal / playedSongIndices.length : 0
-                  const colors = getSampleHitsterScoreColor(avgScore)
+                  const colors = getRoundRelativeColor(shTotal, shAllTotals)
                   return (
                     <td key={player} className="py-3 px-2 text-center">
                       <div className="flex flex-col items-center gap-0.5">
@@ -448,8 +435,7 @@ export default function Leaderboard({
                 {sortedPlayers.map(player => {
                   const prTotal = calculatePictureRoundTotal(player)
                   const weighted = ROUND_WEIGHTS.pictureRound * prTotal
-                  const avgScore = playedPictureIndices.length > 0 ? prTotal / playedPictureIndices.length : 0
-                  const colors = getPictureRoundScoreColor(avgScore)
+                  const colors = getRoundRelativeColor(prTotal, prAllTotals)
                   return (
                     <td key={player} className="py-3 px-2 text-center">
                       <div className="flex flex-col items-center gap-0.5">
@@ -525,8 +511,7 @@ export default function Leaderboard({
                 {sortedPlayers.map(player => {
                   const ytTotal = calculateYouTubeTotal(player)
                   const weighted = ROUND_WEIGHTS.youtube * ytTotal
-                  const avgScore = getYouTubeAvgScore(player)
-                  const colors = getYouTubeScoreColor(avgScore)
+                  const colors = getRoundRelativeColor(ytTotal, ytAllTotals)
                   return (
                     <td key={player} className="py-3 px-2 text-center">
                       <div className="flex flex-col items-center gap-0.5">
@@ -602,8 +587,7 @@ export default function Leaderboard({
                 {sortedPlayers.map(player => {
                   const biTotal = calculateBelieveItTotal(player)
                   const weighted = ROUND_WEIGHTS.believeIt * biTotal
-                  const avgScore = playedBelieveItIndices.length > 0 ? biTotal / playedBelieveItIndices.length : 0
-                  const colors = getBelieveItScoreColor(avgScore)
+                  const colors = getRoundRelativeColor(biTotal, biAllTotals)
                   return (
                     <td key={player} className="py-3 px-2 text-center">
                       <div className="flex flex-col items-center gap-0.5">
