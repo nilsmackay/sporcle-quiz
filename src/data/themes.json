@@ -1376,8 +1376,8 @@
     ]
   },
   {
-    "id": "summer-olympics-2026-sports",
-    "name": "2026 Summer Olympics Sports",
+    "id": "summer-olympics-2024-sports",
+    "name": "2024 Summer Olympics Sports",
     "options": [
       { "name": "Aquatics", "percentage": 96.7 },
       { "name": "Athletics", "percentage": 93.2 },
