@@ -2,6 +2,7 @@ import React from 'react'
 import SetupRounds from './setup/SetupRounds'
 import SetupPlayers from './setup/SetupPlayers'
 import SetupSporcleConfig from './setup/SetupSporcleConfig'
+import SetupYouTubeConfig from './setup/SetupYouTubeConfig'
 
 export default function Setup({
   themes,
@@ -23,11 +24,15 @@ export default function Setup({
   pictureRoundCount,
   sampleHitsterSongCount,
   enabledRounds,
-  setEnabledRounds
+  setEnabledRounds,
+  allYoutubeVideos,
+  selectedYoutubeIndices,
+  setSelectedYoutubeIndices
 }) {
   const hasEnabledRound = enabledRounds.believeIt || enabledRounds.youtube || enabledRounds.pictureRound || enabledRounds.sampleHitster || enabledRounds.sporcle
+  const youtubeReady = !enabledRounds.youtube || selectedYoutubeIndices.length > 0
 
-  const canStart = hasEnabledRound && (
+  const canStart = hasEnabledRound && youtubeReady && (
     isDynamicMode
       ? players.length > 0 && (!enabledRounds.sporcle || (dynamicQuestionCount > 0 && dynamicQuestionCount <= dynamicAvailableThemes.length && dynamicAvailableThemes.length > 0))
       : players.length > 0 && (!enabledRounds.sporcle || selectedThemes.length > 0)
@@ -54,6 +59,14 @@ export default function Setup({
         pictureRoundCount={pictureRoundCount}
         sampleHitsterSongCount={sampleHitsterSongCount}
       />
+
+      {enabledRounds.youtube && (
+        <SetupYouTubeConfig
+          allYoutubeVideos={allYoutubeVideos}
+          selectedYoutubeIndices={selectedYoutubeIndices}
+          setSelectedYoutubeIndices={setSelectedYoutubeIndices}
+        />
+      )}
 
       <SetupPlayers
         players={players}
@@ -88,6 +101,8 @@ export default function Setup({
               ? 'Select at least one round'
               : players.length === 0
               ? 'Add at least one contestant'
+              : !youtubeReady
+              ? 'Select at least one YouTube video'
               : enabledRounds.sporcle && isDynamicMode
               ? 'Configure rounds & theme pool'
               : enabledRounds.sporcle && !isDynamicMode

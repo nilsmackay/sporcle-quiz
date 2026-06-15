@@ -1,10 +1,10 @@
 import { interpolateColor } from './colors'
 
-// Score = percentOff^0.75. Exact = -5 (bonus).
+// Score = percentOff^0.75, capped at 25. Exact = -5 (bonus).
 export function calculatePictureRoundScore(guess, correctNumber) {
   if (guess === correctNumber) return -5
   const percentOff = Math.abs(guess - correctNumber) / Math.abs(correctNumber) * 100
-  return Math.round(Math.pow(percentOff, 0.75))
+  return Math.min(25, Math.round(Math.pow(percentOff, 0.75)))
 }
 
 // Color grading: green (0-10), gold (10-30), red (30+)
