@@ -6,7 +6,15 @@ import BELIEVE_IT_STATEMENTS from './data/believe-it-statements.js'
 import { getHighestScorer } from './utils/scoring'
 
 const allThemeIds = themes.map(t => t.id)
+const allYoutubeIndices = YOUTUBE_VIDEOS.map((_, i) => i)
 const STORAGE_KEY = 'sporcle-quiz-state'
+
+// Map selected indices (into YOUTUBE_VIDEOS) to the active subset of video objects,
+// preserving master order and dropping any stale/out-of-range indices.
+export function selectYoutubeVideos(indices) {
+  const list = indices ?? allYoutubeIndices
+  return list.filter(i => i >= 0 && i < YOUTUBE_VIDEOS.length).map(i => YOUTUBE_VIDEOS[i])
+}
 
 export function loadSavedState() {
   try {
@@ -59,6 +67,7 @@ export const initialState = {
   // YouTube round
   youtubeVideoIndex: 0,
   youtubeGuesses: {},
+  selectedYoutubeIndices: allYoutubeIndices,
   // Picture round
   pictureRoundIndex: 0,
   pictureRoundGuesses: {},
@@ -81,7 +90,7 @@ function getActiveThemes(state) {
 function findWorstPlayer(state) {
   return getHighestScorer(
     state.players, state.answers, getActiveThemes(state),
-    state.youtubeGuesses, YOUTUBE_VIDEOS,
+    state.youtubeGuesses, selectYoutubeVideos(state.selectedYoutubeIndices),
     state.pictureRoundGuesses, PICTURE_ROUND_IMAGES,
     state.sampleHitsterGuesses, SAMPLE_HITSTER_SONGS,
     state.sampleHitsterBonuses,
@@ -316,7 +325,7 @@ export function gameReducer(state, action) {
     }
 
     case 'YOUTUBE_CONTINUE_FROM_STANDINGS': {
-      const isLastVideo = state.youtubeVideoIndex === YOUTUBE_VIDEOS.length - 1
+      const isLastVideo = state.youtubeVideoIndex === selectYoutubeVideos(state.selectedYoutubeIndices).length - 1
       if (isLastVideo) {
         if (state.enabledRounds.pictureRound) {
           return { ...state, phase: 'picture-round-playing' }

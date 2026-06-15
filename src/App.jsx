@@ -19,7 +19,7 @@ import YOUTUBE_VIDEOS from './data/youtube-videos.js'
 import PICTURE_ROUND_IMAGES from './data/picture-round-images.js'
 import SAMPLE_HITSTER_SONGS from './data/sample-hitster-songs.js'
 import BELIEVE_IT_STATEMENTS from './data/believe-it-statements.js'
-import { gameReducer, initialState, loadSavedState, saveState } from './gameReducer'
+import { gameReducer, initialState, loadSavedState, saveState, selectYoutubeVideos } from './gameReducer'
 import { getThemeById } from './utils/themes'
 
 export default function App() {
@@ -35,7 +35,7 @@ export default function App() {
     showLeaderboard, isDynamicMode, dynamicQuestionCount, currentPicker,
     playedThemes, dynamicAvailableThemes, believeItIndex,
     believeItGuesses, youtubeVideoIndex,
-    youtubeGuesses, pictureRoundIndex, pictureRoundGuesses,
+    youtubeGuesses, selectedYoutubeIndices, pictureRoundIndex, pictureRoundGuesses,
     sampleHitsterIndex, sampleHitsterGuesses, sampleHitsterBonuses,
     multipliers, editReturnState, enabledRounds,
   } = state
@@ -46,6 +46,7 @@ export default function App() {
   }, [phase, currentQuestionIndex, believeItIndex, youtubeVideoIndex, pictureRoundIndex, sampleHitsterIndex])
 
   // Derived state
+  const youtubeVideos = selectYoutubeVideos(selectedYoutubeIndices)
   const activeThemes = isDynamicMode ? playedThemes : selectedThemes
   const currentTheme = activeThemes[currentQuestionIndex]
     ? getThemeById(activeThemes[currentQuestionIndex])
@@ -55,7 +56,7 @@ export default function App() {
     ? playedThemes.length >= dynamicQuestionCount
     : currentQuestionIndex === selectedThemes.length - 1
   const isLastBelieveItStatement = believeItIndex === BELIEVE_IT_STATEMENTS.length - 1
-  const isLastYouTubeVideo = youtubeVideoIndex === YOUTUBE_VIDEOS.length - 1
+  const isLastYouTubeVideo = youtubeVideoIndex === youtubeVideos.length - 1
   const isLastPicture = pictureRoundIndex === PICTURE_ROUND_IMAGES.length - 1
   const isLastSampleHitsterSong = sampleHitsterIndex === SAMPLE_HITSTER_SONGS.length - 1
   const isEditing = editReturnState !== null
@@ -89,7 +90,7 @@ export default function App() {
         believeItIndex={believeItIndex}
         totalBelieveItStatements={BELIEVE_IT_STATEMENTS.length}
         youtubeVideoIndex={youtubeVideoIndex}
-        totalYouTubeVideos={YOUTUBE_VIDEOS.length}
+        totalYouTubeVideos={youtubeVideos.length}
         pictureRoundIndex={pictureRoundIndex}
         totalPictureRoundImages={PICTURE_ROUND_IMAGES.length}
         sampleHitsterIndex={sampleHitsterIndex}
@@ -114,11 +115,14 @@ export default function App() {
             dynamicAvailableThemes={dynamicAvailableThemes}
             setDynamicAvailableThemes={setField('dynamicAvailableThemes')}
             believeItStatementCount={BELIEVE_IT_STATEMENTS.length - 1}
-            youtubeVideoCount={YOUTUBE_VIDEOS.length}
+            youtubeVideoCount={youtubeVideos.length}
             pictureRoundCount={PICTURE_ROUND_IMAGES.length}
             sampleHitsterSongCount={SAMPLE_HITSTER_SONGS.length}
             enabledRounds={enabledRounds}
             setEnabledRounds={setField('enabledRounds')}
+            allYoutubeVideos={YOUTUBE_VIDEOS}
+            selectedYoutubeIndices={selectedYoutubeIndices}
+            setSelectedYoutubeIndices={setField('selectedYoutubeIndices')}
           />
         )}
 
@@ -187,9 +191,9 @@ export default function App() {
         {phase === 'youtube-playing' && (
           <YouTubeQuestion
             players={players}
-            video={YOUTUBE_VIDEOS[youtubeVideoIndex]}
+            video={youtubeVideos[youtubeVideoIndex]}
             videoIndex={youtubeVideoIndex}
-            totalVideos={YOUTUBE_VIDEOS.length}
+            totalVideos={youtubeVideos.length}
             onSubmitGuesses={(videoIndex, guesses) =>
               dispatch({ type: 'SUBMIT_YOUTUBE_GUESSES', videoIndex, guesses })
             }
@@ -204,7 +208,7 @@ export default function App() {
         {phase === 'youtube-results' && (
           <YouTubeResults
             players={players}
-            video={YOUTUBE_VIDEOS[youtubeVideoIndex]}
+            video={youtubeVideos[youtubeVideoIndex]}
             guesses={
               Object.fromEntries(
                 players.map(p => [p, youtubeGuesses[p]?.[youtubeVideoIndex] ?? 0])
@@ -227,7 +231,7 @@ export default function App() {
               believeItGuesses={believeItGuesses}
               believeItStatements={BELIEVE_IT_STATEMENTS}
               youtubeGuesses={youtubeGuesses}
-              youtubeVideos={YOUTUBE_VIDEOS}
+              youtubeVideos={youtubeVideos}
               onEditQuestion={handleEditQuestion}
               defaultExpandedRound="youtube"
             />
@@ -288,7 +292,7 @@ export default function App() {
               believeItGuesses={believeItGuesses}
               believeItStatements={BELIEVE_IT_STATEMENTS}
               youtubeGuesses={youtubeGuesses}
-              youtubeVideos={YOUTUBE_VIDEOS}
+              youtubeVideos={youtubeVideos}
               pictureRoundGuesses={pictureRoundGuesses}
               pictureRoundImages={PICTURE_ROUND_IMAGES}
               onEditQuestion={handleEditQuestion}
@@ -361,7 +365,7 @@ export default function App() {
               believeItGuesses={believeItGuesses}
               believeItStatements={BELIEVE_IT_STATEMENTS}
               youtubeGuesses={youtubeGuesses}
-              youtubeVideos={YOUTUBE_VIDEOS}
+              youtubeVideos={youtubeVideos}
               pictureRoundGuesses={pictureRoundGuesses}
               pictureRoundImages={PICTURE_ROUND_IMAGES}
               sampleHitsterGuesses={sampleHitsterGuesses}
@@ -433,7 +437,7 @@ export default function App() {
               believeItGuesses={believeItGuesses}
               believeItStatements={BELIEVE_IT_STATEMENTS}
               youtubeGuesses={youtubeGuesses}
-              youtubeVideos={YOUTUBE_VIDEOS}
+              youtubeVideos={youtubeVideos}
               pictureRoundGuesses={pictureRoundGuesses}
               pictureRoundImages={PICTURE_ROUND_IMAGES}
               sampleHitsterGuesses={sampleHitsterGuesses}
@@ -469,7 +473,7 @@ export default function App() {
               believeItGuesses={believeItGuesses}
               believeItStatements={BELIEVE_IT_STATEMENTS}
               youtubeGuesses={youtubeGuesses}
-              youtubeVideos={YOUTUBE_VIDEOS}
+              youtubeVideos={youtubeVideos}
               pictureRoundGuesses={pictureRoundGuesses}
               pictureRoundImages={PICTURE_ROUND_IMAGES}
               sampleHitsterGuesses={sampleHitsterGuesses}
@@ -499,7 +503,7 @@ export default function App() {
           believeItGuesses={believeItGuesses}
           believeItStatements={BELIEVE_IT_STATEMENTS}
           youtubeGuesses={isBelieveItPhase ? {} : youtubeGuesses}
-          youtubeVideos={isBelieveItPhase ? [] : YOUTUBE_VIDEOS}
+          youtubeVideos={isBelieveItPhase ? [] : youtubeVideos}
           pictureRoundGuesses={isPictureRoundPhase || isSampleHitsterPhase || !isPreSporclePhase ? pictureRoundGuesses : {}}
           pictureRoundImages={isPictureRoundPhase || isSampleHitsterPhase || !isPreSporclePhase ? PICTURE_ROUND_IMAGES : []}
           sampleHitsterGuesses={isSampleHitsterPhase || !isPreSporclePhase ? sampleHitsterGuesses : {}}
