@@ -1,6 +1,6 @@
 const YOUTUBE_VIDEOS = [
   {
-    url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
+    url: 'https://youtu.be/n61ULEU7CO0',
     title: 'lofi hip hop radio 📚 beats to relax/study to',
     views: 624_000_000,
   },

@@ -28,12 +28,12 @@ export function abbreviateViews(num) {
   return num.toString()
 }
 
-// Score = log-scaled integer. 0 = perfect, 3 ≈ 2x off, 10 = 10x off, 20 = 100x off
+// Score = log-scaled integer, capped at 25. 0 = perfect, 3 ≈ 2x off, 10 = 10x off, 20 = 100x off
 export function calculateYouTubeScore(guess, actual) {
   const safeGuess = Math.max(1, guess)
   const safeActual = Math.max(1, actual)
   const ratio = Math.max(safeGuess / safeActual, safeActual / safeGuess)
-  return Math.round(20 * Math.log10(ratio))
+  return Math.min(25, Math.round(20 * Math.log10(ratio)))
 }
 
 // Color for a YouTube score (integer): green (0-3) -> gold (3-10) -> red (10+)
